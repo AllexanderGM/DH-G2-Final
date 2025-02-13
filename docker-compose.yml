@@ -7,7 +7,7 @@ services:
         restart: always
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: plataforma_db
+            MYSQL_DATABASE: plataforma_db_digital
             MYSQL_USER: admin
             MYSQL_PASSWORD: admin123
         ports:
