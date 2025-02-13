@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+    mysql:
+        image: mysql:8.0
+        container_name: mysql_db
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: plataforma_db
+            MYSQL_USER: admin
+            MYSQL_PASSWORD: admin123
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+
+    backend:
+        build: ./backend
+        container_name: spring_boot_app
+        restart: always
+        environment:
+            SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/plataforma_db?serverTimezone=UTC
+            SPRING_DATASOURCE_USERNAME: admin
+            SPRING_DATASOURCE_PASSWORD: admin123
+            AWS_S3_BUCKET: mi-bucket-s3
+        ports:
+            - "8080:8080"
+        depends_on:
+            - mysql
+
+    frontend:
+        build: ./frontend
+        container_name: react_app
+        restart: always
+        ports:
+            - "3000:3000"
+        depends_on:
+            - backend
+
+volumes:
+    mysql_data:
