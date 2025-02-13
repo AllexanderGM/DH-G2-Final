@@ -1,14 +1,13 @@
 import { Button } from '@heroui/react'
 import Component from '@components/Component'
+import Header from '@components/Header'
 
 function App() {
   return (
-    <>
-      <h1>Hola desde React con Hero UI</h1>
-      <Button color="primary">Button</Button>
-      <hr />
+    <> 
+    <Header />
 
-      <Component />
+     
     </>
   )
 }
