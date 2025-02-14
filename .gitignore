@@ -157,7 +157,10 @@ logs
 **/*.back.*
 
 node_modules
+<<<<<<< HEAD
 bower_components
+=======
+>>>>>>> development
 
 *.sublime*
 
