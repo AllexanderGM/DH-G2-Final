@@ -11,7 +11,8 @@ const Header = () => {
         "Crear Usuario",
         "Iniciar Sesion"
       ];
-    
+      const img = new URL(`../assets/Logo/logo_navbar/png/logo_nav_320.png`, import.meta.url).href;
+      console.log(img);
 
 /*Primera parte es de Web, la segunda parte es Mobil*/
     return (
@@ -22,7 +23,7 @@ const Header = () => {
         </NavbarContent>
 
         <NavbarBrand>
-          <p className="font-bold text-inherit">GLOCAL GUIDE</p>
+          <img src={img}></img>
         </NavbarBrand>
         <NavbarContent className="hidden sm:flex " justify="end">
         <NavbarItem >
