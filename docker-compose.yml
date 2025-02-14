@@ -1,5 +1,7 @@
-version: "3.8"
-
+networks:
+    app-network:
+        driver: bridge
+        
 services:
     mysql:
         image: mysql:8.0
