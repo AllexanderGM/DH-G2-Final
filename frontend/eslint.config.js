@@ -92,7 +92,7 @@ export default [
       'max-params': ['warn', 5],
 
       'new-cap': ['error', { properties: false }],
-      'no-console': 'error',
+      'no-console': 'off',
       'no-negated-condition': 'off',
       'object-curly-spacing': ['error', 'always'],
       'operator-linebreak': 'off',
