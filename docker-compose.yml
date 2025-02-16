@@ -1,44 +1,53 @@
 networks:
     app-network:
         driver: bridge
-        
-services:
-    mysql:
-        image: mysql:8.0
-        container_name: mysql_db
-        restart: always
-        environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: plataforma_db_digital
-            MYSQL_USER: admin
-            MYSQL_PASSWORD: admin123
-        ports:
-            - "3306:3306"
-        volumes:
-            - mysql_data:/var/lib/mysql
-
-    backend:
-        build: ./backend
-        container_name: spring_boot_app
-        restart: always
-        environment:
-            SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/plataforma_db?serverTimezone=UTC
-            SPRING_DATASOURCE_USERNAME: admin
-            SPRING_DATASOURCE_PASSWORD: admin123
-            AWS_S3_BUCKET: mi-bucket-s3
-        ports:
-            - "8080:8080"
-        depends_on:
-            - mysql
-
-    frontend:
-        build: ./frontend
-        container_name: react_app
-        restart: always
-        ports:
-            - "3000:3000"
-        depends_on:
-            - backend
 
 volumes:
     mysql_data:
+
+services:
+    mysql:
+        container_name: "${NAME}-mysql_db"
+        image: mysql:8.0
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+            MYSQL_DATABASE: "${DB_NAME}"
+            MYSQL_USER: "${DB_USER}"
+            MYSQL_PASSWORD: "${DB_PASSWORD}"
+        ports:
+            - "3307:${DB_PORT}"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - app-network
+
+    backend:
+        container_name: "${NAME}-backend_spring_boot"
+        restart: always
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        env_file:
+            - ./backend/.env
+        ports:
+            - "${PORT_BACK}:${PORT_BACK}"
+        depends_on:
+            - mysql
+        networks:
+            - app-network
+
+    frontend:
+        container_name: "${NAME}-frontend_react"
+        restart: always
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        env_file:
+            - ./frontend/.env
+        ports:
+            - "${PORT_FRONT}:80"
+        depends_on:
+            - backend
+        networks:
+            - app-network

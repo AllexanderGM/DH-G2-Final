@@ -1,20 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
-# 🔹 Variable global para prefijo
-variable "prefix" {
-  description = "Prefijo para los recursos de AWS"
-  type        = string
-  default     = "DH_G2_final"
-}
-
-variable "db_password" {
-  description = "Contraseña segura para la base de datos"
-  type        = string
-  sensitive   = true
-}
-
 # 🔹 VPC
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
@@ -91,42 +74,6 @@ resource "aws_security_group" "sg" {
   }
 }
 
-# 🔹 EC2 para backend
-resource "aws_instance" "backend" {
-  ami             = "ami-0c55b159cbfafe1f0" # ✅ AMI de Amazon Linux 2
-  instance_type   = "t2.micro"
-  key_name        = "mi-clave-aws" # ❗ Asegúrate de tener esta clave creada en AWS
-  security_groups = [aws_security_group.sg.name]
-  subnet_id       = aws_subnet.private.id # ❗ Está en la subred privada, sin acceso directo a Internet
-
-  user_data = <<-EOF
-    #!/bin/bash
-    sudo yum update -y
-    sudo yum install -y docker
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    sudo docker run -d -p 8080:8080 usuario/backend # ❗ Reemplazar con imagen real de Docker Hub
-  EOF
-
-  tags = { Name = "${var.prefix}-Backend" }
-}
-
-# 🔹 Base de datos MySQL en RDS
-resource "aws_db_instance" "db" {
-  identifier           = "${var.prefix}-DB"
-  allocated_storage    = 20
-  engine              = "mysql"
-  engine_version      = "8.0"
-  instance_class      = "db.t3.micro"
-  username           = "admin"
-  password           = var.db_password
-  publicly_accessible = false # ✅ No accesible desde Internet
-  skip_final_snapshot = true
-  vpc_security_group_ids = [aws_security_group.sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
-
-  tags = { Name = "${var.prefix}-RDS" }
-}
 
 # 🔹 Subnet Group para RDS
 resource "aws_db_subnet_group" "db_subnet_group" {
@@ -135,31 +82,3 @@ resource "aws_db_subnet_group" "db_subnet_group" {
   tags       = { Name = "${var.prefix}-DB-Subnet" }
 }
 
-# 🔹 Bucket S3 para frontend
-resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.prefix}-frontend"
-  tags   = { Name = "${var.prefix}-Frontend-S3" }
-}
-
-resource "aws_s3_bucket_public_access_block" "frontend_public" {
-  bucket = aws_s3_bucket.frontend.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false # ❗ Permite público, revisar configuraciones de seguridad
-}
-
-resource "aws_s3_bucket_website_configuration" "frontend" {
-  bucket = aws_s3_bucket.frontend.id
-
-  index_document {
-    suffix = "index.html"
-  }
-}
-
-# 🔹 Bucket S3 para imágenes
-resource "aws_s3_bucket" "images" {
-  bucket = "${var.prefix}-images"
-  tags = { Name = "${var.prefix}-Images-S3" }
-}

@@ -214,4 +214,5 @@ $RECYCLE.BIN/
 
 # Variables env
 .env
+terraform.tfvars
 .env.*
