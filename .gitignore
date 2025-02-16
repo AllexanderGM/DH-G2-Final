@@ -211,3 +211,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/react,visualstudiocode,windows,intellij,netbeans,java
+
+# Variables env
+.env
+terraform.tfvars
+.env.*
