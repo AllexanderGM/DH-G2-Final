@@ -99,7 +99,8 @@ export default [
       'prefer-object-has-own': 'off',
       'prefer-template': 'error',
       semi: ['error', 'never'],
-      strict: 'error'
+      strict: 'error',
+      'react/prop-types': 'off'
     }
   },
   {
