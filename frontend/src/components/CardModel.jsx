@@ -1,4 +1,5 @@
 import { Card, Button, CardHeader, CardFooter, CardBody, Image } from '@heroui/react'
+import BrandButton from './BrandButton'
 
 const CardModel = ({ data }) => {
   const img = new URL(`../assets/Lugares/md/${data.imageUrl}`, import.meta.url).href
@@ -19,9 +20,10 @@ const CardModel = ({ data }) => {
           <p className="text-black text-tiny">Disponible</p>
           <p className="text-black text-tiny">Cupos: 5</p>
         </div>
-        <Button className="text-lg" color="primary" radius="full" size="lg">
+        {/* <Button className="text-lg" color="primary" radius="full" size="lg">
           Ver más
-        </Button>
+        </Button> */}
+        <BrandButton color="brandColor">Ver más</BrandButton>
       </CardFooter>
     </Card>
   )

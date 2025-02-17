@@ -1,9 +1,11 @@
-import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NavbarContent, NavbarItem, Link, Button } from '@heroui/react'
+import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NavbarContent, NavbarItem, Link, Image } from '@heroui/react'
+
+import BrandButton from './BrandButton'
 
 function NavbarModel() {
   const menuItems = ['Lugares', 'Guias', 'Blog', 'Crear Usuario', 'Iniciar Sesion']
 
-  const img = new URL(`../assets/Logo/logo_navbar/svg/logo_nav_320.svg`, import.meta.url).href
+  const img = new URL(`../assets/Logo/isotipo_sm.png`, import.meta.url).href
 
   /*Primera parte es de Web, la segunda parte es Mobil*/
   return (
@@ -12,35 +14,43 @@ function NavbarModel() {
         wrapper: 'max-w-6xl mx-auto'
       }}>
       <NavbarBrand>
-        <p className="font-bold text-inherit">ACME</p>
+        <Image alt="Glocal Tour isotipo" className="mr-2" src={img} width="20" radius="none" />
+        <p className="font-bold text-inherit">Glocal Tour</p>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
           <Link color="foreground" href="#">
-            Features
-          </Link>
-        </NavbarItem>
-        <NavbarItem isActive>
-          <Link aria-current="page" href="#">
-            Customers
+            Somos
           </Link>
         </NavbarItem>
         <NavbarItem>
           <Link color="foreground" href="#">
-            Integrations
+            Tours
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="#">
+            Contacto
           </Link>
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem className="hidden lg:flex">
-          <Link href="#">Login</Link>
+          <Link href="#">Crear usuario</Link>
         </NavbarItem>
         <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            Sign Up
-          </Button>
+          <BrandButton color="brandColor">Iniciar sesión</BrandButton>
         </NavbarItem>
       </NavbarContent>
+      <NavbarMenu>
+        {menuItems.map((item, index) => (
+          <NavbarMenuItem key={`${item}-${index}`}>
+            <Link className="w-full" href="#" size="lg">
+              {item}
+            </Link>
+          </NavbarMenuItem>
+        ))}
+      </NavbarMenu>
     </Navbar>
   )
 }

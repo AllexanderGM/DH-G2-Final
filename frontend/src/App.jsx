@@ -1,10 +1,12 @@
-import Header from '@components/Header'
 import Body from '@components/Body'
+import NavbarModel from '@components/NavbarModel'
+import Hero from '@components/Hero'
 
 function App() {
   return (
     <>
-      <Header />
+      <NavbarModel />
+      <Hero />
       <Body />
     </>
   )

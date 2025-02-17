@@ -30,11 +30,7 @@ const Body = () => {
 
   return (
     <div className="flex flex-col items-center 9-full min-h-screen bg-gray-100 p-6">
-      <div className="w-full max-w-2xl mb-6">
-        <Input placeholder="Buscar productos..." className="w-full p-3 border rounded-lg shadow" />
-      </div>
-
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Lugares Destacados</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Lugares Destacados</h1>
 
       <div className="w-full max-w-6xl mb-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-7">

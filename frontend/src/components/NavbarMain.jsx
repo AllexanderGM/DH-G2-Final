@@ -3,7 +3,7 @@ import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, Navb
 function NavbarMain() {
   const menuItems = ['Lugares', 'Guias', 'Blog', 'Crear Usuario', 'Iniciar Sesion']
 
-  const img = new URL(`../assets/Logo/logo_navbar/svg/logo_nav_320.svg`, import.meta.url).href
+  const img = new URL(`../assets/Logo/isotipo_sm.png`, import.meta.url).href
 
   /*Primera parte es de Web, la segunda parte es Mobil*/
   return (
