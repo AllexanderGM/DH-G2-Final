@@ -24,7 +24,7 @@ const DetalleTour = () => {
   if (!tour) return <h1 className="text-center mt-10">Cargando...</h1>
 
   return (
-    <div className="max-w-6xl mx-auto p-6 ">
+    <div className="max-w-6xl mx-auto p-6 min-h-screen bg-gray-100">
       <h1>{tour.place}</h1>
       <img
         src={new URL(`../assets/Lugares/md/${tour.imageUrl}`, import.meta.url).href}

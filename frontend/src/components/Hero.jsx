@@ -4,7 +4,7 @@ import SearchIcon from './SearchIcon'
 
 const Hero = () => {
   return (
-    <div className={` flex flex-col justify-center items-center h-64 text-center ${styles.container}`}>
+    <div className={` flex flex-col justify-center items-center h-64 text-center mb-8 ${styles.container}`}>
       <div className={`${styles.pattern_overlay}`}></div>
       <h2 className={`text-4xl p-6`}>
         <span className="text-3xl">🌎</span> La búsqueda perfecta, del tour perfecto
