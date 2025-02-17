@@ -1,5 +1,8 @@
 ## Backend
 
+# Swagger
+ - http://localhost:8080/swagger-ui.html
+
 # Endpoints
 
  - (POST) http://localhost:8080/paquetes
