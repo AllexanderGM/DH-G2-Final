@@ -5,3 +5,8 @@ h1 {
 h2 {
   font-size: 1.5rem;
 }
+
+::selection {
+  background-color: #ffd3d5; /* Yellow background */
+  color: #242424; /* Black text */
+}
