@@ -24,9 +24,11 @@ const Hero = () => {
               'backdrop-saturate-200',
               'hover:bg-default-200/70',
               'dark:hover:bg-default/70',
-              'group-data-[focus=true]:bg-default-200/100',
+              'group-data-[focus=true]:bg-default-200/0',
               'dark:group-data-[focus=true]:bg-default/60',
-              '!cursor-text'
+              '!cursor-text',
+              'group-data-[focus=true]:border-1', // Add border width on focus
+              'group-data-[focus=true]:border-[#E86C6E]' // Add custom border color on focus
             ]
           }}
           label="Buscar"
