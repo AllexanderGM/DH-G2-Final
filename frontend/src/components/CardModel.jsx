@@ -5,15 +5,19 @@ import BrandButton from './BrandButton.jsx'
 
 const CardModel = ({ data }) => {
   const img = new URL(`../assets/Lugares/md/${data.imageUrl}`, import.meta.url).href
-
+  // <Card className="py-3 px-4" isPressable>
   return (
-    <Card className="py-3 px-4" isPressable>
+    <Card className="py-3 px-4">
       <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
         <small className="text-default-500">Playa</small>
-        <h4 className="font-bold text-large">{data.place}</h4>
+        <Link to={`/tour/${data.id}`}>
+          <h4 className="font-bold text-large">{data.place}</h4>
+        </Link>
       </CardHeader>
       <CardBody className="overflow-visible py-2">
-        <Image alt={data.place} className="object-cover rounded-xl" src={img} />
+        <Link to={`/tour/${data.id}`}>
+          <Image alt={data.place} className="object-cover rounded-xl" src={img} />
+        </Link>
         <div className="text-md my-4">{data.description}</div>
       </CardBody>
 
