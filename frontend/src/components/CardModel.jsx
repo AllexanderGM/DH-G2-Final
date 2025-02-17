@@ -9,7 +9,7 @@ const CardModel = ({ data }) => {
   return (
     <Card className="py-3 px-4">
       <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-        <small className="text-default-500">Playa</small>
+        <small className="text-default-500">{data.placeType}</small>
         <Link to={`/tour/${data.id}`}>
           <h4 className="font-bold text-large">{data.place}</h4>
         </Link>
