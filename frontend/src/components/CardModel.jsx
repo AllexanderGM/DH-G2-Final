@@ -23,8 +23,8 @@ const CardModel = ({ data }) => {
 
       <CardFooter className="justify-between">
         <div>
-          <p className="text-black text-tiny">Disponible</p>
-          <p className="text-black text-tiny">Cupos: 5</p>
+          <p className="text-black text-tiny">{data.disponibilidad}</p>
+          <p className="text-black text-tiny">Cupos: {data.cupos}</p>
         </div>
         <Link to={`/tour/${data.id}`}>
           <BrandButton color="brandColor">Ver más</BrandButton>
