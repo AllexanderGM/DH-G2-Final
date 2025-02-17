@@ -14,8 +14,10 @@ function NavbarModel() {
         wrapper: 'max-w-6xl mx-auto'
       }}>
       <NavbarBrand>
-        <Image alt="Glocal Tour isotipo" className="mr-2" src={img} width="20" radius="none" />
-        <p className="font-bold text-inherit">Glocal Tour</p>
+        <Link href="/" className="text-black">
+          <Image alt="Glocal Tour isotipo" className="mr-2" src={img} width="20" radius="none" />
+          <p className="font-bold text-inherit">Glocal Tour</p>
+        </Link>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>

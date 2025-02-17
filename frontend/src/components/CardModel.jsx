@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-
 import { Card, CardHeader, CardFooter, CardBody, Image } from '@heroui/react'
 
 import BrandButton from './BrandButton.jsx'

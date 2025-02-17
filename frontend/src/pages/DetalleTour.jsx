@@ -24,9 +24,14 @@ const DetalleTour = () => {
   if (!tour) return <h1 className="text-center mt-10">Cargando...</h1>
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto p-6 ">
       <h1>{tour.place}</h1>
-      <p>{tour.description}</p>
+      <img
+        src={new URL(`../assets/Lugares/md/${tour.imageUrl}`, import.meta.url).href}
+        alt={tour.place}
+        className="w-full h-80 object-cover rounded-lg my-4"
+      />
+      <p className="text-gray-700">{tour.description}</p>
     </div>
   )
 }
