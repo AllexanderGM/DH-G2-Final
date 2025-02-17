@@ -1,13 +1,11 @@
-import Body from '@components/Body'
+import { Outlet } from 'react-router-dom'
 import NavbarModel from '@components/NavbarModel'
-import Hero from '@components/Hero'
 
 function App() {
   return (
     <>
       <NavbarModel />
-      <Hero />
-      <Body />
+      <Outlet />
     </>
   )
 }

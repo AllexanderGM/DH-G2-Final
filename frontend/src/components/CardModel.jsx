@@ -1,5 +1,8 @@
-import { Card, Button, CardHeader, CardFooter, CardBody, Image } from '@heroui/react'
-import BrandButton from './BrandButton'
+import { Link } from 'react-router-dom'
+
+import { Card, CardHeader, CardFooter, CardBody, Image } from '@heroui/react'
+
+import BrandButton from './BrandButton.jsx'
 
 const CardModel = ({ data }) => {
   const img = new URL(`../assets/Lugares/md/${data.imageUrl}`, import.meta.url).href
@@ -11,7 +14,7 @@ const CardModel = ({ data }) => {
         <h4 className="font-bold text-large">{data.place}</h4>
       </CardHeader>
       <CardBody className="overflow-visible py-2">
-        <Image alt="Card background" className="object-cover rounded-xl" src={img} />
+        <Image alt={data.place} className="object-cover rounded-xl" src={img} />
         <div className="text-md my-4">{data.description}</div>
       </CardBody>
 
@@ -20,10 +23,9 @@ const CardModel = ({ data }) => {
           <p className="text-black text-tiny">Disponible</p>
           <p className="text-black text-tiny">Cupos: 5</p>
         </div>
-        {/* <Button className="text-lg" color="primary" radius="full" size="lg">
-          Ver más
-        </Button> */}
-        <BrandButton color="brandColor">Ver más</BrandButton>
+        <Link to={`/tour/${data.id}`}>
+          <BrandButton color="brandColor">Ver más</BrandButton>
+        </Link>
       </CardFooter>
     </Card>
   )

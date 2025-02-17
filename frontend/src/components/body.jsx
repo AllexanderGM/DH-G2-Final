@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { Input } from '@heroui/react'
-import ProductCard from './ProductCard'
-import CardModel from './CardModel'
+import { useEffect, useState } from 'react'
+
+import CardModel from './CardModel.jsx'
 
 const Body = () => {
   const [lugares, setLugares] = useState([])
