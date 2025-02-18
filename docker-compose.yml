@@ -8,15 +8,13 @@ volumes:
 services:
     mysql:
         container_name: "${NAME}-mysql_db"
-        image: mysql:8.0
+        image: mysql
         restart: always
         environment:
             MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
             MYSQL_DATABASE: "${DB_NAME}"
-            MYSQL_USER: "${DB_USER}"
-            MYSQL_PASSWORD: "${DB_PASSWORD}"
         ports:
-            - "3307:${DB_PORT}"
+            - "${DB_PORT}:${DB_PORT}"
         volumes:
             - mysql_data:/var/lib/mysql
         networks:

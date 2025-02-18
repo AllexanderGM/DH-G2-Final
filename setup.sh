@@ -12,10 +12,10 @@ export $(grep -v '^#' .env | xargs)
 # Concatenar las variables de entorno para las URLs
 if [[ $URL == "http://localhost" ]]; then
     URL_FRONT="$URL:$PORT_FRONT"
-    URL_BACK="$URL:$PORT_BACK-api"
+    URL_BACK="$URL:$PORT_BACK"
 else
     URL_FRONT="$URL"
-    URL_BACK="$URL-api"
+    URL_BACK="$URL"
 fi
 
 # Rutas de los archivos .env para frontend y backend
