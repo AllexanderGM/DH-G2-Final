@@ -3,7 +3,7 @@ import { Card, CardHeader, CardFooter, CardBody, Image } from '@heroui/react'
 
 import BrandButton from './BrandButton.jsx'
 
-const CardModel = ({ data }) => {
+const CardMain = ({ data }) => {
   const img = data.imagenes[0]
   // <Card className="py-3 px-4" isPressable>
   return (
