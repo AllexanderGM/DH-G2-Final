@@ -5,10 +5,14 @@ import SearchIcon from './SearchIcon.jsx'
 
 const Hero = () => {
   return (
-    <div className={` flex flex-col justify-center items-center h-64 text-center mb-8 ${styles.container}`}>
+    <div className={` flex flex-col justify-center items-center h-80 text-center mb-14 ${styles.container}`}>
       <div className={`${styles.pattern_overlay}`}></div>
-      <h1 className={`text-4xl p-6`}>
-        <span className="text-3xl">🌎</span> La búsqueda perfecta, del tour perfecto
+      <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 `}>
+        <span className="inline-block">
+          <span>🌎</span> La búsqueda perfecta,
+        </span>
+        <br />
+        <span className="bg-gradient-to-r from-primary to-primary/80 text-transparent bg-clip-text">del tour perfecto</span>
       </h1>
       <div className="w-full px-[200px] rounded-2xl flex justify-center items-center text-white">
         <Input
