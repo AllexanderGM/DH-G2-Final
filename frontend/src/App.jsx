@@ -1,10 +1,10 @@
 import { Outlet } from 'react-router-dom'
-import NavbarModel from '@components/NavbarModel'
+import NavbarMain from '@components/NavbarMain'
 
 function App() {
   return (
     <>
-      <NavbarModel />
+      <NavbarMain />
       <Outlet />
     </>
   )

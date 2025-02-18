@@ -1,4 +1,4 @@
-import { Card, CardBody, CardFooter, Image } from '@heroui/react'
+import { Card, CardBody, CardFooter } from '@heroui/react'
 
 const Categories = () => {
   const list = [

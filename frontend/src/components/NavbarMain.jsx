@@ -1,4 +1,6 @@
-import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NavbarContent, NavbarItem, Link, Button } from '@heroui/react'
+import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarContent, NavbarItem, Link, Image } from '@heroui/react'
+
+import BrandButton from './BrandButton'
 
 function NavbarMain() {
   const menuItems = ['Lugares', 'Guias', 'Blog', 'Crear Usuario', 'Iniciar Sesion']
@@ -7,48 +9,39 @@ function NavbarMain() {
 
   /*Primera parte es de Web, la segunda parte es Mobil*/
   return (
-    <Navbar isBordered isBlurred="false">
-      <NavbarContent className="sm:hidden" justify="start">
-        <NavbarMenuToggle />
-      </NavbarContent>
-
-      <NavbarBrand className="w-sm">
-        <img className="w-sm" src={img}></img>
+    <Navbar
+      classNames={{
+        wrapper: 'max-w-6xl mx-auto'
+      }}>
+      <NavbarBrand>
+        <Link href="/" className="text-black">
+          <Image alt="Glocal Tour isotipo" className="mr-2" src={img} width="20" radius="none" />
+          <p className="font-bold text-inherit">Glocal Tour</p>
+        </Link>
       </NavbarBrand>
-      <NavbarContent className="hidden sm:flex " justify="end">
+      <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
           <Link color="foreground" href="#">
-            Lugares
+            Somos
           </Link>
         </NavbarItem>
         <NavbarItem>
           <Link color="foreground" href="#">
-            Guias
+            Tours
           </Link>
         </NavbarItem>
         <NavbarItem>
           <Link color="foreground" href="#">
-            Blog
+            Contacto
           </Link>
-        </NavbarItem>
-        <NavbarItem className="ml-10" as={Link} color="primary" href="#" variant="flat">
-          <Link href="#">Iniciar Sesion</Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            Crear Usuario
-          </Button>
         </NavbarItem>
       </NavbarContent>
-
-      <NavbarContent className="sm:hidden">
-        <NavbarItem className="ml-10" as={Link} color="primary" href="#" variant="flat">
-          <Link href="#">Iniciar Sesion</Link>
+      <NavbarContent justify="end">
+        <NavbarItem className="hidden lg:flex">
+          <Link href="#">Crear usuario</Link>
         </NavbarItem>
         <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            Crear Usuario
-          </Button>
+          <BrandButton color="brandColor">Iniciar sesión</BrandButton>
         </NavbarItem>
       </NavbarContent>
       <NavbarMenu>
