@@ -12,7 +12,7 @@ const Hero = () => {
           <span>🌎</span> La búsqueda perfecta,
         </span>
         <br />
-        <span className="bg-gradient-to-r from-primary to-primary/80 text-transparent bg-clip-text">del tour perfecto</span>
+        <span className="bg-gradient-to-r from-[#E86C6E] to-primary/70 text-transparent bg-clip-text">del tour perfecto</span>
       </h1>
       <div className="w-full px-[200px] rounded-2xl flex justify-center items-center text-white">
         <Input

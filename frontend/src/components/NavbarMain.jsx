@@ -20,17 +20,17 @@ function NavbarMain() {
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
-          <Link color="foreground" href="#">
+          <Link color="foreground" className="hover:text-red-600" href="#">
             Somos
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="#">
+          <Link color="foreground" className="hover:text-red-600" href="#">
             Tours
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="#">
+          <Link color="foreground" className="hover:text-red-600" href="#">
             Contacto
           </Link>
         </NavbarItem>
