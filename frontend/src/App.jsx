@@ -1,12 +1,11 @@
-import Header from '@components/Header'
-import Body from '@components/body'
+import { Outlet } from 'react-router-dom'
+import NavbarModel from '@components/NavbarModel'
 
 function App() {
   return (
-    <> 
-    <Header />
-    <Body/>
-  
+    <>
+      <NavbarModel />
+      <Outlet />
     </>
   )
 }

@@ -1,0 +1,12 @@
+.container {
+  position: relative;
+  background: linear-gradient(180deg, #f2f3f5, #f2f3f5);
+}
+
+.pattern_overlay {
+  position: absolute;
+  inset: 0;
+  background-image: url('src/assets/Backgrounds/topography.svg');
+  background-size: 340px;
+  mix-blend-mode: multiply;
+}
