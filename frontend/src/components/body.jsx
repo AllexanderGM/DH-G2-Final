@@ -5,10 +5,11 @@ import Categories from './Categories.jsx'
 
 const Body = () => {
   const [lugares, setLugares] = useState([])
+  const URL = import.meta.env.VITE_URL_BACK
 
   const fetchLugares = async () => {
     try {
-      const response = await fetch('/data/tours.json')
+      const response = await fetch(`${URL}/paquetes/aleatorios`)
       if (!response.ok) {
         throw new Error('Error al cargar los datos')
       }
@@ -36,7 +37,7 @@ const Body = () => {
       <div className="w-full max-w-6xl mb-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-7">
           {lugaresDestacados.map(lugar => (
-            <CardMain key={lugar.id} data={lugar} />
+            <CardModel key={lugar.idPaquete} data={lugar} />
           ))}
         </div>
       </div>
