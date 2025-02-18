@@ -1,14 +1,15 @@
 import { Input } from '@heroui/react'
+
 import styles from '../styles/Hero.module.css'
-import SearchIcon from './SearchIcon'
+import SearchIcon from './SearchIcon.jsx'
 
 const Hero = () => {
   return (
     <div className={` flex flex-col justify-center items-center h-64 text-center mb-8 ${styles.container}`}>
       <div className={`${styles.pattern_overlay}`}></div>
-      <h2 className={`text-4xl p-6`}>
+      <h1 className={`text-4xl p-6`}>
         <span className="text-3xl">🌎</span> La búsqueda perfecta, del tour perfecto
-      </h2>
+      </h1>
       <div className="w-full px-[200px] rounded-2xl flex justify-center items-center text-white">
         <Input
           isClearable

@@ -1,6 +1,6 @@
 import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NavbarContent, NavbarItem, Link, Image } from '@heroui/react'
-import BrandButton from './BrandButton.jsx'
 
+import BrandButton from './BrandButton.jsx'
 import img from '../assets/Logo/logo_navbar/svg/isotipo_sm.svg'
 
 function NavbarMain() {
