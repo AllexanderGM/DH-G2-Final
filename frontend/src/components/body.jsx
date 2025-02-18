@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import CardModel from './CardModel.jsx'
+import Categories from './Categories.jsx'
 
 const Body = () => {
   const [lugares, setLugares] = useState([])
@@ -29,6 +30,7 @@ const Body = () => {
 
   return (
     <div className="flex flex-col items-center 9-full min-h-screen bg-gray-100 p-6">
+      <Categories />
       <h1 className="text-base text-gray-600 mb-6">Lugares Destacados</h1>
 
       <div className="w-full max-w-6xl mb-12">

@@ -25,7 +25,10 @@ const DetalleTour = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 min-h-screen bg-gray-100">
-      <h1>{tour.place}</h1>
+      <div className="flex justify-between items-center">
+        <h1>{tour.place}</h1>
+        <span className="material-symbols-outlined text-3xl">arrow_back</span>
+      </div>
       <img
         src={new URL(`../assets/Lugares/md/${tour.imageUrl}`, import.meta.url).href}
         alt={tour.place}

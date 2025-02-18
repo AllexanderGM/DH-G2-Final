@@ -27,8 +27,8 @@ const Hero = () => {
               'group-data-[focus=true]:bg-default-200/0',
               'dark:group-data-[focus=true]:bg-default/60',
               '!cursor-text',
-              'group-data-[focus=true]:border-1', // Add border width on focus
-              'group-data-[focus=true]:border-[#E86C6E]' // Add custom border color on focus
+              'group-data-[focus=true]:border-1',
+              'group-data-[focus=true]:border-[#E86C6E]'
             ]
           }}
           label="Buscar"
