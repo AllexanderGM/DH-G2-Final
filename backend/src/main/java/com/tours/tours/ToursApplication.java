@@ -8,6 +8,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ToursApplication {
 
 	public static void main(String[] args) {
+		// Cargar las variables de entorno del archivo .env
+		Dotenv dotenv = Dotenv.configure().load();
+		dotenv.entries().forEach(entry -> {
+			System.setProperty(entry.getKey(), entry.getValue());
+		});
+
 		SpringApplication.run(ToursApplication.class, args);
 	}
 
