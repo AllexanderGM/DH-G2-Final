@@ -2,10 +2,13 @@ import { Input } from '@heroui/react'
 
 import styles from '../styles/Hero.module.css'
 import SearchIcon from './SearchIcon.jsx'
+import image from '../assets/Backgrounds/topography.svg'
 
 const Hero = () => {
   return (
-    <div className={` flex flex-col justify-center items-center h-80 text-center mb-14 ${styles.container}`}>
+    <div
+      className={` flex flex-col justify-center items-center h-80 text-center mb-14 ${styles.container}`}
+      style={{ backgroundImage: `url("${image}")` }}>
       <div className={`${styles.pattern_overlay}`}></div>
       <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 `}>
         <span className="inline-block">
