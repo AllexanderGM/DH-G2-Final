@@ -10,12 +10,12 @@ const CardMain = ({ data }) => {
     <Card className="py-3 px-4">
       <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
         <small className="text-default-500">{data.categoria}</small>
-        <Link to={`/tour/${data.id}`}>
+        <Link to={`/tour/${data.idPaquete}`}>
           <h4 className="font-bold text-large">{data.destino}</h4>
         </Link>
       </CardHeader>
       <CardBody className="overflow-visible py-2">
-        <Link to={`/tour/${data.id}`}>
+        <Link to={`/tour/${data.idPaquete}`}>
           <Image alt={data.destino} className="object-cover rounded-xl" src={img} />
         </Link>
         <div className="text-md my-4">{data.descripcion}</div>
