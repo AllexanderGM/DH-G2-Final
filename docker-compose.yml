@@ -13,12 +13,19 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
             MYSQL_DATABASE: "${DB_NAME}"
+            MYSQL_USER: "${DB_USER}"
+            MYSQL_PASSWORD: "${DB_PASSWORD}"
         ports:
-            - "${DB_PORT}:${DB_PORT}"
+            - "${DB_PORT}:3306"
         volumes:
             - mysql_data:/var/lib/mysql
         networks:
             - app-network
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            interval: 10s
+            retries: 5
+            start_period: 20s
 
     backend:
         container_name: "${NAME}-backend_spring_boot"
@@ -31,7 +38,8 @@ services:
         ports:
             - "${PORT_BACK}:${PORT_BACK}"
         depends_on:
-            - mysql
+            mysql:
+                condition: service_healthy  # Espera a que MySQL esté listo
         networks:
             - app-network
 
