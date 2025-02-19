@@ -14,7 +14,7 @@ const Hero = () => {
         <br />
         <span className="bg-gradient-to-r from-[#E86C6E] to-primary/70 text-transparent bg-clip-text">del tour perfecto</span>
       </h1>
-      <div className="w-full px-[50px] md:px-[150px]  rounded-2xl flex justify-center items-center text-white">
+      <div className="w-full max-w-6xl px-[50px] md:px-[150px]  rounded-2xl flex justify-center items-center text-white">
         <Input
           isClearable
           classNames={{
