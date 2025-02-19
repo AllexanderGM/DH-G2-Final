@@ -2,10 +2,13 @@ import { Input } from '@heroui/react'
 
 import styles from '../styles/Hero.module.css'
 import SearchIcon from './SearchIcon.jsx'
+import image from '../assets/Backgrounds/topography.svg'
 
 const Hero = () => {
   return (
-    <div className={` flex flex-col justify-center items-center h-80 text-center mb-14 ${styles.container}`}>
+    <div
+      className={` flex flex-col justify-center items-center h-80 text-center mb-14 ${styles.container}`}
+      style={{ backgroundImage: `url("${image}")` }}>
       <div className={`${styles.pattern_overlay}`}></div>
       <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 `}>
         <span className="inline-block">
@@ -14,7 +17,7 @@ const Hero = () => {
         <br />
         <span className="bg-gradient-to-r from-[#E86C6E] to-primary/70 text-transparent bg-clip-text">del tour perfecto</span>
       </h1>
-      <div className="w-full px-[50px] md:px-[150px]  rounded-2xl flex justify-center items-center text-white">
+      <div className="w-full max-w-6xl px-[50px] md:px-[150px]  rounded-2xl flex justify-center items-center text-white">
         <Input
           isClearable
           classNames={{
