@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 import CardMain from './CardMain.jsx'
 import Categories from './Categories.jsx'
@@ -7,7 +7,7 @@ const BodyComponent = () => {
   const [lugares, setLugares] = useState([])
   const URL = import.meta.env.VITE_URL_BACK
 
-  const fetchLugares = async () => {
+  const fetchLugares = useCallback(async () => {
     try {
       const response = await fetch(`${URL}/paquetes/aleatorios`)
       if (!response.ok) {
@@ -18,11 +18,11 @@ const BodyComponent = () => {
     } catch (error) {
       console.error('Error:', error)
     }
-  }
+  }, [URL])
 
   useEffect(() => {
     fetchLugares()
-  }, [])
+  }, [fetchLugares])
 
   const lugaresDestacados = lugares.slice(0, 4)
 
