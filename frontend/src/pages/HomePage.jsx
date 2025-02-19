@@ -1,11 +1,11 @@
 import Hero from '@components/Hero'
-import Body from '@components/Body'
+import BodyComponent from '@components/BodyComponent'
 
 const HomePage = () => {
   return (
     <div>
       <Hero />
-      <Body />
+      <BodyComponent />
     </div>
   )
 }

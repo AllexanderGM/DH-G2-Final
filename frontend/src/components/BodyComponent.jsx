@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import CardMain from './CardMain.jsx'
 import Categories from './Categories.jsx'
 
-const Body = () => {
+const BodyComponent = () => {
   const [lugares, setLugares] = useState([])
   const URL = import.meta.env.VITE_URL_BACK
 
@@ -45,4 +45,4 @@ const Body = () => {
   )
 }
 
-export default Body
+export default BodyComponent
