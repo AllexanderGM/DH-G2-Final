@@ -20,7 +20,7 @@ const DetalleTour = () => {
       }
     }
     fetchTour()
-  }, [id])
+  }, [URL, id])
 
   if (!tour) return <h1 className="text-center mt-10">Cargando...</h1>
 
