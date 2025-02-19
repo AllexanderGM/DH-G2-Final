@@ -22,13 +22,17 @@ const DetalleTour = () => {
     fetchTour()
   }, [URL, id])
 
-  if (!tour) return <h1 className="text-center mt-10">Cargando...</h1>
-
   return (
     <div className="max-w-6xl mx-auto p-6 min-h-screen bg-gray-100">
-      <h1>{tour.destino}</h1>
-      <img src={tour.imagenes[0]} alt={tour.destino} className="w-full h-80 object-cover rounded-lg my-4" />
-      <p className="text-gray-700">{tour.descripcion}</p>
+      {tour ? (
+        <>
+          <h1>{tour.destino}</h1>
+          <img src={tour.imagenes[0]} alt={tour.destino} className="w-full h-80 object-cover rounded-lg my-4" />
+          <p className="text-gray-700">{tour.descripcion}</p>
+        </>
+      ) : (
+        <p className="text-center mt-10">Cargando...</p>
+      )}
     </div>
   )
 }
