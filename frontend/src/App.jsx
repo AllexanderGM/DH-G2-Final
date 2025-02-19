@@ -1,14 +1,11 @@
-import { Button } from '@heroui/react'
-import Component from '@components/Component'
+import { Outlet } from 'react-router-dom'
+import NavbarMain from '@components/NavbarMain'
 
 function App() {
   return (
     <>
-      <h1>Hola desde React con Hero UI</h1>
-      <Button color="primary">Button</Button>
-      <hr />
-
-      <Component />
+      <NavbarMain />
+      <Outlet />
     </>
   )
 }

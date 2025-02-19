@@ -1,3 +1,16 @@
-body {
-  border: 1px solid red;
+body{
+  background: #F3F4F6;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+::selection {
+  background-color: #ffd3d5; /* Yellow background */
+  color: #242424; /* Black text */
 }
