@@ -30,7 +30,7 @@ const BodyComponent = () => {
   // const getLugaresPorCategoria = categoria => lugares.filter(lugar => lugar.placeType === categoria)
 
   return (
-    <div className="flex flex-col items-center 9-full min-h-screen bg-gray-100 p-6">
+    <div className="flex flex-col items-center 9-full min-h-screen bg-gray-100 p-6 mb-6">
       <Categories />
       <h1 className="text-base text-gray-600 mb-6">Recomendaciones</h1>
 
