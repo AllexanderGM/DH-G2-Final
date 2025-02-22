@@ -12,7 +12,9 @@ const CardMain = ({ data }) => {
       <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
         <small className="text-default-500">{normalizeWords(data.categoria)}</small>
         <Link to={`/tour/${data.idPaquete}`}>
-          <h4 className="font-bold text-large">{data.destino}</h4>
+          <h4 className="font-bold text-lg hover:text-gray-700">
+            {data.nombre}. {data.destino}
+          </h4>
         </Link>
       </CardHeader>
       <CardBody className="overflow-visible py-2">
