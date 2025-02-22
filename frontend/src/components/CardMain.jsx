@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Card, CardHeader, CardFooter, CardBody, Image } from '@heroui/react'
-import { normalizeWords } from '../utils/normalizeWords.js'
 
+import { normalizeWords } from '../utils/normalizeWords.js'
 import BrandButton from './BrandButton.jsx'
 
 const CardMain = ({ data }) => {
@@ -17,12 +17,8 @@ const CardMain = ({ data }) => {
       </CardHeader>
       <CardBody className="overflow-visible py-2">
         <Link to={`/tour/${data.idPaquete}`}>
-          <div className="w-full max-h-40 md:max-h-48 overflow-hidden rounded-xl">
-            <Image
-              alt={data.destino}
-              className="object-cover" // Ensures the image covers the container
-              src={img}
-            />
+          <div className="w-full max-h-40 md:max-h-48 overflow-hidden rounded-xl flex justify-center items-center">
+            <Image alt={data.destino} className="object-cover" src={img} zoomedWrapper />
           </div>
         </Link>
 
