@@ -21,10 +21,16 @@ public class Paquete {
     private String destino;
     private Double precio;
     private LocalDate fechaProgramacion;
-    @Enumerated(EnumType.STRING)
-    private Categoria categoria;
+
     @ElementCollection
     private List<String> proveedores;
     @ElementCollection
     private List<String> imagenes;
+    @ManyToOne
+    @JoinColumn(name = "id_hotel")
+    private Hotel hotel;
+    @ManyToOne
+    @JoinColumn(name = "id_categoria")
+    private Categoria categoria;
+
 }

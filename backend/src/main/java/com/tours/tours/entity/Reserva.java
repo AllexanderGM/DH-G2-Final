@@ -23,8 +23,14 @@ public class Reserva {
     @JoinColumn(name = "id_paquete", nullable = false)
     private Paquete paquete;
 
-    private LocalDateTime fechaReserva;
+    private LocalDateTime fechaInicio;
+    private LocalDateTime fechaFin;
+    private Integer cantidadAdultos;
+    private Integer cantidadNinos;
     private Double precio;
     private LocalDate fecha;
 
+    @ManyToOne
+    @JoinColumn(name = "id_pago", nullable = false)
+    private Pago pago;
 }
