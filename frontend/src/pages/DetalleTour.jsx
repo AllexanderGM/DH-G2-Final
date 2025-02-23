@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import DetalleGallery from '@components/DetalleGallery'
+import BodyDetalle from '@components/BodyDetalle'
 
 const DetalleTour = () => {
   const { id } = useParams()
@@ -41,7 +42,7 @@ const DetalleTour = () => {
           </div>
 
           <DetalleGallery tour={tour} />
-          <p className="text-gray-700">{tour.descripcion}</p>
+          <BodyDetalle tour={tour} />
         </>
       ) : (
         <p className="text-center mt-10">Cargando...</p>
