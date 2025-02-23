@@ -38,20 +38,20 @@ const pseudoGallery = tour
 
 
   return (
-    <div >
+    <div className='mb-8'>
       <LightGallery
         animateThumb={true}
         speed={500}
         plugins={[lgThumbnail, lgZoom]}
-        elementClassNames="grid grid-cols-3 grid-rows-2 gap-2"
+        elementClassNames="grid grid-cols-3 grid-rows-2 gap-1"
       >
         {pseudoGallery.map((image, index) => (
-          <a href={image.src} key={image.imageId} className='block overflow-hidden first:row-span-2 rounded-tl-xl'>
+          <a href={image.src} key={image.imageId} className='block overflow-hidden first:row-span-2 first:rounded-tl-xl first:rounded-bl-xl last:rounded-br-xl [&:nth-child(3)]:rounded-tr-xl'>
             <Image
               src={image.src}
               classNames={{
                 wrapper: `w-full ${index === 0 && 'h-full'}`,
-                img: `w-full ${index === 0 && 'h-full'} object-cover`
+                img: `w-full h:full aspect-[16/10] ${index === 0 && 'h-full'} object-cover rounded-none`
               }}
             />
           </a>
