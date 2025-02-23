@@ -1,5 +1,8 @@
 import { Image } from '@heroui/react'
 import LightGallery from 'lightgallery/react'
+import lgThumbnail from 'lightgallery/plugins/thumbnail'
+import lgZoom from 'lightgallery/plugins/zoom'
+
 import 'lightgallery/css/lightgallery.css'
 import 'lightgallery/css/lg-zoom.css'
 import 'lightgallery/css/lg-thumbnail.css'
@@ -33,19 +36,27 @@ const pseudoGallery = tour
     ]
     : []
 
+
   return (
-    <div className="grid grid-flow-row grid-cols-2 md:grid-flow-col md:grid-cols-3 md:grid-rows-2 gap-1 md:h-[400px] mb-10">
-      {pseudoGallery.map((image, index) => (
-        <div key={image.imageId} className={`overflow-hidden flex justify-center items-center w-full first:row-span-2`}>
-          <Image
-            src={image.src}
-            classNames={{
-              wrapper: `w-full ${index === 0 && 'h-full'}`,
-              img: `w-full ${index === 0 && 'h-full rounded-none rounded-tl-xl rounded-bl-xl'} object-cover`
-            }}
-          />
-        </div>
-      ))}
+    <div >
+      <LightGallery
+        animateThumb={true}
+        speed={500}
+        plugins={[lgThumbnail, lgZoom]}
+        elementClassNames="grid grid-cols-3 grid-rows-2 gap-2"
+      >
+        {pseudoGallery.map((image, index) => (
+          <a href={image.src} key={image.imageId} className='block overflow-hidden first:row-span-2 rounded-tl-xl'>
+            <Image
+              src={image.src}
+              classNames={{
+                wrapper: `w-full ${index === 0 && 'h-full'}`,
+                img: `w-full ${index === 0 && 'h-full'} object-cover`
+              }}
+            />
+          </a>
+        ))}
+      </LightGallery>
     </div>
   )
 }
