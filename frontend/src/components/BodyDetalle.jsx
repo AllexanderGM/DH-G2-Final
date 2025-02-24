@@ -1,7 +1,6 @@
-import { Card, CardHeader, CardFooter, CardBody, Image } from '@heroui/react'
+import CardDetalle from './CardDetalle.jsx'
 
 const BodyDetalle = ({ tour }) => {
-  //   ;<p className="text-gray-800">{tour.descripcion}</p>
   return (
     <div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
@@ -35,22 +34,7 @@ const BodyDetalle = ({ tour }) => {
             </ul>
           </div>
         </div>
-        <div className="rounded-lg">
-          <Card className="py-3 px-4">
-            <CardHeader className="pb-0 pt-2 px-4 flex-col justify-end">
-              <p>
-                Precio:{' '}
-                <data value="99.99" className="font-bold text-xl">
-                  $99.99
-                </data>{' '}
-                USD
-              </p>
-            </CardHeader>
-            <CardBody className="overflow-visible py-2"></CardBody>
-
-            <CardFooter className="justify-between"></CardFooter>
-          </Card>
-        </div>
+        <CardDetalle tour={tour} />
       </div>
     </div>
   )

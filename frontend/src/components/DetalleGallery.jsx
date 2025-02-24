@@ -8,10 +8,8 @@ import 'lightgallery/css/lg-zoom.css'
 import 'lightgallery/css/lg-thumbnail.css'
 
 // prettier-ignore
-
 const DetalleGallery = ({ tour }) => {
-
-const pseudoGallery = tour
+  const pseudoGallery = tour
     ? [
       {
         imageId: 1,
@@ -36,17 +34,14 @@ const pseudoGallery = tour
     ]
     : []
 
-
   return (
-    <div className='mb-16'>
-      <LightGallery
-        animateThumb={true}
-        speed={500}
-        plugins={[lgThumbnail, lgZoom]}
-        elementClassNames="grid grid-cols-3 grid-rows-2 gap-1"
-      >
+    <div className="mb-20">
+      <LightGallery animateThumb={true} speed={500} plugins={[lgThumbnail, lgZoom]} elementClassNames="grid grid-cols-3 grid-rows-2 gap-1">
         {pseudoGallery.map((image, index) => (
-          <a href={image.src} key={image.imageId} className='block overflow-hidden first:row-span-2 first:rounded-tl-xl first:rounded-bl-xl last:rounded-br-xl [&:nth-child(3)]:rounded-tr-xl'>
+          <a
+            href={image.src}
+            key={image.imageId}
+            className="block overflow-hidden first:row-span-2 first:rounded-tl-xl first:rounded-bl-xl last:rounded-br-xl [&:nth-child(3)]:rounded-tr-xl">
             <Image
               src={image.src}
               classNames={{

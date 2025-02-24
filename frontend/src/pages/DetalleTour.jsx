@@ -30,7 +30,7 @@ const DetalleTour = () => {
         <>
           <div className="flex justify-between items-center h-[100px]">
             <h1>
-              {tour.nombre}. {tour.destino}
+              {tour.nombre}. {tour.destino}.
             </h1>
             <Link to="/">
               <span
