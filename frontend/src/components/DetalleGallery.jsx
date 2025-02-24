@@ -38,7 +38,7 @@ const pseudoGallery = tour
 
 
   return (
-    <div className='mb-8'>
+    <div className='mb-16'>
       <LightGallery
         animateThumb={true}
         speed={500}
