@@ -5,6 +5,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import HomePage from './pages/HomePage.jsx'
 import DetalleTour from './pages/DetalleTour.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
+import IniciarSesion from './pages/IniciarSesion.jsx'
+import RegistrarUsuario from './pages/RegistrarUsuario.jsx'
+
 import GeneralContext from './context/GeneralContext.jsx'
 import App from './App.jsx'
 
@@ -25,6 +28,14 @@ const router = createBrowserRouter([
       {
         path: '/tour/:id',
         element: <DetalleTour />
+      },
+      {
+        path: '/log',
+        element: <IniciarSesion />
+      },
+      {
+        path: '/register',
+        element: <RegistrarUsuario />
       }
     ],
     errorElement: <NotFoundPage />

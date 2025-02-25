@@ -41,14 +41,18 @@ function NavbarMain() {
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem className="lg:flex text-sm">
-          <Link className="text-sm md:text-base" href="#">
+          <Link className="text-sm md:text-base" href="/register">
             Crear usuario
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <BrandButton color="brandColor" className="text-sm md:text-base">
-            Iniciar sesión
-          </BrandButton>
+          
+          <Link className="text-sm md:text-base" href="/log">
+          <BrandButton  color="brandColor" className="text-sm md:text-base">
+          Iniciar sesión
+            </BrandButton>
+            </Link>
+        
         </NavbarItem>
       </NavbarContent>
       <NavbarMenuToggle aria-label={isMenuOpen ? 'Close menu' : 'Open menu'} className="sm:hidden" />
