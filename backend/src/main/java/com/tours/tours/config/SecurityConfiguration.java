@@ -29,6 +29,12 @@ public class SecurityConfiguration {
                     auth.requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/paquetes/*").permitAll();
+
+                    auth.requestMatchers(HttpMethod.POST,"/paquetes/**").hasAnyAuthority("ADMIN");
+                    auth.requestMatchers(HttpMethod.PUT,"/paquetes/**").hasAnyAuthority("ADMIN");
+                    auth.requestMatchers(HttpMethod.DELETE,"/paquetes/**").hasAnyAuthority("ADMIN");
+                    auth.requestMatchers(HttpMethod.GET,"/usuarios/**").hasAnyAuthority("ROLE_ADMIN");
 
                 })
                 .csrf(config -> config.disable())

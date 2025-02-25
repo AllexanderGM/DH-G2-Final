@@ -22,6 +22,7 @@ public class UsuarioController {
 
     @GetMapping("/listar")
     public List<Usuario> listarUsuarios() {
+
         return usuarioService.obtenerTodos();
     }
 

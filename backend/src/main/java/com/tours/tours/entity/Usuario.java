@@ -7,10 +7,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @Entity
@@ -48,7 +50,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(new SimpleGrantedAuthority(rol.getNombre()));
     }
 
     @Override
@@ -59,5 +61,25 @@ public class Usuario implements UserDetails {
     @Override
     public String getUsername() {
         return correo;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Cambia a false si deseas manejar cuentas expiradas
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Cambia a false si deseas bloquear cuentas
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Cambia a false si las credenciales deben expirar
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Cambia a false si el usuario debe ser deshabilitado
     }
 }

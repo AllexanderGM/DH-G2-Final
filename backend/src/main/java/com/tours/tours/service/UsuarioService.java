@@ -1,10 +1,8 @@
 package com.tours.tours.service;
 import com.tours.tours.entity.Rol;
 import com.tours.tours.entity.Usuario;
-import com.tours.tours.exception.CorreoExisteException;
-import com.tours.tours.exception.NombreDuplicadoException;
+import com.tours.tours.repository.IUsuarioRepository;
 import com.tours.tours.repository.RolRepository;
-import com.tours.tours.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +16,7 @@ import java.util.Optional;
 @Service
 public class UsuarioService  implements UserDetailsService {
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private IUsuarioRepository usuarioRepository;
     @Autowired
     private RolRepository rolRepository;
     @Autowired
