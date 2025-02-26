@@ -5,13 +5,13 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "role")
 @Data
-public class Rol {
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idRol;
+    private Long roleId;
 
-    private String nombre;
-    private String descripcion;
+    private String roleName;
+    private String description;
 }

@@ -1,7 +1,7 @@
 package com.tours.tours.auth;
 
 import com.tours.tours.config.JwtService;
-import com.tours.tours.entity.Rol;
+import com.tours.tours.entity.Role;
 import com.tours.tours.entity.Usuario;
 import com.tours.tours.repository.IUsuarioRepository;
 import com.tours.tours.repository.RolRepository;
@@ -23,7 +23,7 @@ public class AuthenticationService {
     private final RolRepository rolRepository;
 
     public AuthenticationResponse register (Usuario request){
-        Rol rolPorDefecto = rolRepository.findById(2L)
+        Role rolePorDefecto = rolRepository.findById(2L)
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
         Usuario usuario = Usuario.builder()
                 .nombre(request.getNombre())
@@ -36,7 +36,7 @@ public class AuthenticationService {
                 .telefono(request.getTelefono())
                 .correo(request.getCorreo())
                 .contrasena(passwordEncoder.encode(request.getContrasena()))
-                .rol(rolPorDefecto)
+                .role(rolePorDefecto)
                 .build();
 
         usuarioRepository.save(usuario);

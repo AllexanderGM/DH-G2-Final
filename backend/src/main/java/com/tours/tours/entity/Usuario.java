@@ -45,12 +45,12 @@ public class Usuario implements UserDetails {
     private String departamento;
     @Enumerated(EnumType.STRING)
     @ManyToOne
-    @JoinColumn(name = "id_rol")
-    private Rol rol;
+    @JoinColumn(name = "id_role")
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(rol.getNombre()));
+        return List.of(new SimpleGrantedAuthority(role.getRoleName()));
     }
 
     @Override

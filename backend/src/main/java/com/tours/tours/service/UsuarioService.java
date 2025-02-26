@@ -1,5 +1,5 @@
 package com.tours.tours.service;
-import com.tours.tours.entity.Rol;
+import com.tours.tours.entity.Role;
 import com.tours.tours.entity.Usuario;
 import com.tours.tours.repository.IUsuarioRepository;
 import com.tours.tours.repository.RolRepository;
@@ -38,9 +38,9 @@ public class UsuarioService  implements UserDetailsService {
         }
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         usuario.setFechaRegistro(LocalDate.now());
-        Rol rolPorDefecto = rolRepository.findById(2L)
+        Role rolePorDefecto = rolRepository.findById(2L)
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
-        usuario.setRol(rolPorDefecto);
+        usuario.setRole(rolePorDefecto);
 
         return usuarioRepository.save(usuario);
     }
@@ -55,7 +55,7 @@ public class UsuarioService  implements UserDetailsService {
             usuario.setCorreo(usuarioDetalles.getCorreo());
             usuario.setDireccion(usuarioDetalles.getDireccion());
             usuario.setDepartamento(usuarioDetalles.getDepartamento());
-            usuario.setRol(usuarioDetalles.getRol());
+            usuario.setRole(usuarioDetalles.getRole());
             return usuarioRepository.save(usuario);
         }).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
