@@ -7,7 +7,8 @@ import DetalleTour from './pages/DetalleTour.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import IniciarSesion from './pages/IniciarSesion.jsx'
 import RegistrarUsuario from './pages/RegistrarUsuario.jsx'
-
+import AdminPage from './pages/AdminPage.jsx'
+import CrearTour from './pages/CrearTour.jsx'
 import GeneralContext from './context/GeneralContext.jsx'
 import App from './App.jsx'
 
@@ -36,7 +37,12 @@ const router = createBrowserRouter([
       {
         path: '/register',
         element: <RegistrarUsuario />
-      }
+      },
+      {
+        path: '/admin',
+        element: <AdminPage />
+      },
+      { path: '/crear-tour', element: <CrearTour /> }
     ],
     errorElement: <NotFoundPage />
   }

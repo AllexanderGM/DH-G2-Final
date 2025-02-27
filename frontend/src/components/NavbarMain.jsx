@@ -1,12 +1,22 @@
 import { useState } from 'react'
 import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NavbarContent, NavbarItem, Link, Image } from '@heroui/react'
+import { Avatar, AvatarGroup, AvatarIcon } from '@heroui/avatar'
 
 import BrandButton from './BrandButton.jsx'
 import img from '../assets/Logo/logo_navbar/svg/isotipo_sm.svg'
 
-function NavbarMain() {
+function NavbarMain({ user }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuItems = ['Somos', 'Tours', 'Contacto']
+
+  // Iniciales de usuario
+  const getInitials = name => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+  }
 
   /*Primera parte es de Web, la segunda parte es Mobil*/
   return (
@@ -40,21 +50,44 @@ function NavbarMain() {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
-        <NavbarItem className="lg:flex text-sm">
-          <Link className="text-sm md:text-base" href="/register">
-            Crear usuario
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          
-          <Link className="text-sm md:text-base" href="/log">
-          <BrandButton  color="brandColor" className="text-sm md:text-base">
-          Iniciar sesión
-            </BrandButton>
-            </Link>
-        
-        </NavbarItem>
+        {user?.isAuthenticated && user?.isAdmin ? (
+          <>
+            <div className="flex gap-3 items-center">
+              <NavbarItem>
+                <Link color="danger" className="text-[#E86C6E] hover:text-red-600 sm:text-sm md:text-base" href="/crear-tour">
+                  Crear tour
+                </Link>
+              </NavbarItem>
+            </div>
+            <div className="flex gap-3 items-center">
+              <NavbarItem>
+                <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/admin">
+                  Admin panel
+                </Link>
+              </NavbarItem>
+              <NavbarItem>
+                <Avatar name={getInitials(user.name)} />
+              </NavbarItem>
+            </div>
+          </>
+        ) : (
+          <>
+            <NavbarItem className="lg:flex text-sm">
+              <Link className="text-sm md:text-base" href="/register">
+                Crear usuario
+              </Link>
+            </NavbarItem>
+            <NavbarItem>
+              <Link className="text-sm md:text-base" href="/log">
+                <BrandButton color="brandColor" className="text-sm md:text-base">
+                  Iniciar sesión
+                </BrandButton>
+              </Link>
+            </NavbarItem>
+          </>
+        )}
       </NavbarContent>
+
       <NavbarMenuToggle aria-label={isMenuOpen ? 'Close menu' : 'Open menu'} className="sm:hidden" />
       <NavbarMenu>
         {menuItems.map((item, index) => (
