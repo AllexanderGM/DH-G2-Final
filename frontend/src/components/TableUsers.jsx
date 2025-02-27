@@ -17,7 +17,7 @@ export const users = [
     id: 1,
     nombre: 'Tony',
     apellido: 'Reichert',
-    estado: 'active',
+    estado: 'activo',
     age: 29,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026024d',
     email: 'tony.reichert@example.com',
@@ -27,7 +27,7 @@ export const users = [
     id: 2,
     nombre: 'Sofia',
     apellido: 'Martínez',
-    estado: 'inactive',
+    estado: 'inactivo',
     age: 35,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
     email: 'sofia.martinez@example.com',
@@ -37,7 +37,7 @@ export const users = [
     id: 3,
     nombre: 'Liam',
     apellido: 'O’Connor',
-    estado: 'active',
+    estado: 'activo',
     age: 42,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
     email: 'liam.oconnor@example.com',
@@ -47,7 +47,7 @@ export const users = [
     id: 4,
     nombre: 'Aisha',
     apellido: 'Khan',
-    estado: 'active',
+    estado: 'activo',
     age: 27,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026706d',
     email: 'aisha.khan@example.com',
@@ -57,7 +57,7 @@ export const users = [
     id: 5,
     nombre: 'Hiroshi',
     apellido: 'Tanaka',
-    estado: 'inactive',
+    estado: 'inactivo',
     age: 31,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d',
     email: 'hiroshi.tanaka@example.com',
@@ -67,7 +67,7 @@ export const users = [
     id: 6,
     nombre: 'Elena',
     apellido: 'Smirnova',
-    estado: 'active',
+    estado: 'activo',
     age: 24,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026708d',
     email: 'elena.smirnova@example.com',
@@ -77,7 +77,7 @@ export const users = [
     id: 7,
     nombre: 'Carlos',
     apellido: 'Fernández',
-    estado: 'inactive',
+    estado: 'inactivo',
     age: 38,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026709d',
     email: 'carlos.fernandez@example.com',
@@ -87,7 +87,7 @@ export const users = [
     id: 8,
     nombre: 'Emily',
     apellido: 'Johnson',
-    estado: 'active',
+    estado: 'activo',
     age: 26,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026710d',
     email: 'emily.johnson@example.com',
@@ -97,7 +97,7 @@ export const users = [
     id: 9,
     nombre: 'Mohammed',
     apellido: 'Al-Farsi',
-    estado: 'active',
+    estado: 'activo',
     age: 45,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026711d',
     email: 'mohammed.alfarsi@example.com',
@@ -107,7 +107,7 @@ export const users = [
     id: 10,
     nombre: 'Zoe',
     apellido: 'Dupont',
-    estado: 'inactive',
+    estado: 'inactivo',
     age: 30,
     avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026712d',
     email: 'zoe.dupont@example.com',
@@ -116,32 +116,12 @@ export const users = [
 ]
 
 const statusColorMap = {
-  active: 'success',
-  inactive: 'warning',
+  activo: 'success',
+  inactivo: 'warning',
   sospechoso: 'danger'
 }
 
 const TableUsers = () => {
-  const [lugares, setLugares] = useState([])
-  const URL = import.meta.env.VITE_URL_BACK
-
-  const fetchLugares = useCallback(async () => {
-    try {
-      const response = await fetch(`${URL}/paquetes/aleatorios`)
-      if (!response.ok) {
-        throw new Error('Error al cargar los datos')
-      }
-      const data = await response.json()
-      setLugares(data)
-    } catch (error) {
-      console.error('Error:', error)
-    }
-  }, [URL])
-
-  useEffect(() => {
-    fetchLugares()
-  }, [fetchLugares])
-
   const renderCell = useCallback((user, columnKey) => {
     const cellValue = user[columnKey]
 

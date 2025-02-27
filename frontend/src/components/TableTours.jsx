@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, Button } from '@heroui/react'
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination, User, Chip, Tooltip, Button } from '@heroui/react'
 
 import { EyeIcon, DeleteIcon, EditIcon } from '../utils/icons.jsx'
+import { useMemo } from 'react'
 
 export const columns = [
   { name: 'NOMBRE', uid: 'nombre' },
@@ -20,6 +21,18 @@ const statusColorMap = {
 const TableTours = () => {
   const [lugares, setLugares] = useState([])
   const URL = import.meta.env.VITE_URL_BACK
+
+  const [page, setPage] = useState(1)
+  const rowsPerPage = 4
+
+  const pages = Math.ceil(lugares.length / rowsPerPage)
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage
+    const end = start + rowsPerPage
+
+    return lugares.slice(start, end)
+  }, [page, lugares])
 
   const fetchLugares = useCallback(async () => {
     try {
@@ -78,7 +91,14 @@ const TableTours = () => {
   }, [])
 
   return (
-    <Table aria-label="Users Table" className="w-full max-w-6xl mt-12">
+    <Table
+      aria-label="Users Table"
+      className="w-full max-w-6xl mt-12"
+      bottomContent={
+        <div className="flex w-full justify-center">
+          <Pagination isCompact showControls showShadow color="primary" page={page} total={pages} onChange={page => setPage(page)} />
+        </div>
+      }>
       <TableHeader columns={columns}>
         {column => (
           <TableColumn key={column.uid} align={column.uid === 'actions' ? 'center' : 'start'}>
@@ -86,7 +106,7 @@ const TableTours = () => {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody items={lugares}>
+      <TableBody items={items}>
         {item => <TableRow key={item.idPaquete}>{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}</TableRow>}
       </TableBody>
     </Table>
