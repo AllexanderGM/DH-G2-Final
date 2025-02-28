@@ -1,3 +1,8 @@
+html {
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+}
+
 body{
   background: #F3F4F6;
 }

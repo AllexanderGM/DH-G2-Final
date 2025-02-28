@@ -1,5 +1,22 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, Button } from '@heroui/react'
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Input,
+  Pagination,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  User,
+  Chip,
+  Tooltip,
+  Button
+} from '@heroui/react'
 
 import { EyeIcon, DeleteIcon, EditIcon } from '../utils/icons.jsx'
 
@@ -12,109 +29,6 @@ export const columns = [
   { name: 'ACCIONES', uid: 'actions' }
 ]
 
-export const users = [
-  {
-    id: 1,
-    nombre: 'Tony',
-    apellido: 'Reichert',
-    estado: 'activo',
-    age: 29,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026024d',
-    email: 'tony.reichert@example.com',
-    pais: 'Holanda'
-  },
-  {
-    id: 2,
-    nombre: 'Sofia',
-    apellido: 'Martínez',
-    estado: 'inactivo',
-    age: 35,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-    email: 'sofia.martinez@example.com',
-    pais: 'Argentina'
-  },
-  {
-    id: 3,
-    nombre: 'Liam',
-    apellido: 'O’Connor',
-    estado: 'activo',
-    age: 42,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
-    email: 'liam.oconnor@example.com',
-    pais: 'Irlanda'
-  },
-  {
-    id: 4,
-    nombre: 'Aisha',
-    apellido: 'Khan',
-    estado: 'activo',
-    age: 27,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026706d',
-    email: 'aisha.khan@example.com',
-    pais: 'Pakistán'
-  },
-  {
-    id: 5,
-    nombre: 'Hiroshi',
-    apellido: 'Tanaka',
-    estado: 'inactivo',
-    age: 31,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d',
-    email: 'hiroshi.tanaka@example.com',
-    pais: 'Japón'
-  },
-  {
-    id: 6,
-    nombre: 'Elena',
-    apellido: 'Smirnova',
-    estado: 'activo',
-    age: 24,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026708d',
-    email: 'elena.smirnova@example.com',
-    pais: 'Rusia'
-  },
-  {
-    id: 7,
-    nombre: 'Carlos',
-    apellido: 'Fernández',
-    estado: 'inactivo',
-    age: 38,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026709d',
-    email: 'carlos.fernandez@example.com',
-    pais: 'España'
-  },
-  {
-    id: 8,
-    nombre: 'Emily',
-    apellido: 'Johnson',
-    estado: 'activo',
-    age: 26,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026710d',
-    email: 'emily.johnson@example.com',
-    pais: 'Estados Unidos'
-  },
-  {
-    id: 9,
-    nombre: 'Mohammed',
-    apellido: 'Al-Farsi',
-    estado: 'activo',
-    age: 45,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026711d',
-    email: 'mohammed.alfarsi@example.com',
-    pais: 'Emiratos Árabes'
-  },
-  {
-    id: 10,
-    nombre: 'Zoe',
-    apellido: 'Dupont',
-    estado: 'inactivo',
-    age: 30,
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026712d',
-    email: 'zoe.dupont@example.com',
-    pais: 'Francia'
-  }
-]
-
 const statusColorMap = {
   activo: 'success',
   inactivo: 'warning',
@@ -122,6 +36,26 @@ const statusColorMap = {
 }
 
 const TableUsers = () => {
+  const [users, setUsers] = useState([])
+  const URL = 'data/mock-users.json'
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      const response = await fetch(URL)
+      if (!response.ok) {
+        throw new Error('Error al cargar los datos')
+      }
+      const data = await response.json()
+      setUsers(data)
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }, [URL])
+
+  useEffect(() => {
+    fetchUsers()
+  }, [fetchUsers])
+
   const renderCell = useCallback((user, columnKey) => {
     const cellValue = user[columnKey]
 

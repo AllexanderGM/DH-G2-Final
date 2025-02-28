@@ -69,7 +69,7 @@ function NavbarMain({ user }) {
               <NavbarItem>
                 <Dropdown>
                   <DropdownTrigger>
-                    <Avatar name={getInitials(user.name)} />
+                    <Avatar name={getInitials(user.name)} className="cursor-pointer" />
                   </DropdownTrigger>
 
                   <DropdownMenu aria-label="Profile Actions">
