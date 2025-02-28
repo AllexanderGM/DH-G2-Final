@@ -55,7 +55,7 @@ function NavbarMain({ user }) {
           <>
             <div className="flex gap-3 items-center">
               <NavbarItem>
-                <Link color="danger" className="text-[#E86C6E] hover:text-red-600 sm:text-sm md:text-base" href="/crear-tour">
+                <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/crear-tour">
                   Crear tour
                 </Link>
               </NavbarItem>
