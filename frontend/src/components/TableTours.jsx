@@ -194,7 +194,22 @@ const TableTours = () => {
         <span className="w-[30%] text-small text-default-400">
           {selectedKeys === 'all' ? 'All items selected' : `${selectedKeys.size} de ${filteredItems.length} seleccionados`}
         </span>
-        <Pagination isCompact showControls showShadow color="primary" page={page} total={pages} onChange={setPage} />
+        <Pagination
+          initialPage={1}
+          isCompact
+          showControls
+          showShadow
+          color="primary"
+          page={page}
+          total={pages}
+          onChange={setPage}
+          classNames={{
+            item: 'bg-white hover:bg-white',
+
+            prev: 'bg-white hover:bg-purple-600',
+            next: 'bg-white hover:bg-purple-600'
+          }}
+        />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
             Anterior
