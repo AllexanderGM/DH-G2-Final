@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, useHref, useNavigate } from 'react-router-dom'
 
 import HomePage from './pages/HomePage.jsx'
 import DetalleTour from './pages/DetalleTour.jsx'
@@ -10,6 +10,7 @@ import RegistrarUsuario from './pages/RegistrarUsuario.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 import CrearTour from './pages/CrearTour.jsx'
 import GeneralContext from './context/GeneralContext.jsx'
+import { HeroUIProvider } from '@heroui/react'
 import App from './App.jsx'
 
 // Estilos con Tailwind CSS

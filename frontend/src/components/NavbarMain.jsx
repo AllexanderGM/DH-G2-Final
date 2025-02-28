@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NavbarContent, NavbarItem, Link, Image } from '@heroui/react'
-import { Avatar, AvatarGroup, AvatarIcon } from '@heroui/avatar'
+import { Avatar } from '@heroui/avatar'
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/dropdown'
 
 import BrandButton from './BrandButton.jsx'
 import img from '../assets/Logo/logo_navbar/svg/isotipo_sm.svg'
@@ -66,7 +67,19 @@ function NavbarMain({ user }) {
                 </Link>
               </NavbarItem>
               <NavbarItem>
-                <Avatar name={getInitials(user.name)} />
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Avatar name={getInitials(user.name)} />
+                  </DropdownTrigger>
+
+                  <DropdownMenu aria-label="Profile Actions">
+                    <DropdownItem key="profile">Perfil</DropdownItem>
+                    <DropdownItem key="settings">Configuración</DropdownItem>
+                    <DropdownItem key="logout" color="danger">
+                      Cerrar sesión
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
               </NavbarItem>
             </div>
           </>

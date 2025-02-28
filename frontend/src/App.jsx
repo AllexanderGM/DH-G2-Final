@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import NavbarMain from '@components/NavbarMain'
 import FooterMain from '@components/FooterMain'
 import { useState } from 'react'
+import GeneralContext from './context/GeneralContext'
 
 function App() {
   const [user, setUser] = useState({
@@ -12,9 +13,11 @@ function App() {
 
   return (
     <>
-      <NavbarMain user={user} />
-      <Outlet />
-      <FooterMain />
+      <GeneralContext>
+        <NavbarMain user={user} />
+        <Outlet />
+        <FooterMain />
+      </GeneralContext>
     </>
   )
 }
