@@ -219,6 +219,14 @@ const TableTours = () => {
             value={filterValue}
             onClear={onClear}
             onValueChange={onSearchChange}
+            variant="underlined"
+            classNames={{
+              inputWrapper: [
+                'data-[focus=true]:after:bg-[#E86C6E]',
+                'after:transition-all after:duration-200 after:ease-in-out',
+                'after:bg-[#E86C6E]'
+              ]
+            }}
           />
           <div className="flex gap-3">
             <Dropdown>
@@ -284,7 +292,7 @@ const TableTours = () => {
     <Table
       isHeaderSticky
       aria-label="Tours Table"
-      className="w-full max-w-6xl mt-12"
+      className="w-full max-w-6xl mt-6"
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       selectedKeys={selectedKeys}
