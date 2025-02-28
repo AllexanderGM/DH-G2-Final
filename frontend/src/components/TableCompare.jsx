@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Table,
   TableHeader,
@@ -19,6 +19,7 @@ import {
 } from '@heroui/react'
 
 import { EyeIcon, DeleteIcon, EditIcon } from '../utils/icons.jsx'
+import { useMemo } from 'react'
 
 export const INITIAL_VISIBLE_COLUMNS = [
   { name: 'NOMBRE', uid: 'nombre' },
@@ -98,7 +99,7 @@ const TableTours = () => {
 
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
-  const [visibleColumns, setVisibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS.map(col => col.uid)))
+  const [visibleColumns, setVisibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS))
   const [statusFilter, setStatusFilter] = useState('all')
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [sortDescriptor, setSortDescriptor] = useState({
@@ -149,7 +150,7 @@ const TableTours = () => {
 
   const fetchLugares = useCallback(async () => {
     try {
-      const response = await fetch(`${URL}/paquetes/aleatorios`)
+      const response = await fetch(${URL}/paquetes/aleatorios)
       if (!response.ok) {
         throw new Error('Error al cargar los datos')
       }
@@ -164,6 +165,8 @@ const TableTours = () => {
     fetchLugares()
   }, [fetchLugares])
 
+  console.log(lugares)
+
   const renderCell = useCallback((lugar, columnKey) => {
     const cellValue = lugar[columnKey]
 
@@ -177,7 +180,7 @@ const TableTours = () => {
           </Chip>
         )
       case 'precio':
-        return `$${cellValue}`
+        return $${cellValue}
       case 'destino':
         return cellValue
       case 'actions':
@@ -240,20 +243,20 @@ const TableTours = () => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-400">
-          {selectedKeys === 'all' ? 'All items selected' : `${selectedKeys.size} de ${filteredItems.length} seleccionados`}
+          {selectedKeys === 'all' ? 'All items selected' : ${selectedKeys.size} of ${filteredItems.length} selected}
         </span>
         <Pagination isCompact showControls showShadow color="primary" page={page} total={pages} onChange={setPage} />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
-            Anterior
+            Previous
           </Button>
           <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
-            Siguiente
+            Next
           </Button>
         </div>
       </div>
     )
-  }, [selectedKeys, filteredItems.length, page, pages, onPreviousPage, onNextPage])
+  }, [selectedKeys, items.length, page, pages, hasSearchFilter])
 
   const topContent = useMemo(() => {
     return (
@@ -262,17 +265,17 @@ const TableTours = () => {
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
-            placeholder="Buscar por nombre..."
+            placeholder="Search by name..."
             startContent={<SearchIcon />}
             value={filterValue}
-            onClear={onClear}
+            onClear={() => onClear()}
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Categoría
+                  Status
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -292,7 +295,7 @@ const TableTours = () => {
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Columnas
+                  Columns
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -310,14 +313,14 @@ const TableTours = () => {
               </DropdownMenu>
             </Dropdown>
             <Button color="primary" endContent={<PlusIcon />}>
-              Agregar Tour
+              Add New
             </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">{lugares.length} usuarios en total</span>
+          <span className="text-default-400 text-small">Total {lugares.length} users</span>
           <label className="flex items-center text-default-400 text-small">
-            Filas por página:
+            Rows per page:
             <select className="bg-transparent outline-none text-default-400 text-small" onChange={onRowsPerPageChange}>
               <option value="5">5</option>
               <option value="10">10</option>
@@ -327,7 +330,8 @@ const TableTours = () => {
         </div>
       </div>
     )
-  }, [filterValue, statusFilter, visibleColumns, onRowsPerPageChange, lugares.length, onSearchChange, onClear])
+  }, [filterValue, statusFilter, visibleColumns, onRowsPerPageChange, lugares.length, onSearchChange, hasSearchFilter])
+
   return (
     <Table
       isHeaderSticky
