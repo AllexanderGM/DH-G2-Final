@@ -35,9 +35,9 @@ const statusColorMap = {
   Relax: 'danger'
 }
 export const statusOptions = [
-  { name: 'Active', uid: 'active' },
-  { name: 'Paused', uid: 'paused' },
-  { name: 'Vacation', uid: 'vacation' }
+  { name: 'Cultural', uid: 'cultural' },
+  { name: 'Aventura', uid: 'acentura' },
+  { name: 'Relax', uid: 'relax' }
 ]
 
 export function capitalize(s) {
@@ -267,7 +267,7 @@ const TableTours = () => {
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">{lugares.length} usuarios en total</span>
+          <span className="text-default-400 text-small">{lugares.length} tours en total</span>
           <label className="flex items-center text-default-400 text-small">
             Filas por página:
             <select className="bg-transparent outline-none text-default-400 text-small" onChange={onRowsPerPageChange}>
@@ -283,7 +283,7 @@ const TableTours = () => {
   return (
     <Table
       isHeaderSticky
-      aria-label="Users Table"
+      aria-label="Tours Table"
       className="w-full max-w-6xl mt-12"
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
