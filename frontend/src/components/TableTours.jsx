@@ -285,7 +285,7 @@ const TableTours = () => {
               </DropdownMenu>
             </Dropdown>
             <Button color="primary" endContent={<PlusIcon />}>
-              Agregar Tour
+              Crear Tour
             </Button>
           </div>
         </div>

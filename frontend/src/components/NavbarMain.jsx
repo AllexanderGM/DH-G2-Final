@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NavbarContent, NavbarItem, Link, Image } from '@heroui/react'
-import { Avatar } from '@heroui/avatar'
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/dropdown'
 
-import BrandButton from './BrandButton.jsx'
 import img from '../assets/Logo/logo_navbar/svg/isotipo_sm.svg'
+import NavbarRegularPortion from './NavbarRegularPortion.jsx'
+import NavbarAdminPortion from './NavbarAdminPortion.jsx'
+import NavbarUserPortion from './NavbarUserPortion.jsx'
 
 function NavbarMain({ user }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -51,54 +51,9 @@ function NavbarMain({ user }) {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
-        {user?.isAuthenticated && user?.isAdmin ? (
-          <>
-            <div className="flex gap-3 items-center">
-              <NavbarItem>
-                <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/crear-tour">
-                  Crear tour
-                </Link>
-              </NavbarItem>
-            </div>
-            <div className="flex gap-3 items-center">
-              <NavbarItem>
-                <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/admin">
-                  Admin panel
-                </Link>
-              </NavbarItem>
-              <NavbarItem>
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Avatar name={getInitials(user.name)} className="cursor-pointer" />
-                  </DropdownTrigger>
-
-                  <DropdownMenu aria-label="Profile Actions">
-                    <DropdownItem key="profile">Perfil</DropdownItem>
-                    <DropdownItem key="settings">Configuración</DropdownItem>
-                    <DropdownItem key="logout" color="danger">
-                      Cerrar sesión
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-              </NavbarItem>
-            </div>
-          </>
-        ) : (
-          <>
-            <NavbarItem className="lg:flex text-sm">
-              <Link className="text-sm md:text-base" href="/register">
-                Registrarse
-              </Link>
-            </NavbarItem>
-            <NavbarItem>
-              <Link className="text-sm md:text-base" href="/log">
-                <BrandButton color="brandColor" className="text-sm md:text-base">
-                  Iniciar sesión
-                </BrandButton>
-              </Link>
-            </NavbarItem>
-          </>
-        )}
+        {user?.isAdmin && <NavbarAdminPortion getInitials={getInitials} user={user} />}
+        {user?.isAuthenticated && !user?.isAdmin && <NavbarUserPortion getInitials={getInitials} user={user} />}
+        {!user?.isAuthenticated && !user?.isAdmin && <NavbarRegularPortion />}
       </NavbarContent>
 
       <NavbarMenuToggle aria-label={isMenuOpen ? 'Close menu' : 'Open menu'} className="sm:hidden" />

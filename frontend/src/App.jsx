@@ -1,15 +1,15 @@
 import { Outlet } from 'react-router-dom'
 import NavbarMain from '@components/NavbarMain'
 import FooterMain from '@components/FooterMain'
-import { useState } from 'react'
-import GeneralContext from './context/GeneralContext'
+
+import GeneralContext from './context/GeneralContext.jsx'
 
 function App() {
-  const [user, setUser] = useState({
+  const user = {
     name: 'Javier Ascevedo',
     isAdmin: false,
     isAuthenticated: true
-  })
+  }
 
   return (
     <>

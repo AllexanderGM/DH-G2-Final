@@ -268,7 +268,7 @@ const TableUsers = () => {
               </DropdownMenu>
             </Dropdown>
             <Button color="primary" endContent={<PlusIcon />}>
-              Agregar Usuario
+              Crear Usuario
             </Button>
           </div>
         </div>
