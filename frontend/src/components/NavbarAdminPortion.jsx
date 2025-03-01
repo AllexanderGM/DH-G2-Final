@@ -30,8 +30,7 @@ const NavbarAdminPortion = ({ getInitials, user }) => {
             </DropdownTrigger>
 
             <DropdownMenu aria-label="Profile Actions">
-              <DropdownItem key="profile">Perfil</DropdownItem>
-              <DropdownItem key="settings">Configuración</DropdownItem>
+              <DropdownItem key="profile">Mi Perfil</DropdownItem>
               <DropdownItem key="logout" color="danger">
                 Cerrar sesión
               </DropdownItem>

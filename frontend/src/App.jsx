@@ -7,7 +7,7 @@ import GeneralContext from './context/GeneralContext.jsx'
 function App() {
   const user = {
     name: 'Javier Ascevedo',
-    isAdmin: false,
+    isAdmin: true,
     isAuthenticated: true
   }
 

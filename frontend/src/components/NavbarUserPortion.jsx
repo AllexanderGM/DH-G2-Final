@@ -24,7 +24,6 @@ const NavbarUserPortion = ({ getInitials, user }) => {
 
             <DropdownMenu aria-label="Profile Actions">
               <DropdownItem key="profile">Perfil</DropdownItem>
-              <DropdownItem key="settings">Configuración</DropdownItem>
               <DropdownItem key="logout" color="danger">
                 Cerrar sesión
               </DropdownItem>
