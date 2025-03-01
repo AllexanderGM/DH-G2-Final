@@ -7,7 +7,7 @@ import GeneralContext from './context/GeneralContext'
 function App() {
   const [user, setUser] = useState({
     name: 'Javier Ascevedo',
-    isAdmin: true,
+    isAdmin: false,
     isAuthenticated: true
   })
 

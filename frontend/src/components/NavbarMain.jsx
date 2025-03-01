@@ -87,7 +87,7 @@ function NavbarMain({ user }) {
           <>
             <NavbarItem className="lg:flex text-sm">
               <Link className="text-sm md:text-base" href="/register">
-                Crear usuario
+                Registrarse
               </Link>
             </NavbarItem>
             <NavbarItem>
