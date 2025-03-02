@@ -77,8 +77,8 @@ const RegisterForm = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 -mt-8">
-      <Card className="w-[800px] h-[630px] overflow-hidden">
-        <CardBody className="grid grid-cols-2 gap-1 p-0">
+      <Card className="w-[800px] h-full md:h-[630px] overflow-hidden">
+        <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-1 p-0">
           <div className="h-full flex items-end justify-end">
             <Image
               removeWrapper

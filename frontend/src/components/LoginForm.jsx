@@ -61,8 +61,8 @@ const LoginForm = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 -mt-8">
-      <Card className="w-[700px] h-[550px] overflow-hidden">
-        <CardBody className="grid grid-cols-2 gap-1 p-0">
+      <Card className="w-[700px] h-full md:h-[550px] overflow-hidden rounded-none md:rounded-xl">
+        <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-1 p-0 ">
           <div className="h-full relative flex">
             <Image
               src={forestmanImage}
@@ -72,12 +72,12 @@ const LoginForm = () => {
           </div>
 
           <Form
-            className="w-full flex flex-col justify-center items-center space-y-3 py-2"
+            className="w-full flex flex-col justify-center items-center space-y-3 py-12 md:py-2"
             validationErrors={errors}
             onReset={() => setSubmitted(null)}
             onSubmit={onSubmit}>
             <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">Iniciar sesión</h2>
-            <div className="flex flex-col gap-5 max-w-md w-full px-12">
+            <div className="flex flex-col gap-5 max-w-md w-full px-12 py-0">
               <Input
                 isRequired
                 errorMessage={errors.email}
