@@ -39,6 +39,13 @@ const RegisterForm = () => {
     // Custom validation checks
     const newErrors = {}
 
+    if (!data.nombre) {
+      newErrors.nombre = 'Por favor. Ingresa tu nombre'
+    }
+    if (!data.apellido) {
+      newErrors.apellido = 'Por favor. Ingresa tu apellido'
+    }
+
     if (!data.email) {
       newErrors.email = 'Por favor. Ingresa tu correo electrónico'
     } else if (!/\S+@\S+\.\S+/.test(data.email)) {
@@ -90,13 +97,8 @@ const RegisterForm = () => {
             <div className="flex flex-col gap-5 max-w-md w-full px-12">
               <Input
                 isRequired
-                errorMessage={({ validationDetails }) => {
-                  if (validationDetails.valueMissing) {
-                    return 'Please enter your name'
-                  }
-
-                  return errors.name
-                }}
+                errorMessage={errors.nombre}
+                isInvalid={!!errors.nombre}
                 label="Nombre"
                 labelPlacement="outside"
                 name="name"
@@ -104,13 +106,8 @@ const RegisterForm = () => {
               />
               <Input
                 isRequired
-                errorMessage={({ validationDetails }) => {
-                  if (validationDetails.valueMissing) {
-                    return 'Please enter your name'
-                  }
-
-                  return errors.name
-                }}
+                errorMessage={errors.apellido}
+                isInvalid={!!errors.apellido}
                 label="Apellido"
                 labelPlacement="outside"
                 name="lastname"
