@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom'
-import { NavbarItem } from '@heroui/react'
+import { NavbarItem, Link } from '@heroui/react'
 
 import BrandButton from './BrandButton.jsx'
 
@@ -8,7 +7,7 @@ const NavbarRegularPortion = () => {
     <>
       <NavbarItem className="lg:flex text-sm">
         <Link className="text-sm md:text-base" href="/register">
-          Registrarse
+          Crear Cuenta
         </Link>
       </NavbarItem>
       <NavbarItem>

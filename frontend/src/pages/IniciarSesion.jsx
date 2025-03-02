@@ -1,10 +1,11 @@
 import LoginComponent from '@components/LoginComponent'
-
+import LoginForm from '@components/LoginForm'
 
 const IniciarSesion = () => {
   return (
     <div>
-      <LoginComponent />
+      {/* <LoginComponent /> */}
+      <LoginForm />
     </div>
   )
 }
