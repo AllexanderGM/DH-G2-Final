@@ -9,6 +9,7 @@ import com.tours.infrastructure.entities.user.Role;
 import com.tours.infrastructure.entities.user.Token;
 import com.tours.infrastructure.entities.user.User;
 import com.tours.infrastructure.entities.user.UserRol;
+import com.tours.infrastructure.repositories.user.IRoleUserRepository;
 import com.tours.infrastructure.repositories.user.ITokenRepository;
 import com.tours.infrastructure.repositories.user.IUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AuthService {
     private final ITokenRepository tokenRepository;
     private final JwtService jwtService;
+    private  final IRoleUserRepository roleUserRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private static final Map<String, String> tokenBlacklist = new ConcurrentHashMap<>();
@@ -46,7 +48,14 @@ public class AuthService {
             logger.error("Error: Usuario ya registrado - {}", newUser.email());
             throw new UnauthorizedException("Usuario ya registrado");
         } else {
+            Role role = roleUserRepository.findByUserRol(UserRol.CLIENT)
+                    .orElseGet(() -> {
+                        Role newRole = new Role(UserRol.CLIENT);
+                        return roleUserRepository.save(newRole);
+                    });
+
             User userEntity = User.builder()
+                    .image(newUser.image())
                     .name(newUser.name())
                     .lastname(newUser.lastName())
                     .document(newUser.document())
@@ -57,7 +66,7 @@ public class AuthService {
                     .dateOfJoin(LocalDate.now())
                     .address(newUser.address())
                     .city(newUser.city())
-                    .role(new Role(UserRol.lookup(UserRol.CLIENT.name())))
+                    .role(role)
                     .build();
 
             User savedUser = userRepository.save(userEntity);

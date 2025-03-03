@@ -10,6 +10,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<FormatResponseDTO> register(UserRequestDTO newUser) {
+    public ResponseEntity<FormatResponseDTO> register(@RequestBody UserRequestDTO newUser) {
         FormatResponseDTO response = ResponseHandler.format(
                 "Registrar usuario",
                 false,
@@ -35,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<FormatResponseDTO> login(AuthRequestDTO user) {
+    public ResponseEntity<FormatResponseDTO> login(@RequestBody AuthRequestDTO user) {
         FormatResponseDTO response = ResponseHandler.format(
                 "Iniciar sesión",
                 false,
