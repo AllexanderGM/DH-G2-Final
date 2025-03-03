@@ -84,7 +84,7 @@ const RegisterComponent = () => {
           </form>
           <p className="text-sm text-gray-600 text-center mt-4">
             ¿Ya tienes cuenta?{' '}
-            <Link to="/log" className="text-primary-500 hover:underline">
+            <Link to="/login" className="text-primary-500 hover:underline">
               Inicia sesión aquí
             </Link>
           </p>

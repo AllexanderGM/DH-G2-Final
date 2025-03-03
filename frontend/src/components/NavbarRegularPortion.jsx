@@ -11,7 +11,7 @@ const NavbarRegularPortion = () => {
         </Link>
       </NavbarItem>
       <NavbarItem>
-        <Link className="text-sm md:text-base" href="/log">
+        <Link className="text-sm md:text-base" href="/login">
           <BrandButton color="brandColor" className="text-sm md:text-base">
             Iniciar sesión
           </BrandButton>

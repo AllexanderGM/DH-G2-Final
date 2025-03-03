@@ -2,7 +2,7 @@ import { Form, Input, Select, SelectItem, Button, Card, CardBody, Image } from '
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import walkingmanImage from '../assets/Backgrounds/walkingman.jpeg'
+import walkingmanImage from '../assets/Backgrounds/walkingman.webp'
 
 const RegisterForm = () => {
   const [password, setPassword] = useState('')
@@ -147,7 +147,7 @@ const RegisterForm = () => {
             </div>
             <p className="text-sm text-gray-600 text-center mt-4">
               ¿Ya tienes cuenta?{' '}
-              <Link to="/log" className="text-primary-500 hover:underline">
+              <Link to="/login" className="text-primary-500 hover:underline">
                 Inicia sesión aquí
               </Link>
             </p>

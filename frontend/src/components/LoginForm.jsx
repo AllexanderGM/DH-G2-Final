@@ -2,7 +2,7 @@ import { Form, Input, Button, Card, CardBody, Image } from '@heroui/react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import forestmanImage from '../assets/Backgrounds/forestman.jpeg'
+import forestmanImage from '../assets/Backgrounds/forestman.webp'
 
 const LoginForm = () => {
   const [password, setPassword] = useState('')
@@ -113,7 +113,7 @@ const LoginForm = () => {
 
             <p className="text-sm text-gray-600 text-center mt-4">
               ¿No tienes cuenta?{' '}
-              <Link to="/log" className="text-primary-500 hover:underline">
+              <Link to="/register" className="text-primary-500 hover:underline">
                 Registrate aquí
               </Link>
             </p>
