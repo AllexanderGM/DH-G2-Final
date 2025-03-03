@@ -24,15 +24,21 @@ public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
+
     @NotBlank(message = "El nombre es obligatorio")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "El nombre solo puede contener letras y espacios")
     private String nombre;
+
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "El Apellido solo puede contener letras y espacios")
     @NotBlank(message = "El apellido es obligatorio")
     private String apellido;
+
     @NotBlank(message = "El documento es obligatorio")
     private String documento;
-    @Pattern(regexp = "\\d{9}", message = "El teléfono debe tener 9 dígitos")
+
     private String telefono;
     @NotNull(message = "La fecha de nacimiento es obligatoria")
+
     private LocalDate fechaNacimiento;
     @Email(message = "El correo debe ser válido")
     @Column(unique = true, nullable = false)

@@ -3,6 +3,8 @@ package com.tours.tours.auth;
 import com.tours.tours.config.JwtService;
 import com.tours.tours.entity.Role;
 import com.tours.tours.entity.Usuario;
+import com.tours.tours.exception.CorreoExisteException;
+import com.tours.tours.exception.NoAutorizado;
 import com.tours.tours.repository.IUsuarioRepository;
 import com.tours.tours.repository.RolRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +24,14 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final RolRepository rolRepository;
 
-    public AuthenticationResponse register (Usuario request){
+    public AuthenticationResponse register(Usuario request) {
+        if (usuarioRepository.existsByCorreo(request.getCorreo())) {
+            throw new CorreoExisteException("El correo ya está registrado.");
+        }
+
         Role rolePorDefecto = rolRepository.findById(2L)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Rol con ID 2 no encontrado"));
+
         Usuario usuario = Usuario.builder()
                 .nombre(request.getNombre())
                 .apellido(request.getApellido())
@@ -47,19 +54,24 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse login(AuthenticationRequest request){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getCorreo(),
-                        request.getContrasena()
-                )
-        );
-        Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo())
-                .orElseThrow(() -> new RuntimeException("No existe el usuario"));
-        String token = jwtService.generateToken(usuario);
+    public AuthenticationResponse login(AuthenticationRequest request) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getCorreo(),
+                            request.getContrasena()
+                    )
+            );
+            Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo())
+                    .orElseThrow(() -> new RuntimeException("No existe el correo"));
+            String token = jwtService.generateToken(usuario);
 
-        return AuthenticationResponse.builder()
-                .token(token)
-                .build();
+            return AuthenticationResponse.builder()
+                    .token(token)
+                    .build();
+
+        } catch (Exception e) {
+            throw new NoAutorizado("Correo o Contraseña Iválido");
+        }
     }
 }

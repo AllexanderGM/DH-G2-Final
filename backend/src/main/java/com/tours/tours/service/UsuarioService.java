@@ -1,6 +1,7 @@
 package com.tours.tours.service;
 import com.tours.tours.entity.Role;
 import com.tours.tours.entity.Usuario;
+import com.tours.tours.exception.CorreoExisteException;
 import com.tours.tours.repository.IUsuarioRepository;
 import com.tours.tours.repository.RolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,19 +32,7 @@ public class UsuarioService  implements UserDetailsService {
     public Optional<Usuario> obtenerPorId(Long id) {
         return usuarioRepository.findById(id);
     }
-
-    public Usuario registrarUsuario(Usuario usuario) {
-        if (usuarioRepository.existsByCorreo(usuario.getCorreo())) {
-            throw new UsernameNotFoundException("El correo ya está registrado.");
-        }
-        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
-        usuario.setFechaRegistro(LocalDate.now());
-        Role rolePorDefecto = rolRepository.findById(2L)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
-        usuario.setRole(rolePorDefecto);
-
-        return usuarioRepository.save(usuario);
-    }
+    
 
     public Usuario actualizarUsuario(Long id, Usuario usuarioDetalles) {
         return usuarioRepository.findById(id).map(usuario -> {
@@ -66,7 +55,6 @@ public class UsuarioService  implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //como resolvemos?
         Optional<Usuario> usuarioBuscado= usuarioRepository.findByCorreo(username);
         if(usuarioBuscado.isPresent()){
             return (UserDetails) usuarioBuscado.get();
