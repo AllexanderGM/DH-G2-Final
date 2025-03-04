@@ -1,0 +1,176 @@
+{
+	"info": {
+		"_postman_id": "39ba573c-1c3a-414c-86e9-0513cc7a6161",
+		"name": "DH-G2-Final",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "24525606",
+		"_collection_link": "https://lively-eclipse-999823.postman.co/workspace/DMPA---Javeriana~71f9bc35-06d6-41d1-aabb-ee5a6e6913cb/collection/24525606-39ba573c-1c3a-414c-86e9-0513cc7a6161?action=share&source=collection_link&creator=24525606"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Registro",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"image\": \"https://example.com/image.jpg\",\r\n    \"name\": \"Jussan\",\r\n    \"lastName\": \"Pérez\",\r\n    \"document\": \"123456789\",\r\n    \"phone\": \"300123456\",\r\n    \"dateOfBirth\": \"1990-05-15\",\r\n    \"email\": \"juan.ada5ad6dez@example.com\",\r\n    \"password\": \"password123\",\r\n    \"address\": \"Calle 123 #45-67\",\r\n    \"city\": \"Bogotá\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{URL_LOCAL}}/auth/register"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"correo\": \"arek@gmail.com\",\r\n    \"contrasena\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{URL_LOCAL}}/auth/login"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Listar Usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{URL_LOCAL}}/usuarios"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tours",
+			"item": [
+				{
+					"name": "Lista de 10 productos aleatorios",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{URL_LOCAL}}/tours/random"
+					},
+					"response": []
+				},
+				{
+					"name": "Guardar Tour",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Machu Picchu 7\",\r\n    \"description\": \"Viaje cultural, una aventura que incluye visitas a ruinas incas, caminatas por montañas y observación de animales y aves que habitan\",\r\n    \"adultPrice\": 6000.0,\r\n    \"childPrice\": 6000.0,\r\n    \"images\": [\r\n        \"https://i.pinimg.com/736x/72/af/ca/72afcae3b7f498fb166e831d78032e44.jpg\",\r\n        \"https://i.pinimg.com/736x/a0/e6/5e/a0e65e336fd8a72e84bc795c94fe81d8.jpg\"\r\n    ],\r\n    \"status\": \"Disponible\",\r\n    \"tag\": \"Vacaciones\",\r\n    \"includes\": [\r\n        {\r\n            \"type\": \"Alojamiento\",\r\n            \"icon\": \"\",\r\n            \"description\": \"\"\r\n        },\r\n        {\r\n            \"type\": \"Boletos\",\r\n            \"icon\": \"\",\r\n            \"description\": \"\"\r\n        }\r\n    ],\r\n    \"destination\": {\r\n        \"country\": \"Afghanistan\",\r\n        \"city\":\"Herat\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{URL_LOCAL}}/tours"
+					},
+					"response": []
+				},
+				{
+					"name": "paquetes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "booking",
+			"item": []
+		},
+		{
+			"name": "Info general",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{URL_LOCAL}}/"
+			},
+			"response": []
+		},
+		{
+			"name": "Info system",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{URL_LOCAL}}/system"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL_LOCAL",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
