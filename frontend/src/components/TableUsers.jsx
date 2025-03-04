@@ -26,6 +26,7 @@ export const INITIAL_VISIBLE_COLUMNS = [
   { name: 'APELLIDO', uid: 'apellido' },
   { name: 'ESTADO', uid: 'estado' },
   { name: 'PAIS', uid: 'pais' },
+  { name: 'ROL', uid: 'role' },
   { name: 'ACCIONES', uid: 'actions' }
 ]
 
@@ -37,9 +38,20 @@ const statusColorMap = {
   sospechoso: 'danger'
 }
 
+const roleColorMap = {
+  admin: 'danger',
+  user: 'primary',
+  undefined: 'default'
+}
+
 export const statusOptions = [
-  { name: 'Activo', uid: 'active' },
-  { name: 'Inactivo', uid: 'inactive' }
+  { name: 'Activo', uid: 'activo' },
+  { name: 'Inactivo', uid: 'inactivo' }
+]
+
+export const roleOptions = [
+  { name: 'Admin', uid: 'admin' },
+  { name: 'User', uid: 'user' }
 ]
 
 export function capitalize(s) {
@@ -48,18 +60,21 @@ export function capitalize(s) {
 
 const TableUsers = () => {
   const [users, setUsers] = useState([])
-  const URL = 'data/mock-users.json'
+  const URL = 'http://localhost:8000/users'
 
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
   const [visibleColumns, setVisibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS.map(col => col.uid)))
   const [statusFilter, setStatusFilter] = useState('all')
+  const [roleFilter, setRoleFilter] = useState('all')
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [sortDescriptor, setSortDescriptor] = useState({
     column: 'nombre',
     direction: 'ascending'
   })
   const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -73,14 +88,29 @@ const TableUsers = () => {
     let filteredUsers = [...users]
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter(user => user.nombre.toLowerCase().includes(filterValue.toLowerCase()))
+      filteredUsers = filteredUsers.filter(
+        user =>
+          user.nombre?.toLowerCase().includes(filterValue.toLowerCase()) ||
+          user.apellido?.toLowerCase().includes(filterValue.toLowerCase()) ||
+          user.email?.toLowerCase().includes(filterValue.toLowerCase())
+      )
     }
-    if (statusFilter !== 'all' && Array.from(statusFilter).length !== statusColorMap.length) {
+    if (statusFilter !== 'all' && Array.from(statusFilter).length !== statusOptions.length) {
       filteredUsers = filteredUsers.filter(user => Array.from(statusFilter).includes(user.estado))
     }
 
+    if (roleFilter !== 'all' && Array.from(roleFilter).length !== roleOptions.length) {
+      filteredUsers = filteredUsers.filter(user => {
+        // Handle cases where role is undefined
+        if (!user.role && Array.from(roleFilter).includes('undefined')) {
+          return true
+        }
+        return Array.from(roleFilter).includes(user.role)
+      })
+    }
+
     return filteredUsers
-  }, [users, filterValue, statusFilter, hasSearchFilter])
+  }, [users, filterValue, statusFilter, roleFilter, hasSearchFilter])
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage)
 
@@ -103,14 +133,21 @@ const TableUsers = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
+      setLoading(true)
+      setError(null)
+
       const response = await fetch(URL)
       if (!response.ok) {
-        throw new Error('Error al cargar los datos')
+        throw new Error(`Error al cargar los datos: ${response.status}`)
       }
       const data = await response.json()
+      console.log('Usuarios recibidos:', data)
       setUsers(data)
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error al cargar usuarios:', error)
+      setError(error.message)
+    } finally {
+      setLoading(false)
     }
   }, [URL])
 
@@ -127,7 +164,13 @@ const TableUsers = () => {
       case 'estado':
         return (
           <Chip className="capitalize" color={statusColorMap[user.estado] || 'default'} size="sm" variant="flat">
-            {cellValue}
+            {cellValue || 'No definido'}
+          </Chip>
+        )
+      case 'role':
+        return (
+          <Chip className="capitalize" color={roleColorMap[user.role] || 'default'} size="sm" variant="flat">
+            {cellValue || 'No definido'}
           </Chip>
         )
       case 'actions':
@@ -186,6 +229,10 @@ const TableUsers = () => {
     setPage(1)
   }, [])
 
+  const handleRefresh = useCallback(() => {
+    fetchUsers()
+  }, [fetchUsers])
+
   const bottomContent = useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
@@ -212,7 +259,7 @@ const TableUsers = () => {
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
-            placeholder="Buscar por nombre..."
+            placeholder="Buscar por nombre, apellido o email..."
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={onClear}
@@ -230,12 +277,12 @@ const TableUsers = () => {
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Categoría
+                  Estado
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
                 disallowEmptySelection
-                aria-label="Table Columns"
+                aria-label="Status Filter"
                 closeOnSelect={false}
                 selectedKeys={statusFilter}
                 selectionMode="multiple"
@@ -243,6 +290,26 @@ const TableUsers = () => {
                 {statusOptions.map(status => (
                   <DropdownItem key={status.uid} className="capitalize">
                     {capitalize(status.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Dropdown>
+              <DropdownTrigger className="hidden sm:flex">
+                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
+                  Rol
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Role Filter"
+                closeOnSelect={false}
+                selectedKeys={roleFilter}
+                selectionMode="multiple"
+                onSelectionChange={setRoleFilter}>
+                {roleOptions.map(role => (
+                  <DropdownItem key={role.uid} className="capitalize">
+                    {capitalize(role.name)}
                   </DropdownItem>
                 ))}
               </DropdownMenu>
@@ -267,13 +334,18 @@ const TableUsers = () => {
                 ))}
               </DropdownMenu>
             </Dropdown>
+            <Button variant="light" onPress={handleRefresh} isLoading={loading}>
+              Actualizar
+            </Button>
             <Button color="primary" endContent={<PlusIcon />}>
               Crear Usuario
             </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">{users.length} usuarios en total</span>
+          <span className="text-default-400 text-small">
+            {loading ? 'Cargando usuarios...' : error ? `Error: ${error}` : `${users.length} usuarios en total`}
+          </span>
           <label className="flex items-center text-default-400 text-small">
             Filas por página:
             <select className="bg-transparent outline-none text-default-400 text-small" onChange={onRowsPerPageChange}>
@@ -285,7 +357,19 @@ const TableUsers = () => {
         </div>
       </div>
     )
-  }, [filterValue, statusFilter, visibleColumns, onRowsPerPageChange, users.length, onSearchChange, onClear])
+  }, [
+    filterValue,
+    statusFilter,
+    roleFilter,
+    visibleColumns,
+    onRowsPerPageChange,
+    users.length,
+    onSearchChange,
+    onClear,
+    loading,
+    error,
+    handleRefresh
+  ])
 
   return (
     <Table
@@ -308,7 +392,11 @@ const TableUsers = () => {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody items={sortedItems} emptyContent={'No se encontraron usuarios'}>
+      <TableBody
+        items={sortedItems}
+        emptyContent={loading ? 'Cargando...' : error ? 'Error al cargar usuarios' : 'No se encontraron usuarios'}
+        loadingContent={<div>Cargando usuarios...</div>}
+        loadingState={loading ? 'loading' : 'idle'}>
         {item => <TableRow key={item.id}>{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}</TableRow>}
       </TableBody>
     </Table>

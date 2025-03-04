@@ -1,25 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Navbar, NavbarBrand, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NavbarContent, NavbarItem, Link, Image } from '@heroui/react'
 
+import { useAuth } from '../context/AuthContext.jsx'
 import img from '../assets/Logo/logo_navbar/svg/isotipo_sm.svg'
 import NavbarRegularPortion from './NavbarRegularPortion.jsx'
 import NavbarAdminPortion from './NavbarAdminPortion.jsx'
 import NavbarUserPortion from './NavbarUserPortion.jsx'
 
-function NavbarMain({ user }) {
+function NavbarMain() {
+  const { user, loading, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuItems = ['Somos', 'Tours', 'Contacto']
 
+  // debugging
+  useEffect(() => {
+    console.log('Auth state cambió en el navbar:', user)
+  }, [user])
+
   // Iniciales de usuario
-  const getInitials = name => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
+  const getInitials = (nombre, apellido) => {
+    if (!nombre) return 'U'
+
+    return (nombre.charAt(0) + apellido.charAt(0)).toUpperCase()
   }
 
-  /*Primera parte es de Web, la segunda parte es Mobil*/
+  // No mostrar navbar mientras se checkea autenticación
+  if (loading) {
+    return null
+  }
+
   return (
     <Navbar
       isMenuOpen={isMenuOpen}
@@ -51,9 +60,11 @@ function NavbarMain({ user }) {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
-        {user?.isAdmin && <NavbarAdminPortion getInitials={getInitials} user={user} />}
-        {user?.isAuthenticated && !user?.isAdmin && <NavbarUserPortion getInitials={getInitials} user={user} />}
-        {!user?.isAuthenticated && !user?.isAdmin && <NavbarRegularPortion />}
+        {!user && <NavbarRegularPortion />}
+
+        {user && user.isAdmin && <NavbarAdminPortion getInitials={getInitials} />}
+
+        {user && !user.isAdmin && <NavbarUserPortion getInitials={getInitials} />}
       </NavbarContent>
 
       <NavbarMenuToggle aria-label={isMenuOpen ? 'Close menu' : 'Open menu'} className="sm:hidden" />

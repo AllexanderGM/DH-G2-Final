@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider, useHref, useNavigate } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import Users from '@components/Users.jsx'
 
 import HomePage from './pages/HomePage.jsx'
 import DetalleTour from './pages/DetalleTour.jsx'
@@ -9,14 +10,12 @@ import IniciarSesion from './pages/IniciarSesion.jsx'
 import RegistrarUsuario from './pages/RegistrarUsuario.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 import CrearTour from './pages/CrearTour.jsx'
-import GeneralContext from './context/GeneralContext.jsx'
-import { HeroUIProvider } from '@heroui/react'
+import ProtectedRoute from './pages/ProtectedRoute.jsx'
 import App from './App.jsx'
-
-// Estilos con Tailwind CSS
 import './styles/tailwind.css'
-// Estilos generales Styles
 import './styles/global.scss'
+import ProfilePage from './pages/ProfilePage.jsx'
+import EditUserProfile from './pages/EditUserProfile.jsx'
 
 const router = createBrowserRouter([
   {
@@ -40,10 +39,24 @@ const router = createBrowserRouter([
         element: <RegistrarUsuario />
       },
       {
-        path: '/admin',
-        element: <AdminPage />
+        path: '',
+        element: <ProtectedRoute requiredRole="admin" />,
+        children: [
+          { path: '/admin', element: <AdminPage /> },
+          { path: '/crear-tour', element: <CrearTour /> },
+          { path: '/profile-admin', element: <ProfilePage /> }
+        ]
       },
-      { path: '/crear-tour', element: <CrearTour /> }
+      {
+        path: '',
+        element: <ProtectedRoute requiredRole="user" />,
+        children: [
+          { path: '/favoritos', element: <div>Tours favoritos</div> },
+          { path: '/users', element: <Users /> },
+          { path: '/profile-user', element: <ProfilePage /> },
+          { path: '/edit-profile', element: <EditUserProfile /> }
+        ]
+      }
     ],
     errorElement: <NotFoundPage />
   }
