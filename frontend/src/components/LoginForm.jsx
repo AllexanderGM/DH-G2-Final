@@ -117,7 +117,7 @@ const LoginForm = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 -mt-8">
       <Card className="w-[700px] h-full md:h-[550px] overflow-hidden rounded-none md:rounded-xl">
-        <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-1 p-0 ">
+        <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-0 p-0 ">
           <div className="h-full relative flex">
             <Image
               src={forestmanImage}
