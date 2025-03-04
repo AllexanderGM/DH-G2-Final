@@ -108,6 +108,7 @@ public class AuthService {
                 user.get().getImage(),
                 user.get().getEmail(),
                 user.get().getName(),
+                user.get().getLastname(),
                 user.get().getRole().getUserRol().name(),
                 jwtToken
         );

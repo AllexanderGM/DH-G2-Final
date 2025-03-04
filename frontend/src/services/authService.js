@@ -11,31 +11,32 @@ const generateToken = user => {
 
 export const login = async (email, password) => {
   // Obtener usuario por email
-  const response = await axios.get(`${API_URL}/users?email=${email}`)
-
-  if (response.data.length === 0) {
-    throw new Error('Usuario no encontrado')
+  const configFetch = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      email: email,
+      password: password
+    })
   }
 
-  const user = response.data[0]
+  const data = await fetch('http://localhost:8080/auth/login', configFetch)
+  const result = await data.json()
 
-  if (user.password !== password) {
-    throw new Error('Contraseña incorrecta')
-  }
-
-  // Crea un objeto con info de usuario sin password
   const authenticatedUser = {
-    id: user.id,
-    email: user.email,
-    nombre: user.nombre,
-    apellido: user.apellido,
-    avatar: user.avatar,
-    role: user.role || 'user',
-    isAdmin: user.role === 'admin'
+    id: result.id,
+    email: result.email,
+    nombre: result.name,
+    apellido: result.lastName,
+    avatar: result.image,
+    role: result.role || 'user',
+    isAdmin: result.role === 'admin'
   }
 
   // Generate a token
-  const token = generateToken(user)
+  const token = result.token
 
   // Store the token in a cookie (httpOnly would be better but requires a real backend)
   cookies.set('auth_token', token, { path: '/', maxAge: 86400 }) // 24 horas
@@ -85,38 +86,30 @@ export const hasRole = requiredRole => {
 }
 
 export const register = async userData => {
-  // Comprueba si usuario con email existe
-  const checkResponse = await axios.get(`${API_URL}/users?email=${userData.email}`)
-
-  if (checkResponse.data.length > 0) {
-    throw new Error('Este correo ya está registrado')
-  }
-
   // Setea el rol por defecto (a usuario)
-  const userDataWithRole = {
-    ...userData,
-    role: userData.role || 'user'
-  }
-  // Crea nuevo usuario
-  const response = await axios.post(`${API_URL}/users`, userDataWithRole)
-
-  // Generate token
-  const token = generateToken(response.data)
-
-  const authenticatedUser = {
-    id: response.data.id,
-    email: response.data.email,
-    nombre: response.data.nombre,
-    apellido: response.data.apellido,
-    avatar: response.data.avatar || 'https://i.pravatar.cc/150?u=' + Math.random(),
-    role: response.data.role || 'user',
-    isAdmin: response.data.role === 'admin'
+  const newUser = {
+    image: userData.avatar,
+    name: userData.nombre,
+    lastName: userData.apellido,
+    document: '123456789',
+    phone: '300123456',
+    dateOfBirth: '1990-05-15',
+    email: userData.email,
+    password: userData.password,
+    address: 'Calle 123 #45-67',
+    city: 'Bogotá'
   }
 
-  // Store token in cookie
-  cookies.set('auth_token', token, { path: '/', maxAge: 86400 })
+  const fetchConfig = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(newUser)
+  }
 
-  localStorage.setItem('user', JSON.stringify(authenticatedUser))
+  const data = await fetch('http://localhost:8080/auth/register', fetchConfig)
+  const result = await data.json()
 
-  return { user: authenticatedUser, token }
+  return result.message
 }

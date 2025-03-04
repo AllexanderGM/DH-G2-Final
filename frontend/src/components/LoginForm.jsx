@@ -91,22 +91,6 @@ const LoginForm = () => {
     setIsLoading(true)
 
     try {
-      const configFetch = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password
-        })
-      }
-
-      const dataLogin = await fetch('http://localhost:8080/auth/login', configFetch)
-      const resultJson = await dataLogin.json()
-
-      console.log(resultJson)
-
       const result = await login(data.email, data.password)
       console.log('Login exitoso', result)
 
