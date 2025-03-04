@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="w-full bg-white text-black py-6 px-8 border-t flex flex-col md:flex-row md:justify-between md:items-center">
       <div className="flex items-center md:flex-grow justify-center md:justify-start">
-        <Iso className="h-5" color="oklch(0.707 0.022 261.325)" hoverColor="#E86C6E" />
+        <Iso className="h-5 mb-1 md:mb-0" color="oklch(0.707 0.022 261.325)" hoverColor="#E86C6E" />
       </div>
 
       <div className="flex md:flex-grow justify-center">
@@ -13,9 +13,9 @@ const Footer = () => {
       </div>
 
       <div className="flex flex-1 items-center justify-center md:justify-end space-x-4 mt-4 md:mt-0">
-        <Facebook color="oklch(0.707 0.022 261.325)" />
-        <Instagram height="24" color="oklch(0.707 0.022 261.325)" />
-        <GitHub color="oklch(0.707 0.022 261.325)" />
+        <Facebook height="25" color="oklch(0.707 0.022 261.325)" />
+        <Instagram height="20" color="oklch(0.707 0.022 261.325)" />
+        <GitHub height="28" color="oklch(0.707 0.022 261.325)" />
       </div>
     </footer>
   )
