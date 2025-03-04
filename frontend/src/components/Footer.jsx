@@ -1,9 +1,9 @@
 import React from 'react'
-import img from '../assets/Logo/logo_footer/isotipo_sm 1.png'
-import inst from '../assets/Logo/logo_footer/instagram.png'
-import faceb from '../assets/Logo/logo_footer/faceb.png'
-import twiter from '../assets/Logo/logo_footer/twiter.png'
-import github from '../assets/Logo/logo_footer/github.png'
+import img from '../assets/Logo/logo_footer/isotipo_sm 1-footer.png'
+import inst from '../assets/Logo/logo_footer/instagram-footer.png'
+import faceb from '../assets/Logo/logo_footer/faceb-footer.png'
+import twiter from '../assets/Logo/logo_footer/twiter-footer.png'
+import github from '../assets/Logo/logo_footer/github-footer.png'
 const Footer = () => {
   return (
     <footer className="w-full bg-white text-black py-6 px-8 border-t flex flex-col md:flex-row md:justify-between md:items-center">
