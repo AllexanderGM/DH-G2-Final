@@ -34,12 +34,11 @@ public class AuthService {
     private final ITokenRepository tokenRepository;
     private final JwtService jwtService;
     private  final IRoleUserRepository roleUserRepository;
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
-    private static final Map<String, String> tokenBlacklist = new ConcurrentHashMap<>();
     private final AuthenticationManager authenticationManager;
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private static final Map<String, String> tokenBlacklist = new ConcurrentHashMap<>();
 
     public MessageResponseDTO register(UserRequestDTO newUser) {
         try {
@@ -76,7 +75,7 @@ public class AuthService {
             return new MessageResponseDTO("Usuario registrado correctamente");
         } catch (Exception e) {
             logger.error("Error al registrar usuario: {}", e.getMessage(), e);
-            return new MessageResponseDTO("Error al registrar usuario");
+            return new MessageResponseDTO(STR."Error al registrar usuario: \{e.getMessage()}");
         }
     }
 
@@ -140,17 +139,6 @@ public class AuthService {
         saveUserToken(user.get(), newToken);
         logger.info("Token refrescado correctamente");
         return new MessageResponseDTO(newToken);
-    }
-
-    public MessageResponseDTO logout(String token) {
-        if (tokenBlacklist.containsKey(token)) {
-            logger.error("Este token ya fue invalidado");
-            return new MessageResponseDTO("Este token ya fue invalidado");
-        } else {
-            tokenBlacklist.put(token, token);
-            logger.info("Sesión cerrada correctamente");
-            return new MessageResponseDTO("Sesión cerrada correctamente");
-        }
     }
 
     private void saveUserToken(User user, String token) {

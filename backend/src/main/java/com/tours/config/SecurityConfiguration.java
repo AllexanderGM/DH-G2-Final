@@ -83,14 +83,16 @@ public class SecurityConfiguration {
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()))
                 .authorizeHttpRequests(
                         auth -> {
-                            //endpoints que no requieren autenticacion
-                            auth.requestMatchers("/**","/tours/**", "/auth/**").permitAll();
-                            // endpoints de swagger
-                            auth.requestMatchers(HttpMethod.GET, "/swagger-ui/").permitAll();
-                            auth.requestMatchers(HttpMethod.GET, "/v3/api-docs/").permitAll();
-                            auth.requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll();
-                            // endopoint que requieren roles especificos
+                            // 🔹 Rutas para el sistema
+                            auth.requestMatchers(HttpMethod.GET,"/","/system").permitAll();
 
+                            // 🔹 Rutas para la autenticación
+                            auth.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
+                            auth.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
+
+                            // 🔹 Rutas para los turs
+                            auth.requestMatchers(HttpMethod.GET,"/tours/").permitAll();
+                            auth.requestMatchers(HttpMethod.GET, "/tours/*").permitAll();
                             auth.anyRequest().authenticated();
                         })
                 .csrf(AbstractHttpConfigurer::disable)

@@ -34,10 +34,4 @@ public class AuthController {
     public ResponseEntity<?> refresh(@RequestParam String user) throws BadRequestException {
         return ResponseEntity.ok(authService.refreshToken(user));
     }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestParam String token) {
-        return ResponseEntity.ok(authService.logout(token));
-    }
-
 }

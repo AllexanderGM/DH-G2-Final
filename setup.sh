@@ -26,10 +26,16 @@ BACKEND_ENV_PATH="./backend/.env"
 echo "Creando archivo .env para el frontend en $FRONTEND_ENV_PATH"
 cat <<EOL >$FRONTEND_ENV_PATH
 # Variables de entorno Generales
+VITE_NAME=$NAME
 VITE_NODE_ENV=$ENV
+
+# Variables de archivos estáticos
+VITE_STATIC_FILE_PATH=$STATIC_FILE_PATH
+
+# Variables de entorno Generales
+VITE_URL=$URL
 VITE_PORT_FRONT=$PORT_FRONT
 VITE_PORT_BACK=$PORT_BACK
-VITE_URL=$URL
 VITE_URL_FRONT=$URL_FRONT
 VITE_URL_BACK=$URL_BACK
 
@@ -43,18 +49,25 @@ EOL
 echo "Creando archivo .env para el backend en $BACKEND_ENV_PATH"
 cat <<EOL >$BACKEND_ENV_PATH
 # Variables de entorno Generales
+NAME=$NAME
 NODE_ENV=$ENV
+
+# Variables del sitio web
+URL=$URL
+URL_FRONT=$URL:$PORT_FRONT
+URL_BACK=$URL:$URL_BACK
 PORT_FRONT=$PORT_FRONT
 PORT_BACK=$PORT_BACK
-URL=$URL
-URL_FRONT=$URL_FRONT
-URL_BACK=$URL_BACK
+
+# Variables de archivos estáticos
+STATIC_FILE_PATH=$STATIC_FILE_PATH
 
 # Variables de conexión a la base de datos
 DB_PORT=$DB_PORT
 DB_HOST=$DB_HOST
 DB_USER=$DB_USER
 DB_PASSWORD=$DB_PASSWORD
+DB_ROOT_PASSWORD=$DB_ROOT_PASSWORD
 DB_NAME=$DB_NAME
 
 # Variables de encriptación
@@ -62,10 +75,12 @@ ALGORITHM=$ALGORITHM
 KEY=$KEY
 IV=$IV
 
-# Variables de sesion de usuarios
+# Variables de sesión de usuarios
 SESSION_SECRET=$SESSION_SECRET
-
-
+JWT_SECRET=$JWT_SECRET
+JWT_EXPIRATION=$JWT_EXPIRATION
+ADMIN_USERNAME=$ADMIN_USERNAME
+ADMIN_PASSWORD=$ADMIN_PASSWORD
 EOL
 
 echo "Archivos .env creados exitosamente"
