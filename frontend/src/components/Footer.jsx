@@ -1,5 +1,10 @@
 import { Facebook, GitHub, Instagram } from '../utils/socialMediaIcons.jsx'
+import { Link } from '@heroui/react'
 import Iso from '../utils/Iso.jsx'
+
+const url_facebook = 'https://www.facebook.com/p/Beautiful-places-in-the-world-100064591513384/'
+const url_insta = 'https://www.instagram.com/lugares_del_mundo/'
+const url_github = 'https://github.com/AllexanderGM/DH-G2-Final.git'
 
 const Footer = () => {
   return (
@@ -13,9 +18,16 @@ const Footer = () => {
       </div>
 
       <div className="flex flex-1 items-center justify-center md:justify-end space-x-4 mt-4 md:mt-0">
-        <Facebook height="25" color="oklch(0.707 0.022 261.325)" />
-        <Instagram height="20" color="oklch(0.707 0.022 261.325)" />
-        <GitHub height="28" color="oklch(0.707 0.022 261.325)" />
+        <Link href={url_facebook} isExternal>
+          <Facebook height="25" color="oklch(0.707 0.022 261.325)" />
+        </Link>
+
+        <Link href={url_insta} isExternal>
+          <Instagram height="20" color="oklch(0.707 0.022 261.325)" />
+        </Link>
+        <Link href={url_github} isExternal>
+          <GitHub height="28" color="oklch(0.707 0.022 261.325)" />
+        </Link>
       </div>
     </footer>
   )

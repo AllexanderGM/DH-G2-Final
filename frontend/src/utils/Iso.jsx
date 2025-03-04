@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 const Logo = ({ className = 'h-10', color = '#E86C6E', hoverColor = '#c04042' }) => {
   const [isHovered, setIsHovered] = useState(false)

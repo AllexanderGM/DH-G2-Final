@@ -69,8 +69,3 @@ export const GitHub = ({ height = 30, color = '#000000', hoverColor = '#333333' 
     </div>
   )
 }
-
-// Example of how to use these components:
-// <Facebook height={24} color="#E86C6E" hoverColor="#c04042" />
-// <Instagram height={24} color="#E86C6E" hoverColor="#c04042" />
-// <GitHub height={24} color="#E86C6E" hoverColor="#c04042" />
