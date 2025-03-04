@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
+import DetalleGallery from '@components/DetalleGallery'
+import BodyDetalle from '@components/BodyDetalle'
 
 const DetalleTour = () => {
   const { id } = useParams()
@@ -24,11 +25,13 @@ const DetalleTour = () => {
   }, [URL, id])
 
   return (
-    <div className="max-w-6xl mx-auto p-6 min-h-screen bg-gray-100">
+    <div className="max-w-6xl mx-auto p-6 min-h-screen bg-gray-100 mb-28">
       {tour ? (
         <>
           <div className="flex justify-between items-center h-[100px]">
-            <h1>{tour.destino}</h1>
+            <h1>
+              {tour.nombre}. {tour.destino}.
+            </h1>
             <Link to="/">
               <span
                 className="material-symbols-outlined text-2xl text-gray-500 transition-all duration-200 hover:text-gray-900 hover:text-3xl"
@@ -37,8 +40,9 @@ const DetalleTour = () => {
               </span>
             </Link>
           </div>
-          <img src={tour.imagenes[0]} alt={tour.destino} className="w-full h-80 object-cover rounded-lg my-4" />
-          <p className="text-gray-700">{tour.descripcion}</p>
+
+          <DetalleGallery tour={tour} />
+          <BodyDetalle tour={tour} />
         </>
       ) : (
         <p className="text-center mt-10">Cargando...</p>

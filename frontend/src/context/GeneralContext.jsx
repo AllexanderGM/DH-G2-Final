@@ -4,9 +4,10 @@ import PropTypes from 'prop-types'
 
 function GeneralContext({ children }) {
   const navigate = useNavigate()
+  const hrefFunc = useHref
 
   return (
-    <HeroUIProvider navigate={navigate} useHref={useHref}>
+    <HeroUIProvider navigate={navigate} useHref={hrefFunc}>
       {children}
     </HeroUIProvider>
   )
