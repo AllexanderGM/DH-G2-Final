@@ -1,5 +1,7 @@
 package com.tours.infrastructure.entities.tour;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -25,5 +27,18 @@ public enum StatusTourOptions {
                 .filter(tag -> tag.name().equalsIgnoreCase(value) || tag.displayName.equalsIgnoreCase(value))
                 .findFirst()
                 .orElse(ACTIVE);
+    }
+
+    @JsonValue
+    public String getValue() {
+        return displayName;
+    }
+
+    @JsonCreator
+    public static StatusTourOptions fromString(String value) {
+        return Arrays.stream(values())
+                .filter(option -> option.name().equalsIgnoreCase(value) || option.displayName.equalsIgnoreCase(value))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(STR."Estado no válido: \{value}"));
     }
 }

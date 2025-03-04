@@ -1,5 +1,7 @@
 package com.tours.domain.dto.tour;
 
+import com.tours.infrastructure.entities.tour.StatusTourOptions;
+import com.tours.infrastructure.entities.tour.TagTourOptions;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
@@ -27,13 +29,13 @@ public record TourRequestDTO(
         List<@NotBlank(message = "La URL de la imagen no puede estar vacía") String> images,
 
         @NotNull(message = "El estado es obligatorio")
-        Long status,
+        StatusTourOptions status,
 
         @NotNull(message = "La etiqueta es obligatoria")
-        Long tag,
+        TagTourOptions tag,
 
         @NotEmpty(message = "Debe haber al menos un include")
-        List<@Valid IncludeDTO> includes,
+        List<@Valid String> includes,
 
         @NotNull(message = "El destino es obligatorio")
         @Valid DestinationRequestDTO destination,

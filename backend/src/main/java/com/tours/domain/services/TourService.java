@@ -103,10 +103,10 @@ public class TourService {
             DestinationTour destinationTour = destinationRepository.findByCity(tour.destination().city())
                     .orElseThrow(() -> new IllegalArgumentException("Destino no encontrado"));
 
-            StatusTour statusTour = statusRepository.findById(tour.status())
+            StatusTour statusTour = statusRepository.findByStatus(tour.status())
                     .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado"));
 
-            TagTour tag = tagRepository.findById(tour.tag())
+            TagTour tag = tagRepository.findByTagTourOptions(tour.tag())
                     .orElseThrow(() -> new IllegalArgumentException("Etiqueta no encontrada"));
 
             HotelTour hotelTour = tour.hotel() != null ? hotelRepository.findById(tour.hotel())
@@ -115,8 +115,8 @@ public class TourService {
             // Evitar que la lista de includes sea null
             List<IncludeTours> includeTours = (tour.includes() != null)
                     ? tour.includes().stream()
-                    .map(dto -> includeRepository.findByType(dto.type())
-                            .orElseThrow(() -> new IllegalArgumentException("Include no encontrado: " + dto.type())))
+                    .map(dto -> includeRepository.findByType(dto.trim())
+                            .orElseThrow(() -> new IllegalArgumentException(STR."Include no encontrado: \{dto.trim()}")))
                     .toList()
                     : List.of();
 
@@ -162,10 +162,10 @@ public class TourService {
             DestinationTour destinationTour = destinationRepository.findByCity(tour.destination().city())
                     .orElseThrow(() -> new IllegalArgumentException("Destino no encontrado"));
 
-            StatusTour statusTour = statusRepository.findById(tour.status())
+            StatusTour statusTour = statusRepository.findByStatus(tour.status())
                     .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado"));
 
-            TagTour tag = tagRepository.findById(tour.tag())
+            TagTour tag = tagRepository.findByTagTourOptions(tour.tag())
                     .orElseThrow(() -> new IllegalArgumentException("Etiqueta no encontrada"));
 
             HotelTour hotelTour = (tour.hotel() != null)
@@ -176,8 +176,8 @@ public class TourService {
             // Convertir los IncludeDTO en Include
             List<IncludeTours> includeTours = (tour.includes() != null)
                     ? tour.includes().stream()
-                    .map(dto -> includeRepository.findByType(dto.type())
-                            .orElseThrow(() -> new IllegalArgumentException("Include no encontrado: " + dto.type())))
+                    .map(dto -> includeRepository.findByType(dto.trim())
+                            .orElseThrow(() -> new IllegalArgumentException(STR."Include no encontrado: \{dto.trim()}")))
                     .toList()
                     : List.of();
 
