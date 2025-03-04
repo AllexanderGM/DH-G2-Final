@@ -9,6 +9,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class AuthenticationEntryPoint implements org.springframework.security.web.AuthenticationEntryPoint {
@@ -21,8 +23,8 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         FormatResponseDTO errorResponse = new FormatResponseDTO(
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                 "Acceso denegado: No tienes permisos para acceder a este recurso",
-                false,
                 false,
                 null
         );

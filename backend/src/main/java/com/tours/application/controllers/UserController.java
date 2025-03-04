@@ -19,62 +19,22 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{email}")
-    public ResponseEntity<FormatResponseDTO> get(String email) {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Información del usuario",
-                false,
-                () -> userService.get(email)
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+    public ResponseEntity<?> get(@PathVariable String email) {
+        return ResponseEntity.ok(userService.get(email));
     }
 
-    @GetMapping("/")
-    public ResponseEntity<FormatResponseDTO> getList() {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Listar usuarios",
-                false,
-                userService::getList
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+    @GetMapping
+    public ResponseEntity<?> getList() {
+        return ResponseEntity.ok(userService.getList());
     }
 
     @PutMapping("/{email}")
-    public ResponseEntity<FormatResponseDTO> update(String email, UserModifyDTO user) {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Actualizar usuario",
-                false,
-                () -> userService.update(email, user)
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(response);
-        }
+    public ResponseEntity<?> update(@PathVariable String email, @RequestBody UserModifyDTO user) {
+        return ResponseEntity.ok(userService.update(email, user));
     }
 
     @DeleteMapping("/{email}")
-    public ResponseEntity<FormatResponseDTO> delete(String email) {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Eliminar usuario",
-                false,
-                () -> userService.delete(email)
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+    public ResponseEntity<?> delete(@PathVariable String email) {
+        return ResponseEntity.ok(userService.delete(email));
     }
 }

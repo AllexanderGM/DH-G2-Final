@@ -3,15 +3,14 @@ package com.tours.domain.services;
 import com.tours.infrastructure.entities.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
-import java.util.Map;
 
 @Service
 public class JwtService {
@@ -39,10 +38,10 @@ public class JwtService {
     private String generateToken(final User user, String expiration) {
         return Jwts.builder()
                 .id(user.getId().toString())
-                .claims(Map.of("name", user.getName()))
-                .setSubject(user.getEmail())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .claim("name", user.getName())
+                .subject(user.getEmail())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(Date.from(Instant.ofEpochMilli(System.currentTimeMillis() + Long.parseLong(expiration))))
                 .signWith(getSecretKey())
                 .compact();
     }

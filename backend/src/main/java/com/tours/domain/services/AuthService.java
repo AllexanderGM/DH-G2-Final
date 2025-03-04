@@ -17,6 +17,7 @@ import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,18 +42,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public MessageResponseDTO register(UserRequestDTO newUser) {
+        try {
+            Optional<User> user = userRepository.findByEmail(newUser.email());
 
-        Optional<User> user = userRepository.findByEmail(newUser.email());
+            if (user.isPresent()) {
+                logger.error("Error: Usuario ya registrado - {}", newUser.email());
+                throw new UnauthorizedException("Usuario ya registrado");
+            }
 
-        if (user.isPresent()) {
-            logger.error("Error: Usuario ya registrado - {}", newUser.email());
-            throw new UnauthorizedException("Usuario ya registrado");
-        } else {
             Role role = roleUserRepository.findByUserRol(UserRol.CLIENT)
-                    .orElseGet(() -> {
-                        Role newRole = new Role(UserRol.CLIENT);
-                        return roleUserRepository.save(newRole);
-                    });
+                    .orElseGet(() -> roleUserRepository.save(new Role(UserRol.CLIENT)));
 
             User userEntity = User.builder()
                     .image(newUser.image())
@@ -73,17 +72,26 @@ public class AuthService {
             var jwtToken = jwtService.generateToken(savedUser);
             saveUserToken(savedUser, jwtToken);
             logger.info("Usuario registrado correctamente {}", newUser.email());
+
             return new MessageResponseDTO("Usuario registrado correctamente");
+        } catch (Exception e) {
+            logger.error("Error al registrar usuario: {}", e.getMessage(), e);
+            return new MessageResponseDTO("Error al registrar usuario");
         }
     }
 
     public AuthResponseDTO login(AuthRequestDTO auth) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        auth.email(),
-                        auth.password()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            auth.email(),
+                            auth.password()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            logger.error("Error de autenticación: Credenciales incorrectas para {}", auth.email());
+            throw new UnauthorizedException("Credenciales incorrectas");
+        }
 
         Optional<User> user = userRepository.findByEmail(auth.email());
         if (user.isEmpty()) {

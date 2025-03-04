@@ -208,10 +208,12 @@ public class TourService {
         }
     }
 
-    public void delete(Long id) throws NotFoundException {
+    public String delete(Long id) throws NotFoundException {
         if (!tourRepository.existsById(id)) {
             throw new NotFoundException("Paquete no encontrado");
         }
         tourRepository.deleteById(id);
+        logger.info("Tour eliminado con éxito: {}", id);
+        return "Tour eliminado con éxito";
     }
 }

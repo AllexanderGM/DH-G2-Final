@@ -1,17 +1,10 @@
 package com.tours.application.controllers;
 
-import com.tours.application.handlers.ResponseHandler;
-import com.tours.domain.dto.response.FormatResponseDTO;
 import com.tours.domain.dto.tour.TourRequestDTO;
 import com.tours.domain.services.TourService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/tours")
@@ -23,107 +16,37 @@ public class TourController {
     }
 
     @GetMapping
-    public ResponseEntity<FormatResponseDTO> getAll() {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Obtener lista de paquetes de tours",
-                false,
-                tourService::getAll
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
+    public ResponseEntity<?> getAll() {
+        return ResponseEntity.ok(tourService.getAll());
     }
 
     @GetMapping("/random")
-    public ResponseEntity<FormatResponseDTO> getAllRandom(@RequestParam(defaultValue = "10") Integer limit) {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Obtener lista de paquetes de tours aleatorios",
-                false,
-                () -> tourService.getAllRandom(limit)
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
+    public ResponseEntity<?> getAllRandom(@RequestParam(defaultValue = "10") Integer limit) {
+        return ResponseEntity.ok(tourService.getAllRandom(limit));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FormatResponseDTO> getById(@PathVariable Long id) {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Obtener paquete de tour por su id",
-                false,
-                () -> tourService.getById(id)
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(tourService.getById(id));
     }
 
     @GetMapping("/paginated")
-    public ResponseEntity<FormatResponseDTO> listPaginated(Pageable pageable) {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Obtener lista de paquetes de tours paginados",
-                false,
-                () -> tourService.listPaginated(pageable)
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
+    public ResponseEntity<?> listPaginated(Pageable pageable) {
+        return ResponseEntity.ok(tourService.listPaginated(pageable));
     }
 
     @PostMapping
-    public ResponseEntity<FormatResponseDTO> add(@RequestBody TourRequestDTO tour) {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Agregar paquete de tour",
-                false,
-                () -> tourService.add(tour)
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
+    public ResponseEntity<?> add(@RequestBody TourRequestDTO tour) {
+        return ResponseEntity.ok(tourService.add(tour));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FormatResponseDTO> update(@PathVariable Long id, @RequestBody TourRequestDTO tour) {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Actualizar paquete de tour",
-                false,
-                () -> tourService.update(id, tour)
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody TourRequestDTO tour) {
+        return ResponseEntity.ok(tourService.update(id, tour));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<FormatResponseDTO> delete(@PathVariable Long id) {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Actualizar paquete de tour",
-                false,
-                () -> tourService.delete(id)
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
+    public ResponseEntity delete(@PathVariable Long id) {
+        return ResponseEntity.ok(tourService.delete(id));
     }
 }

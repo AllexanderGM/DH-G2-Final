@@ -3,57 +3,45 @@ package com.tours.application.handlers;
 import com.tours.domain.dto.response.FormatResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import java.util.function.Supplier;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @AllArgsConstructor
 @Component
-public class ResponseHandler {
-    /**
-     * Método para manejar las rutas y devolver la respuesta con el código de estado HTTP adecuado.
-     *
-     * @param message      Contexto o descripción del proceso.
-     * @param encrypted    Indica si los datos están encriptados.
-     * @param dataSupplier Proveedor de datos.
-     */
+public class ResponseHandler implements ResponseBodyAdvice<Object> {
 
-    public static <T> FormatResponseDTO format(String message, Boolean encrypted, Supplier<T> dataSupplier) {
-        try {
-            T data = dataSupplier.get();
-            return new FormatResponseDTO(
-                    "Proceso exitoso: " + message,
-                    true,
-                    encrypted,
-                    data);
-        } catch (Exception e) {
-            return new FormatResponseDTO(
-                    "Falló el proceso: " + e.getMessage(),
-                    false,
-                    encrypted,
-                    null);
-        }
+    @Override
+    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+        // Aplica a todas las respuestas excepto las que ya están envueltas en ResponseWrapper
+        return !returnType.getParameterType().equals(FormatResponseDTO.class);
     }
 
-    // Sobrecarga del método format para manejar acciones que no devuelven datos.
-    public static FormatResponseDTO format(String message, Boolean encrypted, Runnable action) {
-        try {
-            action.run();
-            return new FormatResponseDTO(
-                    "Proceso exitoso: " + message,
-                    true,
-                    encrypted,
-                    null
-            );
-        } catch (Exception e) {
-            return new FormatResponseDTO(
-                    "Falló el proceso: " + e.getMessage(),
-                    false,
-                    encrypted,
-                    null
-            );
+    @Override
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
+                                  Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                  org.springframework.http.server.ServerHttpRequest request,
+                                  org.springframework.http.server.ServerHttpResponse response) {
+
+        // Si el body ya es una instancia de ResponseWrapper, lo retornamos tal cual.
+        if (body instanceof FormatResponseDTO) {
+            return body;
         }
+
+        // Envolver la respuesta en ResponseWrapper con un mensaje por defecto
+        return new FormatResponseDTO<>(
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                "Proceso exitoso",
+                false,
+                body
+        );
     }
 
 }

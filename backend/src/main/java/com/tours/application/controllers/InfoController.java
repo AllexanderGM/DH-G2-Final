@@ -18,32 +18,12 @@ public class InfoController {
     private final InfoService infoService;
 
     @GetMapping
-    public ResponseEntity<FormatResponseDTO> getInfoGeneral() {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Información general de la API",
-                false,
-                infoService::getInfoGeneral
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+    public ResponseEntity<?> getInfoGeneral() {
+        return ResponseEntity.ok(infoService.getInfoGeneral());
     }
 
     @GetMapping("/system")
-    public ResponseEntity<FormatResponseDTO> getInfoSystem() {
-        FormatResponseDTO response = ResponseHandler.format(
-                "Información del sistema",
-                false,
-                infoService::getInfoSystem
-        );
-
-        if (response.success()) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+    public ResponseEntity<?> getInfoSystem() {
+        return ResponseEntity.ok(infoService.getInfoSystem());
     }
 }
