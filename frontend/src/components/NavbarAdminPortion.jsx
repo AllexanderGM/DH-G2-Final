@@ -31,7 +31,7 @@ const NavbarAdminPortion = ({ getInitials }) => {
           <Dropdown>
             <DropdownTrigger>
               <Avatar
-                name={getInitials(user?.nombre, user?.apellido)}
+                name={getInitials(user?.name, user?.lastName)}
                 size="sm"
                 className="cursor-pointer"
                 classNames={{

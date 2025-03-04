@@ -28,8 +28,8 @@ export const login = async (email, password) => {
   const authenticatedUser = {
     id: result.id,
     email: result.email,
-    nombre: result.name,
-    apellido: result.lastName,
+    name: result.name,
+    lastName: result.lastName,
     avatar: result.image,
     role: result.role || 'user',
     isAdmin: result.role === 'admin'
