@@ -1,8 +1,8 @@
-import { Form, Input, Button, Card, CardBody, Image } from '@heroui/react'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { login } from '../services/authService'
+import { Form, Input, Button, Card, CardBody, Image } from '@heroui/react'
 
+import { login } from '../services/authService.js'
 import forestmanImage from '../assets/Backgrounds/forestman.webp'
 import { useAuth } from '../context/AuthContext.jsx'
 
@@ -91,6 +91,22 @@ const LoginForm = () => {
     setIsLoading(true)
 
     try {
+      const configFetch = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password
+        })
+      }
+
+      const dataLogin = await fetch('http://localhost:8080/auth/login', configFetch)
+      const resultJson = await dataLogin.json()
+
+      console.log(resultJson)
+
       const result = await login(data.email, data.password)
       console.log('Login exitoso', result)
 
