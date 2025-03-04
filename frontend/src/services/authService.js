@@ -10,7 +10,6 @@ const generateToken = user => {
 }
 
 export const login = async (email, password) => {
-  // Obtener usuario por email
   const configFetch = {
     method: 'POST',
     headers: {
@@ -22,8 +21,15 @@ export const login = async (email, password) => {
     })
   }
 
-  const data = await fetch('http://localhost:8080/auth/login', configFetch)
-  const result = await data.json()
+  const response = await fetch('http://localhost:8080/auth/login', configFetch)
+
+  if (!response.ok) {
+    console.warn('API error:', response.status, 'Crear usuario de prueba para desarrollo')
+
+    throw new Error(`Login failed: ${response.status}`)
+  }
+
+  const result = await response.json()
 
   const authenticatedUser = {
     id: result.id,
@@ -35,13 +41,8 @@ export const login = async (email, password) => {
     isAdmin: result.role === 'admin'
   }
 
-  // Generate a token
   const token = result.token
-
-  // Store the token in a cookie (httpOnly would be better but requires a real backend)
   cookies.set('auth_token', token, { path: '/', maxAge: 86400 }) // 24 horas
-
-  // Store user info in localStorage (in a real app with proper JWT, you might not need this)
   localStorage.setItem('user', JSON.stringify(authenticatedUser))
 
   return { user: authenticatedUser, token }
@@ -86,7 +87,6 @@ export const hasRole = requiredRole => {
 }
 
 export const register = async userData => {
-  // Setea el rol por defecto (a usuario)
   const newUser = {
     image: userData.avatar,
     name: userData.nombre,
@@ -100,16 +100,20 @@ export const register = async userData => {
     city: 'Bogotá'
   }
 
-  const fetchConfig = {
+  const response = await fetch('http://localhost:8080/auth/register', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(newUser)
+  })
+
+  if (!response.ok) {
+    console.log(`API Error: ${response.status} ${response.statusText}`)
+    throw new Error(`Registration failed: ${response.status}`)
   }
 
-  const data = await fetch('http://localhost:8080/auth/register', fetchConfig)
-  const result = await data.json()
+  const result = await response.json()
 
   return result.message
 }

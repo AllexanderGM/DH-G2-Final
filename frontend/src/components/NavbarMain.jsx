@@ -18,10 +18,10 @@ function NavbarMain() {
   }, [user])
 
   // Iniciales de usuario
-  const getInitials = (nombre, apellido) => {
-    if (!nombre) return 'U'
+  const getInitials = (name, lastName) => {
+    if (!name) return 'U'
 
-    return (nombre.charAt(0) + apellido.charAt(0)).toUpperCase()
+    return (name.charAt(0) + lastName.charAt(0)).toUpperCase()
   }
 
   // No mostrar navbar mientras se checkea autenticación
