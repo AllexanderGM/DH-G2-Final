@@ -29,16 +29,16 @@ public enum StatusTourOptions {
                 .orElse(ACTIVE);
     }
 
-    @JsonValue
-    public String getValue() {
-        return displayName;
-    }
-
     @JsonCreator
     public static StatusTourOptions fromString(String value) {
         return Arrays.stream(values())
                 .filter(option -> option.name().equalsIgnoreCase(value) || option.displayName.equalsIgnoreCase(value))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(STR."Estado no válido: \{value}"));
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Estado no válido: %s", value)));
+    }
+
+    @JsonValue
+    public String getValue() {
+        return displayName;
     }
 }
