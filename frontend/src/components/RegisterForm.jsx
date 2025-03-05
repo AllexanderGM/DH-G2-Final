@@ -7,8 +7,8 @@ import walkingmanImage from '../assets/Backgrounds/walkingman.webp'
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
+    name: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -37,11 +37,11 @@ const RegisterForm = () => {
   const validate = () => {
     const newErrors = {}
 
-    if (!formData.nombre) {
-      newErrors.nombre = 'Por favor. Ingresa tu nombre'
+    if (!formData.name) {
+      newErrors.name = 'Por favor. Ingresa tu nombre'
     }
-    if (!formData.apellido) {
-      newErrors.apellido = 'Por favor. Ingresa tu apellido'
+    if (!formData.lastName) {
+      newErrors.lastName = 'Por favor. Ingresa tu apellido'
     }
 
     if (!formData.email) {
@@ -102,8 +102,8 @@ const RegisterForm = () => {
 
     try {
       const userData = {
-        nombre: formData.nombre,
-        apellido: formData.apellido,
+        name: formData.name,
+        lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
         estado: 'activo',
@@ -126,8 +126,8 @@ const RegisterForm = () => {
 
   const handleReset = () => {
     setFormData({
-      nombre: '',
-      apellido: '',
+      name: '',
+      lastName: '',
       email: '',
       password: '',
       confirmPassword: ''
@@ -161,25 +161,25 @@ const RegisterForm = () => {
             <div className="flex flex-col gap-5 max-w-md w-full px-12">
               <Input
                 isRequired
-                errorMessage={errors.nombre}
-                isInvalid={!!errors.nombre}
+                errorMessage={errors.name}
+                isInvalid={!!errors.name}
                 label="Nombre"
                 labelPlacement="outside"
                 name="name"
                 placeholder="Ingresa tu nombre"
-                value={formData.nombre}
-                onValueChange={value => handleChange('nombre', value)}
+                value={formData.name}
+                onValueChange={value => handleChange('name', value)}
               />
               <Input
                 isRequired
-                errorMessage={errors.apellido}
-                isInvalid={!!errors.apellido}
+                errorMessage={errors.lastName}
+                isInvalid={!!errors.lastName}
                 label="Apellido"
                 labelPlacement="outside"
-                name="lastname"
+                name="lastName"
                 placeholder="Ingresa tu apellido"
-                value={formData.apellido}
-                onValueChange={value => handleChange('apellido', value)}
+                value={formData.lastName}
+                onValueChange={value => handleChange('lastName', value)}
               />
               <Input
                 isRequired
