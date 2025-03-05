@@ -1,10 +1,7 @@
 package com.tours.application.controllers;
 
-import com.tours.application.handlers.ResponseHandler;
-import com.tours.domain.dto.response.FormatResponseDTO;
-import com.tours.domain.dto.user.AuthRequestDTO;
+import com.tours.domain.dto.auth.AuthRequestDTO;
 import com.tours.domain.dto.user.UserRequestDTO;
-import com.tours.domain.dto.user.UserResponseDTO;
 import com.tours.domain.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tours_includes")
+@Table(name = "tour_includes")
 public class IncludeTours {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

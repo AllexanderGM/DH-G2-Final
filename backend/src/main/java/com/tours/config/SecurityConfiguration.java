@@ -91,8 +91,8 @@ public class SecurityConfiguration {
                             auth.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
 
                             // 🔹 Rutas para los turs
-                            auth.requestMatchers(HttpMethod.GET,"/tours/").permitAll();
-                            auth.requestMatchers(HttpMethod.GET, "/tours/*").permitAll();
+                            auth.requestMatchers(HttpMethod.GET,"/tours").permitAll();
+                            auth.requestMatchers(HttpMethod.GET, "/tours/**").permitAll();
                             auth.anyRequest().authenticated();
                         })
                 .csrf(AbstractHttpConfigurer::disable)

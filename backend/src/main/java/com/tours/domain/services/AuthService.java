@@ -1,8 +1,8 @@
 package com.tours.domain.services;
 
 import com.tours.domain.dto.response.MessageResponseDTO;
-import com.tours.domain.dto.user.AuthRequestDTO;
-import com.tours.domain.dto.user.AuthResponseDTO;
+import com.tours.domain.dto.auth.AuthRequestDTO;
+import com.tours.domain.dto.auth.AuthResponseDTO;
 import com.tours.domain.dto.user.UserRequestDTO;
 import com.tours.exception.UnauthorizedException;
 import com.tours.infrastructure.entities.user.Role;

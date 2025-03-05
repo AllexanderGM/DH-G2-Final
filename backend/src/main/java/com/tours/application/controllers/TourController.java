@@ -47,6 +47,7 @@ public class TourController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable Long id) {
-        return ResponseEntity.ok(tourService.delete(id));
+        tourService.delete(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -4,7 +4,7 @@ import com.tours.infrastructure.entities.tour.HotelTour;
 
 public record HotelDTO(
         String name,
-        String stars
+        Integer stars
 ) {
     public HotelDTO(HotelTour hotelTour) {
         this(
