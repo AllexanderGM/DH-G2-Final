@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,8 +22,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Optional;
-
-import org.springframework.http.HttpHeaders;
 
 @Component
 @RequiredArgsConstructor
@@ -38,9 +37,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NotNull HttpServletRequest request,
             @NotNull HttpServletResponse response,
             @NotNull FilterChain filterChain
-            ) throws ServletException, IOException {
+    ) throws ServletException, IOException {
 
-        logger.info(STR."\uD83D\uDCCC Nueva petición a: \{request.getServletPath()}");
+        logger.info(String.format("\uD83D\uDCCC Nueva petición a: %s", request.getServletPath()));
 
         if (request.getServletPath().contains("/auth")) {
             logger.info("🔹 Ruta pública, omitiendo filtro.");
@@ -56,10 +55,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         final String jwtToken = authHeader.substring(7);
-        logger.info(STR."\uD83D\uDD39 Token extraído: \{jwtToken}");
+        logger.info(String.format("\uD83D\uDD39 Token extraído: %s", jwtToken));
 
         final String userEmail = jwtService.extractUsername(jwtToken);
-        logger.info(STR."\uD83D\uDD39 Usuario extraído del token: \{userEmail}");
+        logger.info(String.format("\uD83D\uDD39 Usuario extraído del token: %s", userEmail));
 
         if (userEmail == null || SecurityContextHolder.getContext().getAuthentication() != null) {
             logger.warn("❌ Usuario no encontrado o ya autenticado.");
@@ -89,7 +88,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         final boolean isTokenValid = jwtService.isTokenValid(jwtToken, user.get());
-        logger.info(STR."\uD83D\uDD39 ¿Token válido?: \{isTokenValid}");
+        logger.info(String.format("\uD83D\uDD39 ¿Token válido?: %s", isTokenValid));
 
         if (!isTokenValid) {
             logger.warn("❌ Token inválido.");
@@ -104,7 +103,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
-        logger.info(STR."✅ Usuario autenticado correctamente: \{userEmail}");
+        logger.info(String.format("✅ Usuario autenticado correctamente: %s", userEmail));
 
         filterChain.doFilter(request, response);
     }
