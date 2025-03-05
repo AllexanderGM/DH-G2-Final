@@ -23,15 +23,32 @@ public class LoggingFilter extends OncePerRequestFilter {
         String referer = request.getHeader("Referer");
         String clientIp = request.getRemoteAddr();
 
-        log.info("\n****************************" +
-                "\n NUEVA SOLICITUD RECIBIDA" +
-                "\n🔹 Método: {}" +
-                "\n🔹 URL: {}" +
-                "\n🔹 Origin: {}" +
-                "\n🔹 Referer: {}" +
-                "\n🔹 IP: {}" +
-                "\n****************************", method, url, origin, referer, clientIp);
-
         filterChain.doFilter(request, response);
+        int statusAfter = response.getStatus();
+
+        log.info("\n****************************" +
+                        "\n NUEVA SOLICITUD RECIBIDA" +
+                        "\n🔹 Método: {}" +
+                        "\n🔹 URL: {}" +
+                        "\n🔹 Origin: {}" +
+                        "\n🔹 Referer: {}" +
+                        "\n🔹 IP: {}" +
+                        "\n🔹 Estado: {} ({})" +
+                        "\n****************************",
+                method, url, origin, referer, clientIp, statusAfter, getHttpStatusMessage(statusAfter));
+    }
+
+    private String getHttpStatusMessage(int status) {
+        return switch (status) {
+            case 200 -> "OK";
+            case 201 -> "Created";
+            case 204 -> "No Content";
+            case 400 -> "Bad Request";
+            case 401 -> "Unauthorized";
+            case 403 -> "Forbidden";
+            case 404 -> "Not Found";
+            case 500 -> "Internal Server Error";
+            default -> "Unknown";
+        };
     }
 }

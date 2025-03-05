@@ -1,20 +1,25 @@
 package com.tours.infrastructure.entities.tour;
 
+import com.tours.infrastructure.entities.location.Location;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "hoteles")
+@Table(name = "tour_hotels")
 public class HotelTour {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String stars;
+    private Integer stars;
 
     @ManyToOne
-    @JoinColumn(name = "destination_id")
-    private DestinationTour destinationTour;
+    @JoinColumn(name = "location_id")
+    private Location location;
 }

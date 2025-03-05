@@ -49,7 +49,7 @@ public class Tour {
     @JoinColumn(name = "tag_id")
     private List<IncludeTours> includeTours;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "destination_id")
     private DestinationTour destinationTour;
 
