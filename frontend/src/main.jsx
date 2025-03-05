@@ -16,6 +16,7 @@ import './styles/tailwind.css'
 import './styles/global.scss'
 import ProfilePage from './pages/ProfilePage.jsx'
 import EditUserProfile from './pages/EditUserProfile.jsx'
+import FavoritesPage from './pages/FavoritesPage.jsx'
 
 const router = createBrowserRouter([
   {
@@ -51,7 +52,7 @@ const router = createBrowserRouter([
         path: '',
         element: <ProtectedRoute requiredRole="user" />,
         children: [
-          { path: '/favoritos', element: <div>Tours favoritos</div> },
+          { path: '/favoritos', element: <FavoritesPage /> },
           { path: '/users', element: <Users /> },
           { path: '/profile-user', element: <ProfilePage /> },
           { path: '/edit-profile', element: <EditUserProfile /> }
