@@ -33,7 +33,7 @@ const Categories = () => {
       {list.map((item, index) => (
         <Card
           key={index}
-          className="group relative bg-white text-gray-800 hover:text-gray-900 rounded-2xl p-2 text-center shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 "
+          className="group relative bg-white text-gray-700 hover:text-gray-900 rounded-2xl p-2 text-center shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 "
           isPressable
           shadow="sm"
           onPress={() => console.log('item pressed')}>
