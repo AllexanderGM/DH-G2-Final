@@ -133,7 +133,7 @@ const LoginForm = () => {
             onSubmit={onSubmit}>
             <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">Iniciar sesión</h2>
 
-            {loginError && <div className="bg-red-100 text-red-700 p-3 rounded-md max-w-md w-full mx-12">{loginError}</div>}
+            {loginError && <div className="bg-red-100 text-red-700 p-3 rounded-none max-w-md w-full mx-12">{loginError}</div>}
 
             {loginSuccess && (
               <div className="bg-green-100 text-green-700 p-3 rounded-md max-w-md w-full mx-12">

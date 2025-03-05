@@ -139,7 +139,7 @@ const RegisterForm = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 mt-8">
       <Card className="w-[800px] h-full md:h-[750px] md:max-h-[830px] overflow-hidden">
-        <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-1 p-0">
+        <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-0 p-0">
           <div className="h-full flex items-end justify-end">
             <Image
               removeWrapper
@@ -156,7 +156,7 @@ const RegisterForm = () => {
             onSubmit={onSubmit}>
             <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">Crear Cuenta</h2>
 
-            {registerError && <div className="bg-red-100 text-red-700 p-3 rounded-md max-w-md w-full mx-12">{registerError}</div>}
+            {registerError && <div className="bg-red-100 text-red-700 p-3 rounded-none max-w-md w-full mx-12">{registerError}</div>}
 
             <div className="flex flex-col gap-5 max-w-md w-full px-12">
               <Input
