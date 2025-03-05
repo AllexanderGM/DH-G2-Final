@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record TourResponseDTO(
+        Long id,
         String name,
         String description,
         BigDecimal adultPrice,
@@ -21,6 +22,7 @@ public record TourResponseDTO(
 ) {
     public TourResponseDTO(Tour tour) {
         this(
+                tour.getId(),
                 tour.getName(),
                 tour.getDescription(),
                 tour.getAdultPrice(),

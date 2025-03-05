@@ -89,8 +89,8 @@ export const hasRole = requiredRole => {
 export const register = async userData => {
   const newUser = {
     image: userData.avatar,
-    name: userData.nombre,
-    lastName: userData.apellido,
+    name: userData.name,
+    lastName: userData.lastName,
     document: '123456789',
     phone: '300123456',
     dateOfBirth: '1990-05-15',

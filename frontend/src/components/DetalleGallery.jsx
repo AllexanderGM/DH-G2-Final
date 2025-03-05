@@ -13,11 +13,11 @@ const DetalleGallery = ({ tour }) => {
     ? [
       {
         imageId: 1,
-        src: tour.imagenes[0]
+        src: tour.images[0]
       },
       {
         imageId: 2,
-        src: 'https://images.unsplash.com/photo-1546863340-7e4e97e46f42?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YWNvbmNhZ3VhfGVufDB8fDB8fHww'
+        src: tour.images[1]
       },
       {
         imageId: 3,

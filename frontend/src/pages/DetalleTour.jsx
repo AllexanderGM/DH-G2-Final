@@ -11,11 +11,13 @@ const DetalleTour = () => {
   useEffect(() => {
     const fetchTour = async () => {
       try {
-        const response = await fetch(`${URL}/paquetes/${id}`)
+        const response = await fetch(`${URL}/tours/${id}`)
         if (!response.ok) throw new Error('Error al cargar datos')
 
         const data = await response.json()
         const tourEncontrado = data
+        console.log('Tour encontrado', tourEncontrado)
+
         setTour(tourEncontrado)
       } catch (error) {
         console.log('Error', error)
@@ -30,7 +32,7 @@ const DetalleTour = () => {
         <>
           <div className="flex justify-between items-center h-[100px]">
             <h1>
-              {tour.nombre}. {tour.destino}.
+              {tour.name}. {tour.destination.city.name}.
             </h1>
             <Link to="/">
               <span

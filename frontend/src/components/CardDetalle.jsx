@@ -25,8 +25,8 @@ const CardDetalle = ({ tour }) => {
         <CardHeader className="pb-0 pt-2 px-4 mb-8 flex flex-col items-center justify-center">
           <p>
             Precio:{' '}
-            <data value={tour.precio} className="font-bold text-xl">
-              ${tour.precio}
+            <data value={tour.adultPrice} className="font-bold text-xl">
+              ${tour.adultPrice}
             </data>{' '}
             USD
           </p>

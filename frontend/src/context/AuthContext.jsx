@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Cookies } from 'react-cookie'
 
 import { getCurrentUser, isAuthenticated, logout } from '../services/authService.js'
 
 const AuthContext = createContext()
+const cookies = new Cookies()
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
@@ -24,9 +26,21 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const handleLogout = () => {
-    logout()
-    setUser(null)
-    navigate('/login')
+    const token = cookies.get('auth_token')
+
+    fetch('http://localhost:8080/auth/logout', {
+      method: 'POST',
+      Authorization: `Bearer ${token}`,
+      headers: {
+        'Content-Type': 'application'
+      }
+    }).then(response => {
+      if (response.ok) {
+        logout()
+        setUser(null)
+        navigate('/login')
+      }
+    })
   }
 
   // Comprueba rol

@@ -9,7 +9,7 @@ const BodyComponent = () => {
 
   const fetchLugares = useCallback(async () => {
     try {
-      const response = await fetch(`${URL}/paquetes/aleatorios`)
+      const response = await fetch(`${URL}/tours/random`)
       if (!response.ok) {
         throw new Error('Error al cargar los datos')
       }
