@@ -15,13 +15,16 @@ import com.tours.infrastructure.repositories.user.IRoleUserRepository;
 import com.tours.infrastructure.repositories.user.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private IRoleUserRepository roleRepository;
@@ -47,6 +50,12 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private LocationService locationService;
 
+
+    public DataInitializer(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
+
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -59,13 +68,28 @@ public class DataInitializer implements CommandLineRunner {
             roleRepository.save(new Role(UserRol.ADMIN));
         }
 
-        // Inizializar usuario administrador si no existe
-        if (userRepository.count() == 0) {
-            User admin = new User();
-            admin.setEmail("");
-            admin.setPassword("");
-        }
+        // Inicializar usuario administrador si no existe
+        Role role = roleRepository.findByUserRol(UserRol.ADMIN)
+                .orElseThrow(() -> new RuntimeException("No se encontró el rol de administrador"));
 
+        if (!userRepository.existsByRole(role)) {
+            User admin = User.builder()
+                    .name("Admin")
+                    .lastname("Admin")
+                    .document("12345678")
+                    .phone("123456789")
+                    .dateOfBirth(LocalDate.of(2000, 1, 1))
+                    .email("admin@admin.com")
+                    .password(bCryptPasswordEncoder.encode("AdminPassword123"))
+                    .dateOfJoin(LocalDate.now())
+                    .address("Calle 123")
+                    .city("departamento 1")
+                    .role(role)
+                    .build();
+
+            userRepository.save(admin);
+        }
+        
         // Inicializar estados de tours si no existen
         if (statusTourRepository.count() == 0) {
             statusTourRepository.save(new StatusTour(StatusTourOptions.ACTIVE));
