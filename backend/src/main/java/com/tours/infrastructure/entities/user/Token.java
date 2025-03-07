@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "tokens")
+@Entity
+@Table(name = "user_tokens")
 public class Token {
 
     public enum TokenType {

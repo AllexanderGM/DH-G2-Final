@@ -38,7 +38,7 @@ export const login = async (email, password) => {
     lastName: result.lastName,
     avatar: result.image,
     role: result.role || 'user',
-    isAdmin: result.role === 'admin'
+    isAdmin: result.role === 'ADMIN'
   }
 
   const token = result.token

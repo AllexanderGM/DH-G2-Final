@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Form, Input, Button, Card, CardBody, Image } from '@heroui/react'
 
 import { login } from '../services/authService.js'
-import forestmanImage from '../assets/Backgrounds/forestman.webp'
+import forestmanImage from '../assets/Backgrounds/forestman.jpg'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const LoginForm = () => {

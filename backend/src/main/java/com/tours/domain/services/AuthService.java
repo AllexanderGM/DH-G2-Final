@@ -1,8 +1,8 @@
 package com.tours.domain.services;
 
-import com.tours.domain.dto.response.MessageResponseDTO;
 import com.tours.domain.dto.auth.AuthRequestDTO;
 import com.tours.domain.dto.auth.AuthResponseDTO;
+import com.tours.domain.dto.response.MessageResponseDTO;
 import com.tours.domain.dto.user.UserRequestDTO;
 import com.tours.exception.UnauthorizedException;
 import com.tours.infrastructure.entities.user.Role;
@@ -31,14 +31,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private static final Map<String, String> tokenBlacklist = new ConcurrentHashMap<>();
     private final ITokenRepository tokenRepository;
     private final JwtService jwtService;
-    private  final IRoleUserRepository roleUserRepository;
+    private final IRoleUserRepository roleUserRepository;
     private final AuthenticationManager authenticationManager;
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
-    private static final Map<String, String> tokenBlacklist = new ConcurrentHashMap<>();
 
     public MessageResponseDTO register(UserRequestDTO newUser) {
         try {
@@ -75,7 +75,7 @@ public class AuthService {
             return new MessageResponseDTO("Usuario registrado correctamente");
         } catch (Exception e) {
             logger.error("Error al registrar usuario: {}", e.getMessage(), e);
-            return new MessageResponseDTO(STR."Error al registrar usuario: \{e.getMessage()}");
+            return new MessageResponseDTO(String.format("Error al registrar usuario: %s", e.getMessage()));
         }
     }
 
@@ -146,6 +146,8 @@ public class AuthService {
                 .token(token)
                 .user(user)
                 .build();
+
+
         tokenRepository.save(userToken);
     }
 

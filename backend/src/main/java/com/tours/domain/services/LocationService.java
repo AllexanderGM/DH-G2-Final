@@ -2,10 +2,8 @@ package com.tours.domain.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tours.domain.dto.tour.CityRequestDTO;
 import com.tours.domain.dto.tour.CountryRequestDTO;
 import com.tours.infrastructure.entities.location.Location;
-import com.tours.infrastructure.entities.tour.DestinationTour;
 import com.tours.infrastructure.repositories.location.ILocationRepository;
 import jakarta.transaction.Transactional;
 import lombok.Data;
@@ -13,7 +11,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Data
 @Service
@@ -32,13 +33,15 @@ public class LocationService {
             // Leer países
             Map<String, CountryRequestDTO> countries = objectMapper.readValue(
                     new ClassPathResource("countries.json").getInputStream(),
-                    new TypeReference<>() {}
+                    new TypeReference<>() {
+                    }
             );
 
             // Leer ciudades
             Map<String, List<String>> citiesByCountry = objectMapper.readValue(
                     new ClassPathResource("cities.json").getInputStream(),
-                    new TypeReference<>() {}
+                    new TypeReference<>() {
+                    }
             );
 
             for (Map.Entry<String, CountryRequestDTO> entry : countries.entrySet()) {

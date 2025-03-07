@@ -4,8 +4,8 @@ import com.tours.infrastructure.entities.tour.StatusTourOptions;
 import com.tours.infrastructure.entities.tour.TagTourOptions;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 public record TourRequestDTO(
