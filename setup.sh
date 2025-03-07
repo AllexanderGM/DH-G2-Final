@@ -7,7 +7,7 @@ if [ ! -f .env ]; then
 fi
 
 # Cargar las variables de entorno desde el archivo .env en la raíz
-export $(grep -v '^#' .env | xargs)
+export $(grep -v '^#' .env | xargs -d '\n')
 
 # Concatenar las variables de entorno para las URLs
 if [[ $URL == "http://localhost" ]]; then
