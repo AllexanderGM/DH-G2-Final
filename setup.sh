@@ -2,20 +2,24 @@
 
 # Verificar si el archivo .env existe en la raíz
 if [ ! -f .env ]; then
-    echo "El archivo .env no existe en la raíz del proyecto."
-    exit 1
+  echo "El archivo .env no existe en la raíz del proyecto."
+  exit 1
 fi
 
 # Cargar las variables de entorno desde el archivo .env en la raíz
-export $(grep -v '^#' .env | xargs -d '\n')
+# export $(grep -v '^#' .env | xargs -d '\n')
+
+set -a
+source .env
+set +a
 
 # Concatenar las variables de entorno para las URLs
 if [[ $URL == "http://localhost" ]]; then
-    URL_FRONT="$URL:$PORT_FRONT"
-    URL_BACK="$URL:$PORT_BACK"
+  URL_FRONT="$URL:$PORT_FRONT"
+  URL_BACK="$URL:$PORT_BACK"
 else
-    URL_FRONT="$URL"
-    URL_BACK="$URL"
+  URL_FRONT="$URL"
+  URL_BACK="$URL"
 fi
 
 # Rutas de los archivos .env para frontend y backend
