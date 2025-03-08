@@ -30,7 +30,7 @@ public record TourResponseDTO(
                 tour.getCreationDate(),
                 tour.getImages(),
                 new StatusDTO(tour.getStatusTour()),
-                String.valueOf(new TagDTO(tour.getTag())),
+                String.valueOf(new TagDTO(tour.getTag()).tag().getDisplayName()),
                 tour.getIncludeTours().stream().map(IncludeDTO::new).toList(),
                 new DestinationResponseDTO(tour.getDestinationTour()),
                 new HotelDTO(tour.getHotelTour())
