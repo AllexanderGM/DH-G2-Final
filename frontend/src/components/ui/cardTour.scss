@@ -1,0 +1,99 @@
+.card_tour {
+  @apply py-3 px-4 h-full;
+
+  .icon {
+    @apply text-primary text-medium mr-1;
+  }
+
+  &-header {
+    @apply flex flex-col items-start justify-start !important;
+  }
+
+  &-tag {
+    @apply mb-1;
+  }
+
+  &-title {
+    @apply font-bold text-lg text-gray-800 hover:text-primary text-left;
+  }
+
+  &-body {
+    @apply p-1;
+  }
+
+  &-image_container {
+    @apply w-full max-h-40 md:max-h-48 overflow-hidden flex justify-center items-center h-56 rounded-md object-cover;
+
+    img {
+      @apply w-full h-full object-cover;
+    }
+  }
+
+  &-locations {
+    @apply flex items-center gap-2 flex-wrap text-sm text-gray-500 mt-4 mb-1;
+  }
+
+  &-location {
+    @apply flex items-center justify-center gap-2 text-primary text-medium;
+  }
+
+  &-includes {
+    @apply mt-2 grid items-center grid-cols-3 gap-1 text-xs;
+  }
+
+  &-include {
+    @apply flex items-start gap-2;
+
+    &_icon {
+      @apply text-primary;
+    }
+
+    &_text {
+      @apply text-gray-500;
+
+      p:first-child {
+        @apply font-semibold;
+      }
+    }
+  }
+
+  &-more {
+    @apply pt-1 flex items-center gap-2;
+
+    &_count {
+      @apply text-primary;
+    }
+
+    &_text {
+      @apply text-gray-500 text-sm;
+    }
+  }
+
+  &-divider {
+    @apply my-4;
+  }
+
+  &-description {
+    @apply text-sm text-gray-600 mb-2;
+  }
+
+  &-footer {
+    @apply flex justify-between items-center p-1;
+  }
+
+  &-price {
+    @apply flex flex-col items-start;
+
+    &_type {
+      @apply flex items-center gap-1 text-sm text-neutral-600;
+
+      .icon {
+        @apply text-lg text-primary-400;
+      }
+
+      .price {
+        @apply font-semibold text-medium text-cyan-600;
+      }
+    }
+  }
+}

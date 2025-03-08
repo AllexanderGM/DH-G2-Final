@@ -1,9 +1,8 @@
 import { NavbarItem, Link, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Avatar } from '@heroui/react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@context/AuthContext.jsx'
 
-import { useAuth } from '../context/AuthContext.jsx'
-
-const NavbarAdminPortion = ({ getInitials }) => {
+const NavbarAdmin = ({ getInitials }) => {
   const { user, logout } = useAuth()
 
   const navigate = useNavigate()
@@ -55,4 +54,4 @@ const NavbarAdminPortion = ({ getInitials }) => {
   )
 }
 
-export default NavbarAdminPortion
+export default NavbarAdmin

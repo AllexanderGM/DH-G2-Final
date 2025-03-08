@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Form, Input, Button, Card, CardBody, CardHeader, Select, SelectItem, Divider } from '@heroui/react'
 
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 const EditUserProfile = () => {
   const { user, setUser } = useAuth()
