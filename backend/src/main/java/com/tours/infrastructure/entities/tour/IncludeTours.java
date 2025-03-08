@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,13 +19,19 @@ public class IncludeTours {
 
     private String type;
 
+    private String details;
+
     private String icon;
 
     private String description;
 
-    public IncludeTours(String type, String icon, String description) {
+    @ManyToMany(mappedBy = "includeTours")
+    private List<Tour> tours;
+
+    public IncludeTours(String type, String icon, String details, String description) {
         this.type = type;
         this.icon = icon;
+        this.details = details;
         this.description = description;
     }
 }
