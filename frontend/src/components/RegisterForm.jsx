@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { register } from '../services/authService.js'
 import walkingmanImage from '../assets/Backgrounds/walkingman.webp'
+import ModalToLogin from './ModalToLogin.jsx'
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -16,11 +17,7 @@ const RegisterForm = () => {
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [registerError, setRegisterError] = useState('')
-
-  // const [password, setPassword] = useState('')
-  // const [isInvalid, setIsInvalid] = useState(false)
-  // const [errorMessage, setErrorMessage] = useState('')
-  // const [submitted, setSubmitted] = useState(null)
+  const [isRegisterSuccess, setIsRegisterSuccess] = useState(false)
 
   const navigate = useNavigate()
 
@@ -115,7 +112,7 @@ const RegisterForm = () => {
       const result = await register(userData)
       console.log('Registro exitoso', result)
 
-      navigate('/')
+      setIsRegisterSuccess(true)
     } catch (error) {
       console.log('Registro fallido', error)
       setRegisterError(error.message || 'Error al registrarse. Inténtalo de nuevo.')
@@ -134,6 +131,10 @@ const RegisterForm = () => {
     })
     setErrors({})
     setRegisterError('')
+  }
+
+  const closeModal = () => {
+    setIsRegisterSuccess(false)
   }
 
   return (
@@ -237,6 +238,7 @@ const RegisterForm = () => {
           </Form>
         </CardBody>
       </Card>
+      <ModalToLogin isRegisterSuccess={isRegisterSuccess} closeModal={closeModal} />
     </div>
   )
 }
