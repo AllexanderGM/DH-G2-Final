@@ -7,6 +7,8 @@ import com.tours.infrastructure.entities.location.Location;
 import com.tours.infrastructure.repositories.location.ILocationRepository;
 import jakarta.transaction.Transactional;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ import java.util.Optional;
 @Service
 public class LocationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
     private final ObjectMapper objectMapper;
     private final ILocationRepository locationRepository;
 
@@ -27,10 +30,12 @@ public class LocationService {
     public void loadDestinations() {
         try {
             if (locationRepository.count() > 0) {
+                logger.info("Los destinos ya están cargados en la base de datos.");
                 return;
             }
 
             // Leer países
+            logger.info("Cargando datos de países y ciudades...");
             Map<String, CountryRequestDTO> countries = objectMapper.readValue(
                     new ClassPathResource("countries.json").getInputStream(),
                     new TypeReference<>() {
@@ -56,12 +61,12 @@ public class LocationService {
                 location.setCity(cities);
                 location.setImage(country.image());
                 location.setPhone(Optional.ofNullable(country.phone()).orElse(new ArrayList<>()));
-
                 locationRepository.save(location);
+                logger.info("Destino guardado: {} - {}", country.region(), country.name());
             }
-
+            logger.info("Carga de destinos completada correctamente.");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error al cargar los destinos: {}", e.getMessage(), e);
         }
     }
 }
