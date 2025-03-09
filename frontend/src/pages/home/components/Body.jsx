@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Spinner } from '@heroui/react'
-import { toursAllRadom } from '@services/tourService.js'
+import { toursAllRandom } from '@services/tourService.js'
 
 import CardMain from '../../../components/ui/CardTour.jsx'
 
@@ -11,7 +11,7 @@ const Body = () => {
   const { success, data = [] } = places || {}
 
   useEffect(() => {
-    toursAllRadom()
+    toursAllRandom()
       .then(setPlaces)
       .catch(error => console.error('Error:', error))
   }, [])
