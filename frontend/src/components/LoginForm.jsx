@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Form, Input, Button, Card, CardBody, Image } from '@heroui/react'
 
 import { login } from '../services/authService.js'
-import forestmanImage from '../assets/Backgrounds/forestman.jpg'
+import loginImg from '../assets/Backgrounds/forestwoman.webp'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const LoginForm = () => {
@@ -120,7 +120,7 @@ const LoginForm = () => {
         <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-0 p-0 ">
           <div className="h-full relative flex">
             <Image
-              src={forestmanImage}
+              src={loginImg}
               alt="Un hombre mirando el horizonte sobre un bosque montañoso"
               className="w-full h-full min-h-full object-cover rounded-none"
             />

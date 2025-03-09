@@ -1,6 +1,6 @@
 import { Form, Input, Button, Card, CardBody, Image } from '@heroui/react'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { register } from '../services/authService.js'
 import walkingmanImage from '../assets/Backgrounds/walkingman.webp'
@@ -18,8 +18,6 @@ const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [registerError, setRegisterError] = useState('')
   const [isRegisterSuccess, setIsRegisterSuccess] = useState(false)
-
-  const navigate = useNavigate()
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -61,27 +59,6 @@ const RegisterForm = () => {
 
     return newErrors
   }
-
-  // const getPasswordError = value => {
-  //   if (value.length < 8) {
-  //     return 'La contraseña debe tener 8 caracteres o más'
-  //   }
-  //   if ((value.match(/[A-Z]/g) || []).length < 1) {
-  //     return 'La contraseña debe tener al menos una letra mayúscula'
-  //   }
-  //   if ((value.match(/[^a-z]/gi) || []).length < 1) {
-  //     return 'La contraseña debe tener al menos un caracter especial'
-  //   }
-  //
-  //   return null
-  // }
-
-  // const handlePasswordChange = value => {
-  //   setPassword(value)
-  //   const error = getPasswordError(value)
-  //   setIsInvalid(!!error)
-  //   setErrorMessage(error)
-  // }
 
   const onSubmit = async e => {
     e.preventDefault()
