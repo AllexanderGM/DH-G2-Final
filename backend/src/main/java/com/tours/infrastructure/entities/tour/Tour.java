@@ -45,8 +45,12 @@ public class Tour {
     @JoinColumn(name = "tag_id")
     private TagTour tag;
 
-    @OneToMany
-    @JoinColumn(name = "tag_id")
+    @ManyToMany
+    @JoinTable(
+            name = "tour_include-tours",
+            joinColumns = @JoinColumn(name = "tour_id"),
+            inverseJoinColumns = @JoinColumn(name = "include_tours_id")
+    )
     private List<IncludeTours> includeTours;
 
     @ManyToOne(cascade = CascadeType.ALL)

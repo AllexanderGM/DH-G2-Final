@@ -8,6 +8,7 @@ import com.tours.infrastructure.entities.location.Location;
 import com.tours.infrastructure.entities.tour.*;
 import com.tours.infrastructure.repositories.location.ILocationRepository;
 import com.tours.infrastructure.repositories.tour.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,7 @@ public class TourService {
         return tourRepository.findAll(pageable).map(TourResponseDTO::new);
     }
 
+    @Transactional
     public Optional<TourResponseDTO> add(TourRequestDTO tour) {
         if (tourRepository.existsByName(tour.name())) {
             throw new DuplicateNameException("El nombre ya existe");
@@ -90,16 +92,16 @@ public class TourService {
 
     private Tour createTourEntity(TourRequestDTO tour) {
         Location location = locationRepository.findByCountryAndCity(tour.destination().country(), tour.destination().city())
-                .orElseThrow(() -> new IllegalArgumentException("Destino no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Destino no encontrado"));
 
         StatusTour statusTour = statusRepository.findByStatus(tour.status())
-                .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Estado no encontrado"));
 
         TagTour tag = tagRepository.findByTagTourOptions(tour.tag())
-                .orElseThrow(() -> new IllegalArgumentException("Etiqueta no encontrada"));
+                .orElseThrow(() -> new NotFoundException("Etiqueta no encontrada"));
 
         HotelTour hotelTour = (tour.hotel() != null) ? hotelRepository.findById(tour.hotel())
-                .orElseThrow(() -> new IllegalArgumentException("Hotel no encontrado")) : null;
+                .orElseThrow(() -> new NotFoundException("Hotel no encontrado")) : null;
 
         List<IncludeTours> includeTours = Optional.ofNullable(tour.includes())
                 .orElse(Collections.emptyList())
