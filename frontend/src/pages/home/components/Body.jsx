@@ -16,9 +16,11 @@ const Body = () => {
       .catch(error => console.error('Error:', error))
   }, [])
 
+  const emptyPlaces = success && data.length === 0
+
   return (
     <div className="tours_body-container">
-      <h1 className="title">Recomendaciones</h1>
+      <h1 className="title">{!emptyPlaces ? 'Recomendaciones' : 'No hay tours disponibles...'}</h1>
 
       <div className="tours_body-content">
         {success ? (
