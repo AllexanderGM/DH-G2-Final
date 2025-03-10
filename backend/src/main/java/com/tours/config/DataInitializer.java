@@ -89,7 +89,7 @@ public class DataInitializer implements CommandLineRunner {
 
             userRepository.save(admin);
         }
-        
+
         // Inicializar estados de tours si no existen
         if (statusTourRepository.count() == 0) {
             statusTourRepository.save(new StatusTour(StatusTourOptions.ACTIVE));
@@ -114,109 +114,127 @@ public class DataInitializer implements CommandLineRunner {
         if (includeTourRepository.count() == 0) {
             includeTourRepository.save(new IncludeTours(
                             "Ninguno",
-                            "<span class=\\\"material-symbols-outlined\\\">radio_button_unchecked</span>",
+                            "<span class=\"material-symbols-outlined\">radio_button_unchecked</span>",
+                            "Nada incluido",
                             "No incluye ningún servicio adicional"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Alojamiento",
-                            "<span class=\\\"material-symbols-outlined\\\">hotel</span>",
+                            "<span class=\"material-symbols-outlined\">hotel</span>",
+                            "2 Alcobas",
                             "Hospedaje en hotel, hostal o cabaña"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Transporte",
-                            "<span class=\\\"material-symbols-outlined\\\">directions_car</span>",
+                            "<span class=\"material-symbols-outlined\">directions_car</span>",
+                            "2 Vuelos",
                             "Traslados terrestres, aéreos o marítimos"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Boletos",
-                            "<span class=\\\"material-symbols-outlined\\\">airplane_ticket</span>",
+                            "<span class=\"material-symbols-outlined\">airplane_ticket</span>",
+                            "4 Boletos",
                             "Entradas a parques, museos, eventos o shows"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Snacks",
-                            "<span class=\\\"material-symbols-outlined\\\">tapas</span>",
+                            "<span class=\"material-symbols-outlined\">tapas</span>",
+                            "Ilimitados",
                             "Refrigerios ligeros durante el tour"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Bebidas",
-                            "<span class=\\\"material-symbols-outlined\\\">wine_bar</span>",
+                            "<span class=\"material-symbols-outlined\">wine_bar</span>",
+                            "Ilimitadas",
                             "Bebidas sin alcohol incluidas en la experiencia"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Desayuno",
-                            "<span class=\\\"material-symbols-outlined\\\">egg_alt</span>",
+                            "<span class=\"material-symbols-outlined\">egg_alt</span>",
+                            "7:00 - 9:00",
                             "Primera comida del día incluida"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Almuerzo",
-                            "<span class=\\\"material-symbols-outlined\\\">dinner_dining</span>",
+                            "<span class=\"material-symbols-outlined\">dinner_dining</span>",
+                            "12:00 - 14:00",
                             "Comida principal del mediodía"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Cena",
-                            "<span class=\\\"material-symbols-outlined\\\">restaurant</span>",
+                            "<span class=\"material-symbols-outlined\">restaurant</span>",
+                            "19:00 - 21:00",
                             "Comida principal de la noche"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Guía turístico",
-                            "<span class=\\\"material-symbols-outlined\\\">follow_the_signs</span>",
+                            "<span class=\"material-symbols-outlined\">follow_the_signs</span>",
+                            "3 Recorridos",
                             "Acompañamiento de un guía experto"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Seguro de viaje",
-                            "<span class=\\\"material-symbols-outlined\\\">assignment_add</span>",
+                            "<span class=\"material-symbols-outlined\">assignment_add</span>",
+                            "Incluido",
                             "Cobertura médica y asistencia durante el viaje"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Actividades",
-                            "<span class=\\\"material-symbols-outlined\\\">theater_comedy</span>",
+                            "<span class=\"material-symbols-outlined\">theater_comedy</span>",
+                            "2 Experiencias",
                             "Excursiones, deportes o experiencias guiadas"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Fotografías",
-                            "<span class=\\\"material-symbols-outlined\\\">photo_camera</span>",
+                            "<span class=\"material-symbols-outlined\">photo_camera</span>",
+                            "20 Imágenes",
                             "Servicio de fotografía o video profesional"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Souvenirs",
-                            "<span class=\\\"material-symbols-outlined\\\">page_info</span>",
+                            "<span class=\"material-symbols-outlined\">page_info</span>",
+                            "2 Objetos",
                             "Regalos o recuerdos incluidos en el paquete"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Equipamiento",
-                            "<span class=\\\"material-symbols-outlined\\\">personal_bag_question</span>",
+                            "<span class=\"material-symbols-outlined\">personal_bag_question</span>",
+                            "15 libras",
                             "Ropa, accesorios o equipo necesario para la actividad"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Wifi",
-                            "<span class=\\\"material-symbols-outlined\\\">wifi</span>",
+                            "<span class=\"material-symbols-outlined\">wifi</span>",
+                            "Conexión",
                             "Conectividad a internet en el transporte o alojamiento"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Propinas",
-                            "<span class=\\\"material-symbols-outlined\\\">payments</span>",
+                            "<span class=\"material-symbols-outlined\">payments</span>",
+                            "Incluidas",
                             "Costos de propinas incluidos en el precio"
                     )
             );
             includeTourRepository.save(new IncludeTours(
                             "Asistencia 24/7",
-                            "<span class=\\\"material-symbols-outlined\\\">ecg_heart</span>",
+                            "<span class=\"material-symbols-outlined\">ecg_heart</span>",
+                            "Durante el viaje",
                             "Soporte y ayuda durante todo el viaje"
                     )
             );

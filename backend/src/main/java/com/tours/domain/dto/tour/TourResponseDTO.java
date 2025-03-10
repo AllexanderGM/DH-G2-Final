@@ -1,6 +1,8 @@
 package com.tours.domain.dto.tour;
 
 import com.tours.infrastructure.entities.tour.Tour;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,6 +22,7 @@ public record TourResponseDTO(
         DestinationResponseDTO destination,
         HotelDTO hotel
 ) {
+    private static final Logger logger = LoggerFactory.getLogger(TourResponseDTO.class);
     public TourResponseDTO(Tour tour) {
         this(
                 tour.getId(),
@@ -30,10 +33,13 @@ public record TourResponseDTO(
                 tour.getCreationDate(),
                 tour.getImages(),
                 new StatusDTO(tour.getStatusTour()),
-                String.valueOf(new TagDTO(tour.getTag())),
-                tour.getIncludeTours().stream().map(IncludeDTO::new).toList(),
+                tour.getTag() != null ? String.valueOf(new TagDTO(tour.getTag()).tag().getDisplayName()) : "Sin etiqueta",
+                tour.getIncludeTours() != null ? tour.getIncludeTours().stream().map(IncludeDTO::new).toList() : List.of(),
                 new DestinationResponseDTO(tour.getDestinationTour()),
-                new HotelDTO(tour.getHotelTour())
+                tour.getHotelTour() != null ? new HotelDTO(tour.getHotelTour()) : null
         );
+        if (tour.getHotelTour() == null) {
+            logger.warn("El tour '{}' no tiene un hotel asociado", tour.getName());
+        }
     }
 }

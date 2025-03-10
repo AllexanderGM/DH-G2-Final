@@ -40,6 +40,7 @@ public record TourRequestDTO(
         @NotNull(message = "El destino es obligatorio")
         @Valid DestinationRequestDTO destination,
 
+        @PositiveOrZero(message = "El ID del hotel debe ser un número positivo o cero")
         Long hotel
 ) {
 }
