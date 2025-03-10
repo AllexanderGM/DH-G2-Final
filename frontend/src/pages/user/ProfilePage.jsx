@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardBody, CardHeader, Avatar, Divider } from '@heroui/react'
 import { useNavigate } from 'react-router-dom'
 
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 const ProfilePage = () => {
   const { user } = useAuth()
