@@ -1,6 +1,5 @@
 import { NavbarItem, Link } from '@heroui/react'
-
-import BrandButton from './BrandButton.jsx'
+import BrandButton from '@components/BrandButton.jsx'
 
 const NavbarRegularPortion = () => {
   return (

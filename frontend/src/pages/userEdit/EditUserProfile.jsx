@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Form, Input, Button, Card, CardBody, CardHeader, Select, SelectItem, Divider } from '@heroui/react'
 
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 const EditUserProfile = () => {
   const { user, setUser } = useAuth()
@@ -116,14 +116,14 @@ const EditUserProfile = () => {
   }
 
   return (
-    <div className="flex justify-center py-10 px-4">
-      <Card className="max-w-xl w-full">
-        <CardHeader className="flex flex-col items-center pb-0">
+    <div className="flex flex-col items-center justify-center w-full min-h-screen bg-gray-100">
+      <Card className="max-w-xl w-full p-6">
+        <CardHeader className="flex flex-col">
           <h1 className="text-2xl font-bold">Editar Perfil</h1>
           <p className="text-gray-500 text-center">Actualiza tu información personal</p>
         </CardHeader>
 
-        <CardBody className="py-8">
+        <CardBody>
           {error && <div className="bg-red-100 text-red-700 p-3 rounded-md w-full mb-4">{error}</div>}
 
           {success && (
@@ -132,11 +132,9 @@ const EditUserProfile = () => {
             </div>
           )}
 
-          <Form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Información Personal</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Form className="flex flex-col items-center w-full" onSubmit={handleSubmit}>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-5">
                 <Input
                   label="Nombre"
                   labelPlacement="outside"
@@ -157,7 +155,6 @@ const EditUserProfile = () => {
                   isDisabled={isLoading || success}
                 />
               </div>
-
               <Input
                 label="Correo electrónico"
                 labelPlacement="outside"
@@ -168,6 +165,7 @@ const EditUserProfile = () => {
                 isReadOnly
                 description="El correo electrónico no se puede modificar"
                 isDisabled={true}
+                className="py-4"
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -206,6 +204,7 @@ const EditUserProfile = () => {
                 value={formData.pais}
                 onValueChange={value => handleChange('pais', value)}
                 isDisabled={isLoading || success}
+                className="py-4"
               />
             </div>
 
