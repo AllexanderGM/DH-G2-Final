@@ -2,3 +2,14 @@
 *.cmd text eol=crlf
 * text eol=lf
 *.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+
