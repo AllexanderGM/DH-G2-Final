@@ -1,15 +1,9 @@
-import { NavbarItem, Link, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Avatar } from '@heroui/react'
-import { useNavigate } from 'react-router-dom'
+import { NavbarItem, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, User } from '@heroui/react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '@context/AuthContext.jsx'
 
-const NavbarAdmin = ({ getInitials }) => {
-  const { user, logout } = useAuth()
-
-  const navigate = useNavigate()
-
-  const handleProfileClick = () => {
-    navigate('/profile-admin')
-  }
+const NavbarAdmin = ({ avatar, name, lastName, email }) => {
+  const { logout } = useAuth()
 
   return (
     <>
@@ -20,28 +14,29 @@ const NavbarAdmin = ({ getInitials }) => {
           </Link>
         </NavbarItem>
       </div>
+
       <div className="flex gap-3 items-center">
         <NavbarItem>
           <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/admin">
             Admin panel
           </Link>
         </NavbarItem>
+
         <NavbarItem>
           <Dropdown>
             <DropdownTrigger>
-              <Avatar
-                name={getInitials(user?.name, user?.lastName)}
-                size="sm"
-                className="cursor-pointer"
-                classNames={{
-                  base: 'bg-gradient-to-br from-[#FF898B] to-[#E86C6E] text-white'
+              <User
+                avatarProps={{
+                  src: avatar
                 }}
+                description={email}
+                name={`${name} ${lastName}`}
               />
             </DropdownTrigger>
 
             <DropdownMenu aria-label="Profile Actions">
-              <DropdownItem key="profile" onPress={handleProfileClick}>
-                Mi Perfil
+              <DropdownItem key="profile">
+                <Link to="/profile-user">Mi Perfil</Link>
               </DropdownItem>
               <DropdownItem key="logout" color="danger" onPress={logout}>
                 Cerrar sesión

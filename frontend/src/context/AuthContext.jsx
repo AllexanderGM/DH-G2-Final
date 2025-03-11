@@ -8,7 +8,14 @@ const AuthContext = createContext()
 const cookies = new Cookies()
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState({
+    image: null,
+    email: null,
+    name: null,
+    lastName: null,
+    role: null,
+    token: null
+  })
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
@@ -38,8 +45,7 @@ export const AuthProvider = ({ children }) => {
       .then(response => {
         if (response.ok) {
           logout()
-          setUser(null)
-          navigate('/login')
+          navigate('/')
         } else {
           console.error('Logout failed')
         }

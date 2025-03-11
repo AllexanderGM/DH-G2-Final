@@ -8,15 +8,28 @@ import {
   NavbarMenuToggle,
   NavbarContent,
   NavbarItem,
-  Image,
-  Button
+  Image
 } from '@heroui/react'
+import { useAuth } from '@context/AuthContext.jsx'
 import img from '@assets/Logo/logo_navbar/svg/isotipo_sm.svg'
+
+import NavbarRegularPortion from './NavbarRegularPortion.jsx'
+import NavbarClientPortion from './NavbarClientPortion.jsx'
+import NavbarAdminPortion from './NavbarAdminPortion.jsx'
 
 const menuItems = ['Somos', 'Tours', 'Contacto']
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user } = useAuth()
+  const { name, lastName, email, avatar, role } = user
+
+  const roleOptions = {
+    CLIENT: <NavbarClientPortion avatar={avatar} name={name} lastName={lastName} email={email} />,
+    ADMIN: <NavbarAdminPortion avatar={avatar} name={name} lastName={lastName} />
+  }
+
+  const dynamicPortion = roleOptions[role] || <NavbarRegularPortion />
 
   return (
     <NavbarUi isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} classNames={{ wrapper: 'max-w-6xl mx-auto' }}>
@@ -39,22 +52,6 @@ function Navbar() {
         ))}
       </NavbarContent>
 
-      {/* Sección de usuario */}
-      <NavbarContent justify="end">
-        <NavbarItem className="lg:flex text-sm">
-          <Link to="/register" className="text-sm md:text-base">
-            Crear Cuenta
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Button color="primary" className="text-sm md:text-base">
-            <Link to="/login" className="text-sm md:text-base w-full h-full flex items-center justify-center">
-              Iniciar sesión
-            </Link>
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
-
       {/* Menú hamburguesa en móviles */}
       <NavbarMenuToggle aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'} className="sm:hidden" />
       <NavbarMenu>
@@ -66,6 +63,11 @@ function Navbar() {
           </NavbarMenuItem>
         ))}
       </NavbarMenu>
+
+      {/* Sección de usuario */}
+      <NavbarContent justify="end" className="cursor-pointer">
+        {dynamicPortion}
+      </NavbarContent>
     </NavbarUi>
   )
 }
