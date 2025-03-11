@@ -9,7 +9,7 @@ const NavbarAdmin = ({ avatar, name, lastName, email }) => {
     <>
       <div className="flex gap-3 items-center">
         <NavbarItem>
-          <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/crear-tour">
+          <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" to="/crear-tour">
             Crear tour
           </Link>
         </NavbarItem>
@@ -17,7 +17,7 @@ const NavbarAdmin = ({ avatar, name, lastName, email }) => {
 
       <div className="flex gap-3 items-center">
         <NavbarItem>
-          <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/admin">
+          <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" to="/admin">
             Admin panel
           </Link>
         </NavbarItem>
