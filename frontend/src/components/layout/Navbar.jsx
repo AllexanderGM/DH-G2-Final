@@ -21,8 +21,7 @@ const menuItems = ['Somos', 'Tours', 'Contacto']
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { user } = useAuth()
-  // const { name, lastName, email, avatar, role } = user
+  const { user, isAdmin } = useAuth()
 
   const name = user?.name || ''
   const lastName = user?.lastName || ''
@@ -30,21 +29,24 @@ function Navbar() {
   const avatar = user?.avatar || ''
   const role = user?.role || ''
 
-  const roleOptions = {
-    CLIENT: <NavbarClientPortion avatar={avatar} name={name} lastName={lastName} email={email} />,
-    ADMIN: <NavbarAdminPortion avatar={avatar} name={name} lastName={lastName} />
-  }
+  let dynamicPortion
 
-  const dynamicPortion = roleOptions[role] || <NavbarRegularPortion />
+  if (user && isAdmin) {
+    dynamicPortion = <NavbarAdminPortion avatar={avatar} name={name} lastName={lastName} email={email} />
+  } else if (user && (role === 'CLIENT' || role === 'client')) {
+    dynamicPortion = <NavbarClientPortion avatar={avatar} name={name} lastName={lastName} email={email} />
+  } else {
+    dynamicPortion = <NavbarRegularPortion />
+  }
 
   return (
     <NavbarUi isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} classNames={{ wrapper: 'max-w-6xl mx-auto' }}>
       {/* Marca y Logo */}
       <NavbarBrand>
-        <a href="/" className="flex text-black">
+        <Link to="/" className="flex text-black">
           <Image alt="Glocal Tour isotipo" className="mr-2" src={img} width="20" radius="none" />
           <p className="font-bold text-inherit">Glocal Tour</p>
-        </a>
+        </Link>
       </NavbarBrand>
 
       {/* Menú principal en pantallas grandes */}

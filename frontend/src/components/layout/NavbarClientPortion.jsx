@@ -8,7 +8,7 @@ const NavbarClientPortion = ({ avatar, name, lastName, email }) => {
   return (
     <div className="flex gap-3 items-center">
       <NavbarItem>
-        <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/favoritos">
+        <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" to="/favoritos">
           Favoritos
         </Link>
       </NavbarItem>

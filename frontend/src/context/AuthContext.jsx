@@ -12,6 +12,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
+  const isUserAdmin = userObj => {
+    if (!userObj) return false
+
+    return userObj.isAdmin === true || userObj.role === 'admin' || userObj.role === 'ADMIN'
+  }
+
   useEffect(() => {
     const checkAuth = () => {
       if (isAuthenticated()) {
@@ -60,14 +66,14 @@ export const AuthProvider = ({ children }) => {
     if (!user) return false
 
     if (requiredRole === 'admin') {
-      return user.isAdmin === true || user.role === 'admin'
+      return isUserAdmin(user)
     }
 
     return true
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, setUser, logout: handleLogout, isAdmin: user?.isAdmin || false, hasRole: checkRole }}>
+    <AuthContext.Provider value={{ user, loading, setUser, logout: handleLogout, isAdmin: isUserAdmin(user), hasRole: checkRole }}>
       {children}
     </AuthContext.Provider>
   )

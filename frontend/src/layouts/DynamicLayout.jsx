@@ -5,7 +5,7 @@ import ClientLayout from './ClientLayout.jsx'
 import Layout from './Layout.jsx'
 
 const DynamicLayout = () => {
-  const { user, loading } = useAuth()
+  const { user, loading, isAdmin } = useAuth()
 
   if (loading) {
     return (
@@ -19,7 +19,7 @@ const DynamicLayout = () => {
     )
   }
 
-  if (user && (user.isAdmin || user.role === 'ADMIN' || user.role === 'admin')) {
+  if (user && isAdmin) {
     return <AdminLayout />
   }
 
