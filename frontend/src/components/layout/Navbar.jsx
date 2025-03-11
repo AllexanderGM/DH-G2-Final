@@ -22,7 +22,13 @@ const menuItems = ['Somos', 'Tours', 'Contacto']
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { user } = useAuth()
-  const { name, lastName, email, avatar, role } = user
+  // const { name, lastName, email, avatar, role } = user
+
+  const name = user?.name || ''
+  const lastName = user?.lastName || ''
+  const email = user?.email || ''
+  const avatar = user?.avatar || ''
+  const role = user?.role || ''
 
   const roleOptions = {
     CLIENT: <NavbarClientPortion avatar={avatar} name={name} lastName={lastName} email={email} />,
