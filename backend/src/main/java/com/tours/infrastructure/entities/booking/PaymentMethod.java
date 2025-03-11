@@ -5,22 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "pagos")
-public class Pago {
+@Table(name = "Payment_method")
+public class PaymentMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String namePaymentMethod;
+    private String description;
 
-    private Float montoPago;
-    private LocalDateTime fechaPago;
-
-    @ManyToOne
-    @JoinColumn(name = "id_metodo_pago")
-    private MetodoPago metodoPago;
 }
