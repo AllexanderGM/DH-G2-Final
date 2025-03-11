@@ -12,54 +12,81 @@ import EditUserProfile from '@pages/userEdit/EditUserProfile.jsx'
 import FavoritesPage from '@pages/favorites/FavoritesPage.jsx'
 import Users from '@components/Users.jsx'
 
+import RequireAuth from './RequireAuth.jsx'
 import App from './App.jsx'
-import ProtectedRoute from './ProtectedRoute.jsx'
 
 import '@styles/tailwind.css'
 import '@styles/global.scss'
 
+// Crear el router con todas las rutas
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     errorElement: <NotFoundPage />,
     children: [
-      // Rutas públicas
       {
-        path: '/',
+        path: '',
         element: <DynamicLayout />,
         children: [
-          { path: '/', element: <HomePage /> },
-          { path: '/tour/:id', element: <DetalleTour /> },
-          { path: '/favoritos', element: <FavoritesPage /> },
-          { path: '/users', element: <Users /> },
+          // Rutas públicas
+          { index: true, element: <HomePage /> },
+          { path: 'tour/:id', element: <DetalleTour /> },
+          { path: 'login', element: <IniciarSesion /> },
+          { path: 'register', element: <RegistrarUsuario /> },
+          { path: 'users', element: <Users /> },
+
+          // Rutas protegidas para clientes
           {
-            path: '/login',
-            element: <IniciarSesion />
+            path: 'favoritos',
+            element: (
+              <RequireAuth>
+                <FavoritesPage />
+              </RequireAuth>
+            )
           },
           {
-            path: '/register',
-            element: <RegistrarUsuario />
+            path: 'profile-user',
+            element: (
+              <RequireAuth>
+                <ProfilePage />
+              </RequireAuth>
+            )
+          },
+          {
+            path: 'edit-profile',
+            element: (
+              <RequireAuth>
+                <EditUserProfile />
+              </RequireAuth>
+            )
+          },
+
+          // Rutas protegidas para administradores
+          {
+            path: 'admin',
+            element: (
+              <RequireAuth requiredRole="admin">
+                <AdminPage />
+              </RequireAuth>
+            )
+          },
+          {
+            path: 'crear-tour',
+            element: (
+              <RequireAuth requiredRole="admin">
+                <CrearTour />
+              </RequireAuth>
+            )
+          },
+          {
+            path: 'profile-admin',
+            element: (
+              <RequireAuth requiredRole="admin">
+                <ProfilePage />
+              </RequireAuth>
+            )
           }
-        ]
-      },
-      // Rutas protegidas para usuarios
-      {
-        path: '',
-        element: <ProtectedRoute requiredRole="user" />,
-        children: [
-          { path: '/profile-user', element: <ProfilePage /> },
-          { path: '/edit-profile', element: <EditUserProfile /> }
-        ]
-      },
-      // Rutas protegidas para administradores
-      {
-        path: '',
-        element: <ProtectedRoute requiredRole="admin" />,
-        children: [
-          { path: '/admin', element: <AdminPage /> },
-          { path: '/crear-tour', element: <CrearTour /> },
-          { path: '/profile-admin', element: <ProfilePage /> }
         ]
       }
     ]

@@ -45,15 +45,23 @@ export const AuthProvider = ({ children }) => {
       .then(response => {
         if (response.ok) {
           logout()
+          setUser(null)
           navigate('/')
         } else {
-          console.error('Logout failed')
+          console.error('Logout failed on server, but proceeding with local logout')
+          logout()
+          setUser(null)
+          navigate('/')
         }
       })
-      .catch(error => console.error('Error during logout:', error))
+      .catch(error => {
+        console.error('Error durante el logout:', error)
+        logout()
+        setUser(null)
+        navigate('/')
+      })
   }
 
-  // Comprueba rol
   const checkRole = requiredRole => {
     if (!user) return false
 
