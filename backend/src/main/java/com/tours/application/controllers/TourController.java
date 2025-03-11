@@ -3,6 +3,7 @@ package com.tours.application.controllers;
 import com.tours.domain.dto.tour.TourRequestDTO;
 import com.tours.domain.dto.tour.TourResponseDTO;
 import com.tours.domain.services.TourService;
+import com.tours.infrastructure.entities.tour.TagTourOptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -55,4 +57,9 @@ public class TourController {
         tourService.delete(id);
         return ResponseEntity.ok().build();
     }
+    @PutMapping("/{id}/tags")
+    public ResponseEntity<?> updateTags(@PathVariable Long id, @RequestBody List<TagTourOptions> tags) {
+        return ResponseEntity.ok(tourService.updateTags(id, tags));
+    }
+
 }

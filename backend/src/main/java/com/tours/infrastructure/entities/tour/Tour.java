@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -41,9 +42,14 @@ public class Tour {
     @JoinColumn(name = "status_id")
     private StatusTour statusTour;
 
-    @ManyToOne
-    @JoinColumn(name = "tag_id")
-    private TagTour tag;
+    @ManyToMany
+    @JoinTable(
+            name = "tour_tag_relation",
+            joinColumns = @JoinColumn(name = "tour_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<TagTour> tags = new ArrayList<>();
+
 
     @ManyToMany
     @JoinTable(

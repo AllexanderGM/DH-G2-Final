@@ -17,7 +17,7 @@ public record TourResponseDTO(
         LocalDate creationDate,
         List<String> images,
         StatusDTO status,
-        String tag,
+        List<String> tags,
         List<IncludeDTO> includes,
         DestinationResponseDTO destination,
         HotelDTO hotel
@@ -32,9 +32,15 @@ public record TourResponseDTO(
                 tour.getChildPrice(),
                 tour.getCreationDate(),
                 tour.getImages(),
+
                 new StatusDTO(tour.getStatusTour()),
-                tour.getTag() != null ? String.valueOf(new TagDTO(tour.getTag()).tag().getDisplayName()) : "Sin etiqueta",
+                //tour.getTags() != null ? String.valueOf(new TagDTO(tour.getTags()).tag().getDisplayName()) : "Sin etiqueta",
+                tour.getTags() != null ? tour.getTags().stream()
+                        .map(tag -> tag.getTagTourOptions().getDisplayName())
+                        .toList() : List.of(),
+
                 tour.getIncludeTours() != null ? tour.getIncludeTours().stream().map(IncludeDTO::new).toList() : List.of(),
+
                 new DestinationResponseDTO(tour.getDestinationTour()),
                 tour.getHotelTour() != null ? new HotelDTO(tour.getHotelTour()) : null
         );
