@@ -1,12 +1,21 @@
 import { Link } from 'react-router-dom'
-import { Card, CardHeader, CardFooter, CardBody, Image, Chip, Divider, Button } from '@heroui/react'
+import { Card, CardHeader, CardFooter, CardBody, Image, Chip, Divider, Button, Tooltip } from '@heroui/react'
 import { normalizeWords } from '@utils/normalizeWords.js'
+import { useFavorites } from '@context/FavoritesContext'
 
 import './cardTour.scss'
 
 const CardTour = ({ data }) => {
+  const { toggleFavorite, isFavorite, isAuthenticated } = useFavorites()
+  const isCurrentlyFavorite = isFavorite(data.id)
+
   const URL = `/tour/${data.id}`
   const img = data.images[0]
+
+  const handleFavoriteClick = e => {
+    e.preventDefault() // Prevent navigating to tour page when clicking the favorite button
+    toggleFavorite(data)
+  }
 
   const includes = data.includes.slice(0, 3).map((element, index) => (
     <div key={index} className="card_tour-include">
@@ -35,18 +44,25 @@ const CardTour = ({ data }) => {
   return (
     <Card className="card_tour">
       <CardHeader className="card_tour-header">
-        {/* <Chip */}
-        {/*   size="sm" */}
-        {/*   variant="dot" */}
-        {/*   color="primary" */}
-        {/*   className="card_tour-tag" */}
-        {/*   startContent={<span className="material-symbols-outlined icon">bookmarks</span>}> */}
-        {/*   {normalizeWords(data.tag)} */}
-        {/* </Chip> */}
         {renderTags(data.tags)}
-        <Link to={URL} className="card_tour-title">
-          {data.name}
-        </Link>
+        <div className="flex justify-between w-full items-center">
+          <Link to={URL} className="card_tour-title">
+            {data.name}
+          </Link>
+          <Tooltip
+            content={
+              isAuthenticated ? (isCurrentlyFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos') : 'Iniciar sesión para guardar'
+            }>
+            <button
+              onClick={handleFavoriteClick}
+              className="card_tour-favorite-btn"
+              aria-label={isCurrentlyFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}>
+              <span className={`material-symbols-outlined icon ${isCurrentlyFavorite ? 'favorite-active' : ''}`}>
+                {isCurrentlyFavorite ? 'favorite' : 'favorite_border'}
+              </span>
+            </button>
+          </Tooltip>
+        </div>
       </CardHeader>
 
       <CardBody className="card_tour-body">

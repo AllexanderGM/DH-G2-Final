@@ -96,4 +96,25 @@
       }
     }
   }
+
+  &-favorite-btn {
+    @apply p-1.5 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center;
+
+    .icon {
+      @apply text-2xl text-gray-400;
+
+      &.favorite-active {
+        @apply text-primary-400;
+        font-variation-settings:
+          'FILL' 1,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+    }
+
+    &:hover .icon {
+      @apply text-red-500;
+    }
+  }
 }
