@@ -18,18 +18,32 @@ const CardTour = ({ data }) => {
     </div>
   ))
 
+  const renderTags = tags => {
+    return tags.map((tag, index) => (
+      <Chip
+        key={index}
+        size="sm"
+        variant="dot"
+        color="primary"
+        className="card_tour-tag"
+        startContent={<span className="material-symbols-outlined icon">bookmarks</span>}>
+        {normalizeWords(tag)}
+      </Chip>
+    ))
+  }
+
   return (
     <Card className="card_tour">
       <CardHeader className="card_tour-header">
-        <Chip
-          size="sm"
-          variant="dot"
-          color="primary"
-          className="card_tour-tag"
-          startContent={<span className="material-symbols-outlined icon">bookmarks</span>}>
-          {normalizeWords(data.tag)}
-        </Chip>
-
+        {/* <Chip */}
+        {/*   size="sm" */}
+        {/*   variant="dot" */}
+        {/*   color="primary" */}
+        {/*   className="card_tour-tag" */}
+        {/*   startContent={<span className="material-symbols-outlined icon">bookmarks</span>}> */}
+        {/*   {normalizeWords(data.tag)} */}
+        {/* </Chip> */}
+        {renderTags(data.tags)}
         <Link to={URL} className="card_tour-title">
           {data.name}
         </Link>
