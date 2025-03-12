@@ -14,13 +14,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "disponibilidad")
-public class Disponibilidad {
+public class Availability {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate fechaDisponible;
+    private LocalDate availableDate;
     private Integer cuposDisponibles;
     private LocalDateTime horaSalida;
     private LocalDateTime horaRegreso;
