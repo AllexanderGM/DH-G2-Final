@@ -57,9 +57,7 @@ const CardTour = ({ data }) => {
               onClick={handleFavoriteClick}
               className="card_tour-favorite-btn"
               aria-label={isCurrentlyFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}>
-              <span className={`material-symbols-outlined icon ${isCurrentlyFavorite ? 'favorite-active' : ''}`}>
-                {isCurrentlyFavorite ? 'favorite' : 'favorite_border'}
-              </span>
+              <span className={`material-symbols-outlined icon ${isCurrentlyFavorite ? 'favorite-active' : ''}`}>favorite</span>
             </button>
           </Tooltip>
         </div>
