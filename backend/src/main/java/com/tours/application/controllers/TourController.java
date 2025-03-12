@@ -1,19 +1,24 @@
 package com.tours.application.controllers;
 
 import com.tours.domain.dto.tour.TourRequestDTO;
+import com.tours.domain.dto.tour.TourResponseDTO;
 import com.tours.domain.services.TourService;
+import com.tours.infrastructure.entities.tour.TagTourOptions;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/tours")
+@RequiredArgsConstructor
 public class TourController {
     private final TourService tourService;
-
-    public TourController(TourService tourService) {
-        this.tourService = tourService;
-    }
 
     @GetMapping
     public ResponseEntity<?> getAll() {
@@ -36,8 +41,10 @@ public class TourController {
     }
 
     @PostMapping
-    public ResponseEntity<?> add(@RequestBody TourRequestDTO tour) {
-        return ResponseEntity.ok(tourService.add(tour));
+    //public ResponseEntity<?> add(@RequestBody TourRequestDTO tour) {
+       // return ResponseEntity.ok(tourService.add(tour));
+    public ResponseEntity<Optional<TourResponseDTO>> addTour(@Valid @RequestBody TourRequestDTO tourRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(tourService.add(tourRequest));
     }
 
     @PutMapping("/{id}")
@@ -50,4 +57,9 @@ public class TourController {
         tourService.delete(id);
         return ResponseEntity.ok().build();
     }
+    @PutMapping("/{id}/tags")
+    public ResponseEntity<?> updateTags(@PathVariable Long id, @RequestBody List<TagTourOptions> tags) {
+        return ResponseEntity.ok(tourService.updateTags(id, tags));
+    }
+
 }

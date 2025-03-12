@@ -8,6 +8,7 @@ import com.tours.infrastructure.entities.location.Location;
 import com.tours.infrastructure.entities.tour.*;
 import com.tours.infrastructure.repositories.location.ILocationRepository;
 import com.tours.infrastructure.repositories.tour.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,7 @@ public class TourService {
         return tourRepository.findAll(pageable).map(TourResponseDTO::new);
     }
 
+    @Transactional
     public Optional<TourResponseDTO> add(TourRequestDTO tour) {
         if (tourRepository.existsByName(tour.name())) {
             throw new DuplicateNameException("El nombre ya existe");
@@ -90,16 +92,18 @@ public class TourService {
 
     private Tour createTourEntity(TourRequestDTO tour) {
         Location location = locationRepository.findByCountryAndCity(tour.destination().country(), tour.destination().city())
-                .orElseThrow(() -> new IllegalArgumentException("Destino no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Destino no encontrado"));
 
         StatusTour statusTour = statusRepository.findByStatus(tour.status())
-                .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Estado no encontrado"));
 
-        TagTour tag = tagRepository.findByTagTourOptions(tour.tag())
-                .orElseThrow(() -> new IllegalArgumentException("Etiqueta no encontrada"));
+        List<TagTour> tagList = tour.tags().stream()
+                .map(tag -> tagRepository.findByTagTourOptions(tag)
+                        .orElseThrow(() -> new NotFoundException("Etiqueta no encontrada: " + tag)))
+                .collect(Collectors.toList());
 
         HotelTour hotelTour = (tour.hotel() != null) ? hotelRepository.findById(tour.hotel())
-                .orElseThrow(() -> new IllegalArgumentException("Hotel no encontrado")) : null;
+                .orElseThrow(() -> new NotFoundException("Hotel no encontrado")) : null;
 
         List<IncludeTours> includeTours = Optional.ofNullable(tour.includes())
                 .orElse(Collections.emptyList())
@@ -108,11 +112,43 @@ public class TourService {
                         .orElseThrow(() -> new IllegalArgumentException("Include no encontrado: " + dto.trim())))
                 .collect(Collectors.toList());
 
-        return new Tour(
-                null, tour.name(), tour.description(), tour.adultPrice(), tour.childPrice(),
-                LocalDate.now(), tour.images(), statusTour, tag, includeTours,
-                new DestinationTour(null, location.getImage(), location.getRegion(), tour.destination().country(), tour.destination().city()),
-                hotelTour
-        );
+        Tour newTour = new Tour();
+        newTour.setName(tour.name());
+        newTour.setDescription(tour.description());
+        newTour.setAdultPrice(tour.adultPrice());
+        newTour.setChildPrice(tour.childPrice());
+        newTour.setCreationDate(LocalDate.now());
+        newTour.setImages(tour.images());
+        newTour.setStatusTour(statusTour);
+        newTour.setIncludeTours(includeTours);
+        newTour.setDestinationTour(new DestinationTour(null, location.getImage(), location.getRegion(), tour.destination().country(), tour.destination().city()));
+        newTour.setHotelTour(hotelTour);
+        newTour.setTags(tagList);
+
+        return newTour;
     }
+    @Transactional
+    public Optional<TourResponseDTO> updateTags(Long id, List<TagTourOptions> tags) {
+        Tour existingTour = tourRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Tour no encontrado"));
+
+        // Guardamos el tour sin tags primero
+        tourRepository.save(existingTour);
+
+        List<TagTour> tagList = tags.stream()
+                .map(tag -> tagRepository.findByTagTourOptions(tag)
+                        .orElseGet(() -> {
+                            TagTour newTag = new TagTour(tag);
+                            tagRepository.save(newTag);
+                            return newTag;
+                        }))
+                .collect(Collectors.toList());
+
+        // Ahora asignamos los tags y guardamos nuevamente el Tour
+        existingTour.setTags(tagList);
+        tourRepository.save(existingTour);
+
+        return Optional.of(new TourResponseDTO(existingTour));
+    }
+
 }
