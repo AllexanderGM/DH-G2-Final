@@ -19,23 +19,22 @@ export const SearchProvider = ({ children }) => {
   const [allTours, setAllTours] = useState(null)
   const [advancedSearchParams, setAdvancedSearchParams] = useState({
     dateRange: null
-    // Add more advanced search params as needed
+    // Agregar más parámetros de búsqueda avanzado según sea necesario
+    // Por ejemplo, filtrar por categorías, precios, etc.
   })
 
-  // Load initial tours data when component mounts
   const loadTours = useCallback(async () => {
     try {
       setLoading(true)
-
-      console.log('Cargando data de tours iniciales... 🚀')
-
+      console.log('Loading initial tours data...')
       const response = await toursAllRandom()
+      console.log('Initial tours response:', response)
 
       setAllTours(response)
       setSearchResults(response)
-      console.log('Initial tours loaded:', response)
     } catch (error) {
-      console.error('Error al cargar tours', error)
+      console.error('Error loading tours:', error)
+      setSearchResults({ success: false, error: error.message })
     } finally {
       setLoading(false)
     }
@@ -49,6 +48,7 @@ export const SearchProvider = ({ children }) => {
     setSearchTerm(term)
   }, [])
 
+  // Función para actualizar los parámetros de búsqueda avanzado
   const updateAdvancedSearchParams = useCallback(params => {
     setAdvancedSearchParams(prev => ({
       ...prev,
@@ -58,50 +58,63 @@ export const SearchProvider = ({ children }) => {
 
   const searchTours = useCallback(async () => {
     setLoading(true)
-    console.log('Buscando tours cont term:', searchTerm)
+    console.log('Searching tours with term:', searchTerm)
 
     try {
       if (!allTours) {
-        // Si no han sido cargados todavía, cargarlos primero
         await loadTours()
+        return
       }
 
       if (!searchTerm.trim()) {
         setSearchResults(allTours)
+        setLoading(false)
         return
       }
 
-      // Perform client-side filtering
-      // Nota: Esto se puede reemplazar con una llamada a la API cuando se implemente la búsqueda en el servidor
       const lowercaseSearchTerm = searchTerm.toLowerCase().trim()
+
+      if (!allTours.data || !Array.isArray(allTours.data)) {
+        console.error('Unexpected data structure:', allTours)
+        setSearchResults({ success: false, error: 'Formato de datos inesperado' })
+        setLoading(false)
+        return
+      }
 
       const filteredResults = {
         ...allTours,
         data: allTours.data.filter(tour => {
+          console.log('Filtering tour:', tour.name)
+
           return (
-            tour.name?.toLowerCase().includes(lowercaseSearchTerm) ||
-            tour.destination?.country?.toLowerCase().includes(lowercaseSearchTerm) ||
-            tour.destination?.city?.toLowerCase().includes(lowercaseSearchTerm) ||
-            tour.destination?.region?.toLowerCase().includes(lowercaseSearchTerm) ||
-            tour.tags?.some(tag => tag.toLowerCase().includes(lowercaseSearchTerm))
+            // Campos básicos
+            (tour.name && tour.name.toLowerCase().includes(lowercaseSearchTerm)) ||
+            (tour.description && tour.description.toLowerCase().includes(lowercaseSearchTerm)) ||
+            // Campos de destino
+            (tour.destination?.country && tour.destination.country.toLowerCase().includes(lowercaseSearchTerm)) ||
+            (tour.destination?.region && tour.destination.region.toLowerCase().includes(lowercaseSearchTerm)) ||
+            (tour.destination?.city?.name && tour.destination.city.name.toLowerCase().includes(lowercaseSearchTerm)) ||
+            // Tags (comprobando que sea un array y sus elementos sean strings)
+            (Array.isArray(tour.tags) && tour.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(lowercaseSearchTerm)))
           )
         })
       }
 
-      console.log('Resultados de búsqueda:', filteredResults)
+      console.log('Filtered results:', filteredResults)
       setSearchResults(filteredResults)
     } catch (error) {
-      console.error('Error al buscar tours', error)
+      console.error('Error searching tours:', error)
+      setSearchResults({ success: false, error: error.message })
     } finally {
       setLoading(false)
     }
   }, [searchTerm, allTours, loadTours])
 
-  // Espera por cambios en searchTerm y ejecuta la función searchTours
+  // Esperando por cambios en searchTerm y ejecutar la función searchTours
   useEffect(() => {
     const delay = setTimeout(() => {
       searchTours()
-    }, 300) // 300m debounce search
+    }, 300) // Debounce search por 300ms
 
     return () => clearTimeout(delay)
   }, [searchTerm, searchTours])
