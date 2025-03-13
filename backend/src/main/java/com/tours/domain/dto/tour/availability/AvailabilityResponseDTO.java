@@ -11,16 +11,18 @@ public record AvailabilityResponseDTO(
         Integer availableSlots,
         LocalDateTime departureTime,
         LocalDateTime returnTime,
-        Long tourId
+        Long tourId,
+        Boolean isReserved // New field
 ) {
-    public AvailabilityResponseDTO(Availability availability) {
+    public AvailabilityResponseDTO(Availability availability, Boolean isReserved) {
         this(
                 availability.getId(),
                 availability.getAvailableDate(),
                 availability.getAvailableSlots(),
                 availability.getDepartureTime(),
                 availability.getReturnTime(),
-                availability.getTour().getId()
+                availability.getTour().getId(),
+                isReserved
         );
     }
 }

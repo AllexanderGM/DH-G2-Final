@@ -4,8 +4,10 @@ import com.tours.domain.dto.tour.availability.AvailabilityRequestDTO;
 import com.tours.domain.dto.tour.availability.AvailabilityResponseDTO;
 import com.tours.exception.NotFoundException;
 import com.tours.infrastructure.entities.booking.Availability;
+import com.tours.infrastructure.entities.booking.Reservation;
 import com.tours.infrastructure.entities.tour.Tour;
 import com.tours.infrastructure.repositories.booking.IAvailabilityRepository;
+import com.tours.infrastructure.repositories.booking.IReservationRepository;
 import com.tours.infrastructure.repositories.tour.ITourRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class AvailabilityService {
 
     private final IAvailabilityRepository availabilityRepository;
     private final ITourRepository tourRepository;
+    private final IReservationRepository reservationRepository;
 
     public List<AvailabilityResponseDTO> getAvailabilityByTourId(Long tourId) {
         Tour tour = tourRepository.findById(tourId)
@@ -26,7 +29,11 @@ public class AvailabilityService {
 
         List<Availability> availabilities = availabilityRepository.findByTour(tour);
         return availabilities.stream()
-                .map(AvailabilityResponseDTO::new)
+                .map(availability -> {
+                    List<Reservation> reservations = reservationRepository.findByAvailability(availability);
+                    Boolean isReserved = !reservations.isEmpty();
+                    return new AvailabilityResponseDTO(availability, isReserved);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -42,6 +49,6 @@ public class AvailabilityService {
         availability.setTour(tour);
 
         Availability savedAvailability = availabilityRepository.save(availability);
-        return new AvailabilityResponseDTO(savedAvailability);
+        return new AvailabilityResponseDTO(savedAvailability, false);
     }
 }
