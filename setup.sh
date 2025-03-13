@@ -56,7 +56,7 @@ VITE_IV=$IV
 EOL
 
 # Definir el host de la base de datos dependiendo del perfil
-if [[ "$PROFILE" == "back" ]]; then
+if [[ "$PROFILE" == "front" ]]; then
   DB_HOST="localhost"
 fi
 
@@ -102,10 +102,10 @@ echo "Archivos .env creados exitosamente"
 
 # Ejecutar docker-compose con el perfil seleccionado
 echo "Deteniendo contenedores antiguos..."
-docker-compose down --rmi all
+docker-compose -p $NAME down
 
 echo "Iniciando Docker Compose con el perfil '$PROFILE'..."
-docker-compose --profile $PROFILE up --build -d
+docker-compose --profile $PROFILE up -d
 
 # Mostrar el estado de los contenedores
 docker-compose ps

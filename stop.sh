@@ -1,10 +1,18 @@
 #!/bin/bash
 
-echo "Deteniendo y eliminando contenedores, imágenes y redes sin afectar los volúmenes..."
+# Verificar si el archivo .env existe en la raíz
+if [ ! -f .env ]; then
+    echo "El archivo .env no existe en la raíz del proyecto."
+    exit 1
+fi
 
-docker-compose down --rmi all --remove-orphans || true
-docker ps -aq | xargs docker rm -f || true
-docker images -q | xargs docker rmi -f || true
-docker network prune -f || true
+set -a
+source .env
+set +a
 
-echo "Proceso completado. Los volúmenes permanecen intactos."
+echo "Deteniendo contenedores..."
+
+docker-compose -p $NAME down
+docker ps -a --filter "name=$NAME"
+
+echo "Proceso completado."
