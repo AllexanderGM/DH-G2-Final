@@ -1,5 +1,6 @@
 package com.tours.infrastructure.entities.tour;
 
+import com.tours.infrastructure.entities.booking.Availability;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -66,4 +67,7 @@ public class Tour {
     @ManyToOne
     @JoinColumn(name = "hotel_id")
     private HotelTour hotelTour;
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true) // Changed from "tour" to "pack"
+    private List<Availability> availabilities;
+
 }

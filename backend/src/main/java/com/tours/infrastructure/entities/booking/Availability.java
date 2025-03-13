@@ -20,12 +20,19 @@ public class Availability {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private LocalDate availableDate;
-    private Integer cuposDisponibles;
-    private LocalDateTime horaSalida;
-    private LocalDateTime horaRegreso;
+
+    @Column(nullable = false)
+    private Integer availableSlots;
+
+    @Column(nullable = false)
+    private LocalDateTime departureTime;
+
+    @Column(nullable = false)
+    private LocalDateTime returnTime;
 
     @ManyToOne
-    @JoinColumn(name = "id_paquete")
-    private Tour paquete;
+    @JoinColumn(name = "id_tour")
+    private Tour tour;
 }

@@ -97,8 +97,6 @@ public class TourService {
         StatusTour statusTour = statusRepository.findByStatus(tour.status())
                 .orElseThrow(() -> new NotFoundException("Estado no encontrado"));
 
-       // TagTour tag = tagRepository.findByTagTourOptions(tour.tags())
-               // .orElseThrow(() -> new NotFoundException("Etiqueta no encontrada"));
         List<TagTour> tagList = tour.tags().stream()
                 .map(tag -> tagRepository.findByTagTourOptions(tag)
                         .orElseThrow(() -> new NotFoundException("Etiqueta no encontrada: " + tag)))
@@ -114,13 +112,18 @@ public class TourService {
                         .orElseThrow(() -> new IllegalArgumentException("Include no encontrado: " + dto.trim())))
                 .collect(Collectors.toList());
 
-        Tour newTour= new Tour(
-                null, tour.name(), tour.description(), tour.adultPrice(), tour.childPrice(),
-                LocalDate.now(), tour.images(), statusTour, null, includeTours,
-                new DestinationTour(null, location.getImage(), location.getRegion(), tour.destination().country(), tour.destination().city()),
-                hotelTour
-        );
-        newTour.setTags(tagList); // Ahora `newTour` existe y podemos asignar los tags
+        Tour newTour = new Tour();
+        newTour.setName(tour.name());
+        newTour.setDescription(tour.description());
+        newTour.setAdultPrice(tour.adultPrice());
+        newTour.setChildPrice(tour.childPrice());
+        newTour.setCreationDate(LocalDate.now());
+        newTour.setImages(tour.images());
+        newTour.setStatusTour(statusTour);
+        newTour.setIncludeTours(includeTours);
+        newTour.setDestinationTour(new DestinationTour(null, location.getImage(), location.getRegion(), tour.destination().country(), tour.destination().city()));
+        newTour.setHotelTour(hotelTour);
+        newTour.setTags(tagList);
 
         return newTour;
     }
