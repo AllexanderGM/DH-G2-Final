@@ -1,25 +1,25 @@
 # 🔹 VPC
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
-  tags = { Name = "${var.prefix}-VPC" }
+  tags       = { Name = "${var.prefix}-VPC" }
 }
 
 # 🔹 Subred privada
 resource "aws_subnet" "private" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1a"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "us-east-1a"
   map_public_ip_on_launch = false # ❗ No asigna IP pública, solo accesible dentro de la VPC
-  tags = { Name = "${var.prefix}-Private-Subnet" }
+  tags                    = { Name = "${var.prefix}-Private-Subnet" }
 }
 
 # 🔹 Subred pública
 resource "aws_subnet" "public" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true # ✅ Asigna IP pública automáticamente
-  tags = { Name = "${var.prefix}-Public-Subnet" }
+  tags                    = { Name = "${var.prefix}-Public-Subnet" }
 }
 
 # 🔹 Tabla de rutas para subred pública
@@ -40,7 +40,7 @@ resource "aws_route_table_association" "public_assoc" {
 # 🔹 Internet Gateway para acceso a Internet
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
-  tags = { Name = "${var.prefix}-GW" }
+  tags   = { Name = "${var.prefix}-GW" }
 }
 
 # 🔹 NAT Gateway para permitir acceso a Internet a instancias en subred privada
@@ -50,7 +50,7 @@ resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat_eip.id
   subnet_id     = aws_subnet.public.id
   depends_on    = [aws_internet_gateway.gw] # ✅ Asegura que el Internet Gateway se cree primero
-  tags = { Name = "${var.prefix}-NAT" }
+  tags          = { Name = "${var.prefix}-NAT" }
 }
 
 # 🔹 Grupo de seguridad con reglas de entrada y salida
