@@ -8,24 +8,45 @@ import {
   NavbarMenuToggle,
   NavbarContent,
   NavbarItem,
-  Image,
-  Button
+  Image
 } from '@heroui/react'
+import { useAuth } from '@context/AuthContext.jsx'
 import img from '@assets/Logo/logo_navbar/svg/isotipo_sm.svg'
+
+import NavbarRegularPortion from './NavbarRegularPortion.jsx'
+import NavbarClientPortion from './NavbarClientPortion.jsx'
+import NavbarAdminPortion from './NavbarAdminPortion.jsx'
 
 const menuItems = ['Somos', 'Tours', 'Contacto']
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user, isAdmin } = useAuth()
+
+  const name = user?.name || ''
+  const lastName = user?.lastName || ''
+  const email = user?.email || ''
+  const avatar = user?.avatar || ''
+  const role = user?.role || ''
+
+  let dynamicPortion
+
+  if (user && isAdmin) {
+    dynamicPortion = <NavbarAdminPortion avatar={avatar} name={name} lastName={lastName} email={email} />
+  } else if (user && (role === 'CLIENT' || role === 'client')) {
+    dynamicPortion = <NavbarClientPortion avatar={avatar} name={name} lastName={lastName} email={email} />
+  } else {
+    dynamicPortion = <NavbarRegularPortion />
+  }
 
   return (
     <NavbarUi isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} classNames={{ wrapper: 'max-w-6xl mx-auto' }}>
       {/* Marca y Logo */}
       <NavbarBrand>
-        <a href="/" className="flex text-black">
+        <Link to="/" className="flex text-black">
           <Image alt="Glocal Tour isotipo" className="mr-2" src={img} width="20" radius="none" />
           <p className="font-bold text-inherit">Glocal Tour</p>
-        </a>
+        </Link>
       </NavbarBrand>
 
       {/* Menú principal en pantallas grandes */}
@@ -39,22 +60,6 @@ function Navbar() {
         ))}
       </NavbarContent>
 
-      {/* Sección de usuario */}
-      <NavbarContent justify="end">
-        <NavbarItem className="lg:flex text-sm">
-          <Link to="/register" className="text-sm md:text-base">
-            Crear Cuenta
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Button color="primary" className="text-sm md:text-base">
-            <Link to="/login" className="text-sm md:text-base w-full h-full flex items-center justify-center">
-              Iniciar sesión
-            </Link>
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
-
       {/* Menú hamburguesa en móviles */}
       <NavbarMenuToggle aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'} className="sm:hidden" />
       <NavbarMenu>
@@ -66,6 +71,11 @@ function Navbar() {
           </NavbarMenuItem>
         ))}
       </NavbarMenu>
+
+      {/* Sección de usuario */}
+      <NavbarContent justify="end" className="cursor-pointer">
+        {dynamicPortion}
+      </NavbarContent>
     </NavbarUi>
   )
 }

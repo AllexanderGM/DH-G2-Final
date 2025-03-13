@@ -12,12 +12,19 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
+  const isUserAdmin = userObj => {
+    if (!userObj) return false
+
+    return userObj.isAdmin === true || userObj.role === 'admin' || userObj.role === 'ADMIN'
+  }
+
   useEffect(() => {
-    // Comprueba el registro del usuario cuando la App carga
     const checkAuth = () => {
       if (isAuthenticated()) {
         const currentUser = getCurrentUser()
         setUser(currentUser)
+      } else {
+        setUser(null) // Asegurar que user sea null cuando no hay autenticación
       }
       setLoading(false)
     }
@@ -39,27 +46,34 @@ export const AuthProvider = ({ children }) => {
         if (response.ok) {
           logout()
           setUser(null)
-          navigate('/login')
+          navigate('/')
         } else {
-          console.error('Logout failed')
+          console.error('Logout failed on server, but proceeding with local logout')
+          logout()
+          setUser(null)
+          navigate('/')
         }
       })
-      .catch(error => console.error('Error during logout:', error))
+      .catch(error => {
+        console.error('Error durante el logout:', error)
+        logout()
+        setUser(null)
+        navigate('/')
+      })
   }
 
-  // Comprueba rol
   const checkRole = requiredRole => {
     if (!user) return false
 
     if (requiredRole === 'admin') {
-      return user.isAdmin === true || user.role === 'admin'
+      return isUserAdmin(user)
     }
 
     return true
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, setUser, logout: handleLogout, isAdmin: user?.isAdmin || false, hasRole: checkRole }}>
+    <AuthContext.Provider value={{ user, loading, setUser, logout: handleLogout, isAdmin: isUserAdmin(user), hasRole: checkRole }}>
       {children}
     </AuthContext.Provider>
   )
