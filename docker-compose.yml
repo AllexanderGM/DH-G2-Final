@@ -4,11 +4,41 @@ networks:
 
 volumes:
     mysql_data:
+    minio_data:
 
 services:
+    minio:
+        container_name: "${NAME}-minio"
+        image: quay.io/minio/minio
+        profiles:
+            - back
+            - front
+            - local
+        restart: always
+        ports:
+            - "${MINIO_PORT}:9000"
+            - "${MINIO_PORT_WEB}:9001"
+        environment:
+            MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+            MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+        command: server /data --console-address ":9001"
+        volumes:
+            - minio_data:/data
+        networks:
+            - app-network
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://minio:9000/minio/health/live"]
+            interval: 10s
+            retries: 5
+            start_period: 20s
+
     mysql:
         container_name: "${NAME}-mysql_db"
         image: mysql:8.0
+        profiles:
+            - back
+            - front
+            - local
         restart: always
         environment:
             MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
@@ -27,6 +57,9 @@ services:
 
     backend:
         container_name: "${NAME}-backend_spring_boot"
+        profiles:
+            - back
+            - local
         restart: always
         build:
             context: ./backend
@@ -37,12 +70,17 @@ services:
             - "${PORT_BACK}:${PORT_BACK}"
         depends_on:
             mysql:
-                condition: service_healthy  # Espera a que MySQL esté listo
+                condition: service_healthy
+            minio:
+                condition: service_started 
         networks:
             - app-network
 
     frontend:
         container_name: "${NAME}-frontend_react"
+        profiles:
+            - front
+            - local
         restart: always
         build:
             context: ./frontend
@@ -52,6 +90,9 @@ services:
         ports:
             - "${PORT_FRONT}:80"
         depends_on:
-            - backend
+            mysql:
+                condition: service_healthy
+            minio:
+                condition: service_started 
         networks:
             - app-network

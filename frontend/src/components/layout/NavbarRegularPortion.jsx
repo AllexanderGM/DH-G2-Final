@@ -9,6 +9,7 @@ const NavbarRegularPortion = () => {
           Crear Cuenta
         </Link>
       </NavbarItem>
+
       <NavbarItem>
         <Link className="text-sm md:text-base" href="/login">
           <BrandButton color="brandColor" className="text-sm md:text-base">

@@ -3,6 +3,17 @@ html {
   -webkit-user-select: auto !important;
 }
 
+html,
+body {
+  height: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
 body {
   background: #f3f4f6;
 }

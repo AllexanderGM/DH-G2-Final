@@ -1,13 +1,19 @@
 #!/bin/bash
 
+# Si no se pasa parámetro, usar "local" por defecto
+PROFILE=${1:-local}
+
+# Validar que el parámetro sea uno de los permitidos
+if [[ "$PROFILE" != "local" && "$PROFILE" != "back" && "$PROFILE" != "front" ]]; then
+  echo "Parámetro inválido. Usa: ./setup.sh [local|back|front]"
+  exit 1
+fi
+
 # Verificar si el archivo .env existe en la raíz
 if [ ! -f .env ]; then
   echo "El archivo .env no existe en la raíz del proyecto."
   exit 1
 fi
-
-# Cargar las variables de entorno desde el archivo .env en la raíz
-# export $(grep -v '^#' .env | xargs -d '\n')
 
 set -a
 source .env
@@ -49,6 +55,11 @@ VITE_KEY=$KEY
 VITE_IV=$IV
 EOL
 
+# Definir el host de la base de datos dependiendo del perfil
+if [[ "$PROFILE" == "back" ]]; then
+  DB_HOST="localhost"
+fi
+
 # Crear el archivo .env para el backend
 echo "Creando archivo .env para el backend en $BACKEND_ENV_PATH"
 cat <<EOL >$BACKEND_ENV_PATH
@@ -59,7 +70,7 @@ NODE_ENV=$ENV
 # Variables del sitio web
 URL=$URL
 URL_FRONT=$URL:$PORT_FRONT
-URL_BACK=$URL:$PORT_BACK
+URL_BACK=$URL:$URL_BACK
 PORT_FRONT=$PORT_FRONT
 PORT_BACK=$PORT_BACK
 
@@ -89,12 +100,12 @@ EOL
 
 echo "Archivos .env creados exitosamente"
 
-# Ejecutar docker-compose up con build
-echo "Iniciando Docker Compose..."
-
-# Detener y eliminar contenedores, manteniendo los volúmenes
+# Ejecutar docker-compose con el perfil seleccionado
+echo "Deteniendo contenedores antiguos..."
 docker-compose down --rmi all
-# Construir y levantar contenedores en segundo plano
-docker-compose up --build -d
+
+echo "Iniciando Docker Compose con el perfil '$PROFILE'..."
+docker-compose --profile $PROFILE up --build -d
+
 # Mostrar el estado de los contenedores
 docker-compose ps

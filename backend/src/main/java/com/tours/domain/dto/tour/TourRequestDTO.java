@@ -31,8 +31,9 @@ public record TourRequestDTO(
         @NotNull(message = "El estado es obligatorio")
         StatusTourOptions status,
 
-        @NotNull(message = "La etiqueta es obligatoria")
-        TagTourOptions tag,
+        @Valid
+        @NotEmpty(message = "Debe haber al menos una etiqueta")
+        List<TagTourOptions> tags,
 
         @NotEmpty(message = "Debe haber al menos un include")
         List<@Valid String> includes,

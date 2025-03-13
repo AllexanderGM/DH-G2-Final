@@ -14,18 +14,25 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "disponibilidad")
-public class Disponibilidad {
+public class Availability {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate fechaDisponible;
-    private Integer cuposDisponibles;
-    private LocalDateTime horaSalida;
-    private LocalDateTime horaRegreso;
+    @Column(nullable = false)
+    private LocalDate availableDate;
+
+    @Column(nullable = false)
+    private Integer availableSlots;
+
+    @Column(nullable = false)
+    private LocalDateTime departureTime;
+
+    @Column(nullable = false)
+    private LocalDateTime returnTime;
 
     @ManyToOne
-    @JoinColumn(name = "id_paquete")
-    private Tour paquete;
+    @JoinColumn(name = "id_tour")
+    private Tour tour;
 }
