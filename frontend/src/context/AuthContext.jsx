@@ -30,17 +30,21 @@ export const AuthProvider = ({ children }) => {
 
     fetch('http://localhost:8080/auth/logout', {
       method: 'POST',
-      Authorization: `Bearer ${token}`,
       headers: {
-        'Content-Type': 'application'
-      }
-    }).then(response => {
-      if (response.ok) {
-        logout()
-        setUser(null)
-        navigate('/login')
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     })
+      .then(response => {
+        if (response.ok) {
+          logout()
+          setUser(null)
+          navigate('/login')
+        } else {
+          console.error('Logout failed')
+        }
+      })
+      .catch(error => console.error('Error during logout:', error))
   }
 
   // Comprueba rol

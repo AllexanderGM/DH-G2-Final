@@ -19,3 +19,22 @@ h2 {
   background-color: #ffd3d5; /* Yellow background */
   color: #242424; /* Black text */
 }
+
+.animated_gradient {
+  position: absolute;
+  inset: 0;
+  animation: colorPulse 8s ease infinite;
+  z-index: 1;
+}
+
+@keyframes colorPulse {
+  0% {
+    background-color: rgba(232, 108, 110, 0.2); /* #E86C6E */
+  }
+  50% {
+    background-color: rgba(232, 108, 110, 0.4); /* #E86C6E más intenso */
+  }
+  100% {
+    background-color: rgba(232, 108, 110, 0.2); /* #E86C6E */
+  }
+}

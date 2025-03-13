@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { Cookies } from 'react-cookie'
 
-const API_URL = 'http://localhost:8000'
 const cookies = new Cookies()
 
 // Simula generación de JWT
