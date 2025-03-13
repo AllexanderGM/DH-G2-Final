@@ -29,5 +29,5 @@ resource "aws_s3_bucket_website_configuration" "frontend" {
 # 🔹 Bucket S3 para imágenes
 resource "aws_s3_bucket" "images" {
   bucket = "${var.prefix}-images"
-  tags = { Name = "${var.prefix}-Images-S3" }
+  tags   = { Name = "${var.prefix}-Images-S3" }
 }
