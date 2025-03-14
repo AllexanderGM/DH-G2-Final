@@ -30,14 +30,21 @@ export const INITIAL_VISIBLE_COLUMNS = [
 export const columns = [...INITIAL_VISIBLE_COLUMNS]
 
 const statusColorMap = {
+  Playa: 'primary',
   Cultural: 'success',
   Aventura: 'warning',
-  Relax: 'danger'
+  Relax: 'secondary',
+  Familiar: 'success',
+  Urbano: 'danger'
 }
+// Opciones basadas en los posibles tags del backend
 export const statusOptions = [
-  { name: 'Cultural', uid: 'cultural' },
-  { name: 'Aventura', uid: 'acentura' },
-  { name: 'Relax', uid: 'relax' }
+  { name: 'Playa', uid: 'Playa' },
+  { name: 'Aventura', uid: 'Aventura' },
+  { name: 'Cultural', uid: 'Cultural' },
+  { name: 'Relax', uid: 'Relax' },
+  { name: 'Familiar', uid: 'Familiar' },
+  { name: 'Urbano', uid: 'Urbano' }
 ]
 
 export function capitalize(s) {
@@ -46,7 +53,9 @@ export function capitalize(s) {
 
 const TableTours = () => {
   const [lugares, setLugares] = useState([])
-  const URL = import.meta.env.VITE_URL_BACK
+  const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
@@ -68,16 +77,17 @@ const TableTours = () => {
   }, [visibleColumns])
 
   const filteredItems = useMemo(() => {
-    let filteredUsers = [...lugares]
+    let filteredTours = [...lugares]
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter(user => user.nombre.toLowerCase().includes(filterValue.toLowerCase()))
-    }
-    if (statusFilter !== 'all' && Array.from(statusFilter).length !== statusColorMap.length) {
-      filteredUsers = filteredUsers.filter(user => Array.from(statusFilter).includes(user.categoria))
+      filteredTours = filteredTours.filter(tour => tour.nombre?.toLowerCase().includes(filterValue.toLowerCase()))
     }
 
-    return filteredUsers
+    if (statusFilter !== 'all' && Array.from(statusFilter).length !== statusOptions.length) {
+      filteredTours = filteredTours.filter(tour => Array.from(statusFilter).includes(tour.categoria))
+    }
+
+    return filteredTours
   }, [lugares, filterValue, statusFilter, hasSearchFilter])
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage)
@@ -101,14 +111,73 @@ const TableTours = () => {
 
   const fetchLugares = useCallback(async () => {
     try {
+      setLoading(true)
+      setError(null)
+
+      console.log('Fetching tours from:', `${URL}/tours`)
       const response = await fetch(`${URL}/tours`)
+
       if (!response.ok) {
-        throw new Error('Error al cargar los datos')
+        throw new Error(`Error al cargar los datos: ${response.status}`)
       }
+
       const data = await response.json()
-      setLugares(data)
+      console.log('Tours recibidos:', data)
+
+      // Procesar los datos según la estructura real del backend
+      const processedData = Array.isArray(data)
+        ? data.map(tour => ({
+            idPaquete: tour.id,
+            nombre: tour.name || 'Sin nombre',
+            destino: tour.destination?.city?.name || tour.destination?.country || 'Sin destino',
+            categoria: Array.isArray(tour.tags) && tour.tags.length > 0 ? tour.tags[0] : 'Cultural',
+            precio: tour.adultPrice || 0,
+            imagenes: Array.isArray(tour.images) ? tour.images : [],
+            description: tour.description,
+            childPrice: tour.childPrice,
+            status: tour.status?.status,
+            tags: tour.tags,
+            includes: tour.includes,
+            destination: tour.destination,
+            hotel: tour.hotel
+          }))
+        : []
+
+      setLugares(processedData)
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error fetching tours:', error)
+      setError(error.message)
+
+      // Si estamos en modo desarrollo y falla, intentar cargar datos de ejemplo
+      if (import.meta.env.DEV) {
+        try {
+          const response = await fetch('/data/tours.json')
+          if (response.ok) {
+            const mockData = await response.json()
+            const processedMockData = mockData.map(tour => ({
+              idPaquete: tour.id,
+              nombre: tour.name || 'Sin nombre',
+              destino: tour.destination?.city?.name || tour.destination?.country || 'Sin destino',
+              categoria: Array.isArray(tour.tags) && tour.tags.length > 0 ? tour.tags[0] : 'Cultural',
+              precio: tour.adultPrice || 0,
+              imagenes: Array.isArray(tour.images) ? tour.images : [],
+              description: tour.description,
+              childPrice: tour.childPrice,
+              status: tour.status?.status,
+              tags: tour.tags,
+              includes: tour.includes,
+              destination: tour.destination,
+              hotel: tour.hotel
+            }))
+            setLugares(processedMockData)
+            setError('Usando datos de desarrollo (mock)')
+          }
+        } catch (mockError) {
+          console.error('Error cargando datos de ejemplo:', mockError)
+        }
+      }
+    } finally {
+      setLoading(false)
     }
   }, [URL])
 
@@ -121,17 +190,37 @@ const TableTours = () => {
 
     switch (columnKey) {
       case 'nombre':
-        return <User avatarProps={{ radius: 'lg', src: lugar.imagenes?.[0] || '' }} name={cellValue} />
+        return (
+          <User
+            avatarProps={{
+              radius: 'lg',
+              src: lugar.imagenes && lugar.imagenes.length > 0 ? lugar.imagenes[0] : 'https://via.placeholder.com/150'
+            }}
+            name={cellValue || 'Sin nombre'}
+            description={
+              lugar.description ? (lugar.description.length > 30 ? lugar.description.substring(0, 30) + '...' : lugar.description) : ''
+            }
+          />
+        )
       case 'categoria':
         return (
           <Chip className="capitalize" color={statusColorMap[lugar.categoria] || 'default'} size="sm" variant="flat">
-            {cellValue}
+            {cellValue || 'No definida'}
           </Chip>
         )
       case 'precio':
-        return `$${cellValue}`
+        // Formateamos el precio con separadores de miles y 2 decimales
+        return `${(cellValue || 0).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}`
       case 'destino':
-        return cellValue
+        // Mostramos el destino con más detalle si está disponible
+        if (lugar.destination) {
+          const fullDestination = [lugar.destination.city?.name, lugar.destination.country].filter(Boolean).join(', ')
+          return fullDestination || cellValue || 'Sin destino'
+        }
+        return cellValue || 'Sin destino'
       case 'actions':
         return (
           <div className="relative flex items-center justify-center gap-2">
@@ -153,7 +242,7 @@ const TableTours = () => {
           </div>
         )
       default:
-        return cellValue
+        return cellValue || '-'
     }
   }, [])
 
@@ -188,6 +277,10 @@ const TableTours = () => {
     setPage(1)
   }, [])
 
+  const handleRefresh = useCallback(() => {
+    fetchLugares()
+  }, [fetchLugares])
+
   const bottomContent = useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
@@ -205,7 +298,6 @@ const TableTours = () => {
           onChange={setPage}
           classNames={{
             item: 'bg-white hover:bg-white',
-
             prev: 'bg-white hover:bg-purple-600',
             next: 'bg-white hover:bg-purple-600'
           }}
@@ -284,13 +376,18 @@ const TableTours = () => {
                 ))}
               </DropdownMenu>
             </Dropdown>
+            <Button variant="light" onPress={handleRefresh} isLoading={loading}>
+              Actualizar
+            </Button>
             <Button color="primary" endContent={<PlusIcon />}>
               Crear Tour
             </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">{lugares.length} tours en total</span>
+          <span className="text-default-400 text-small">
+            {loading ? 'Cargando tours...' : error ? `Error: ${error}` : `${lugares.length} tours en total`}
+          </span>
           <label className="flex items-center text-default-400 text-small">
             Filas por página:
             <select className="bg-transparent outline-none text-default-400 text-small" onChange={onRowsPerPageChange}>
@@ -302,7 +399,19 @@ const TableTours = () => {
         </div>
       </div>
     )
-  }, [filterValue, statusFilter, visibleColumns, onRowsPerPageChange, lugares.length, onSearchChange, onClear])
+  }, [
+    filterValue,
+    statusFilter,
+    visibleColumns,
+    onRowsPerPageChange,
+    lugares.length,
+    onSearchChange,
+    onClear,
+    handleRefresh,
+    loading,
+    error
+  ])
+
   return (
     <Table
       isHeaderSticky
@@ -324,8 +433,16 @@ const TableTours = () => {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody items={sortedItems} emptyContent={'No se encontraron paquetes'}>
-        {item => <TableRow key={item.idPaquete}>{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}</TableRow>}
+      <TableBody
+        items={sortedItems}
+        emptyContent={loading ? 'Cargando...' : error ? `Error: ${error}` : 'No se encontraron paquetes'}
+        loadingContent={<div>Cargando tours...</div>}
+        loadingState={loading ? 'loading' : 'idle'}>
+        {item => (
+          <TableRow key={item.idPaquete || item.id || Math.random().toString()}>
+            {columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+          </TableRow>
+        )}
       </TableBody>
     </Table>
   )
