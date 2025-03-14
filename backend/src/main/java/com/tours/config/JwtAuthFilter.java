@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +29,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final ITokenRepository tokenRepository;
@@ -62,12 +65,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (userEmail == null || SecurityContextHolder.getContext().getAuthentication() != null) {
             logger.warn("❌ Usuario no encontrado o ya autenticado.");
+            filterChain.doFilter(request, response);
             return;
         }
 
         final Token token = tokenRepository.findByToken(jwtToken).orElse(null);
         if (token == null) {
-            logger.warn("❌ El token no está registrado en la base de datos.");
+            logger.warn("❌ El token no est registrado en la base de datos.");
             filterChain.doFilter(request, response);
             return;
         }
@@ -78,22 +82,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        final UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-        final Optional<User> user = userRepository.findByEmail(userEmail);
+        final Optional<User> userOptional = userRepository.findByEmail(userEmail);
 
-        if (user.isEmpty()) {
+        if (userOptional.isEmpty()) {
             logger.warn("❌ El usuario no existe en la base de datos.");
             filterChain.doFilter(request, response);
             return;
         }
+        final User user = userOptional.get();
 
-        final boolean isTokenValid = jwtService.isTokenValid(jwtToken, user.get());
+        final boolean isTokenValid = jwtService.isTokenValid(jwtToken, user);
         logger.info(String.format("\uD83D\uDD39 ¿Token válido?: %s", isTokenValid));
 
         if (!isTokenValid) {
             logger.warn("❌ Token inválido.");
+            filterChain.doFilter(request, response);
             return;
         }
+
+        final UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
         final var authToken = new UsernamePasswordAuthenticationToken(
                 userDetails,

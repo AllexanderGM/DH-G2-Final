@@ -76,8 +76,8 @@ public class SecurityConfiguration {
                 .authenticationProvider(authenticationProvider)
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            final var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+                        .addLogoutHandler((request, response, authentication) -> {
+                            final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
                             logout(authHeader);
                         })
                         .logoutSuccessHandler((request, response, authentication) ->
