@@ -47,10 +47,14 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.cors(Customizer.withDefaults())
+        return http
+                .cors(Customizer.withDefaults())
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()))
                 .authorizeHttpRequests(
                         auth -> {
+                            // 🔹 Rutas para Swagger
+                            auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll();
+
                             // 🔹 Rutas para el sistema
                             auth.requestMatchers(HttpMethod.GET, "/", "/system").permitAll();
 
@@ -61,6 +65,8 @@ public class SecurityConfiguration {
                             // 🔹 Rutas para los turs
                             auth.requestMatchers(HttpMethod.GET, "/tours").permitAll();
                             auth.requestMatchers(HttpMethod.GET, "/tours/**").permitAll();
+
+                            // 🔹 Cualquier otra ruta requiere autenticación
                             auth.anyRequest().authenticated();
                         })
                 .csrf(AbstractHttpConfigurer::disable)
