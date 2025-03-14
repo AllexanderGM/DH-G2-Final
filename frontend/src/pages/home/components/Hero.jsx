@@ -98,7 +98,7 @@ const Hero = () => {
             </div>
 
             {/* Date picker */}
-            <div className="md:col-span-5">
+            <div className="md:col-span-5 ">
               <label className="block text-sm font-medium text-gray-700 text-left mb-1">¿Cuándo viajas?</label>
               <DateRangePicker />
             </div>

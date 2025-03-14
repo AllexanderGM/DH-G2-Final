@@ -29,6 +29,7 @@ const DateRangePicker = () => {
       minDate={today}
       maxDate={maxDate}
       placeholder="mm/dd/yyyy - mm/dd/yyyy"
+      size="lg"
       classNames={{
         trigger: [
           'bg-default-100',
