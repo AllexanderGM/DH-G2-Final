@@ -9,12 +9,14 @@ import com.tours.infrastructure.entities.user.User;
 import com.tours.infrastructure.entities.user.UserRol;
 import com.tours.infrastructure.repositories.user.IRoleUserRepository;
 import com.tours.infrastructure.repositories.user.IUserRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -24,12 +26,19 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    @Value("${ADMIN_USERNAME}")
+    private String superAdminEmail;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private static final Map<String, String> tokenBlacklist = new ConcurrentHashMap<>();
     private final IUserRepository userRepository;
     private final IRoleUserRepository rolRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @PostConstruct
+    public void init() {
+        System.out.println("Super Admin Email cargado: " + superAdminEmail);
+    }
 
     public UserResponseDTO get(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
@@ -92,5 +101,44 @@ public class UserService {
     @Scheduled(cron = "0 0 0 * * *")
     public void cleanBlacklist() {
         tokenBlacklist.clear();
+    }
+
+    //codigo nuevo
+    public MessageResponseDTO grantAdminRole(String superAdminEmail, String userEmail) {
+        if (this.superAdminEmail != null && this.superAdminEmail.equals(superAdminEmail)) {
+            // Lógica para Super Admin
+        } else {
+            throw new UnauthorizedException("No tienes permisos de Super Admin");
+        }
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
+
+        Role adminRole = rolRepository.findByUserRol(UserRol.ADMIN)
+                .orElseThrow(() -> new UnauthorizedException("Rol ADMIN no encontrado"));
+
+        user.setRole(adminRole);
+        userRepository.save(user);
+        logger.info("El usuario {} ahora es ADMIN", user.getEmail());
+
+        return new MessageResponseDTO("El usuario ahora es ADMIN");
+    }
+
+    public MessageResponseDTO revokeAdminRole(String superAdminEmail, String userEmail) {
+        if (!this.superAdminEmail.equals(superAdminEmail)) {
+            throw new UnauthorizedException("No tienes permisos para modificar roles");
+        }
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
+
+        Role userRole = rolRepository.findByUserRol(UserRol.CLIENT)
+                .orElseThrow(() -> new UnauthorizedException("Rol CLIENT no encontrado"));
+
+        user.setRole(userRole);
+        userRepository.save(user);
+        logger.info("El usuario {} ya no es ADMIN", user.getEmail());
+
+        return new MessageResponseDTO("El usuario ya no es ADMIN");
     }
 }
