@@ -1,10 +1,11 @@
-import { Input, Button } from '@heroui/react'
+import { Input, Button, Image } from '@heroui/react'
 import { useState, useEffect } from 'react'
 import { useSearch } from '@context/SearchContext'
 import './hero.scss'
 import SearchIcon from '@components/SearchIcon.jsx'
 // import DateRangePicker from './DateRangePicker.jsx'
 import image from '@assets/Backgrounds/topography.svg'
+import pinIcon from '@assets/Icons/pin.png'
 
 const Hero = () => {
   const { searchTerm, updateSearchTerm, loading, searchTours } = useSearch()
@@ -46,15 +47,20 @@ const Hero = () => {
       className="flex flex-col justify-center items-center h-auto py-12 text-center mb-14 hero_container"
       style={{ backgroundImage: `url("${image}")` }}>
       <div className="pattern_overlay"></div>
-      <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 `}>
+      <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 relative`}>
         <span className="inline-block">
-          <span>🌎</span> La búsqueda perfecta,
+          <span className="inline-block absolute top-7 -left-9 w-full h-full opacity-75">
+            <Image src={pinIcon} alt="pin" width={53} className="-rotate-12 " />
+          </span>
+          La búsqueda perfecta,
         </span>
         <br />
         <span className="bg-gradient-to-r from-[#E86C6E] to-primary/70 text-transparent bg-clip-text">del tour perfecto</span>
       </h1>
-      <p className="text-center max-w-2xl mb-6 text-slate-700">
-        Encuentra experiencias únicas seleccionando destino y fechas para descubrir los mejores tours disponibles.
+      <p className="text-center max-w-xl mb-6 text-slate-700">
+        <span>Encuentra experiencias únicas seleccionando destino y fechas</span>
+        <br />
+        para descubrir <span className="text-[#E86C6E] font-medium">los mejores tours disponibles.</span>
       </p>
 
       <div className="w-full max-w-6xl px-[50px] md:px-[150px] rounded-2xl">
