@@ -2,12 +2,11 @@ package com.tours.domain.dto.tour.availability;
 
 import com.tours.infrastructure.entities.booking.Availability;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record AvailabilityResponseDTO(
         Long id,
-        LocalDate availableDate,
+        LocalDateTime availableDate, // Cambio aquí
         Integer availableSlots,
         LocalDateTime departureTime,
         LocalDateTime returnTime,
