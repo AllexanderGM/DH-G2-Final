@@ -3,23 +3,27 @@ package com.tours.domain.dto.tour.availability;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public record AvailabilityRequestDTO(
-        @NotNull(message = "The date is required")
-        @FutureOrPresent(message = "The date must be today or in the future")
-        LocalDate availableDate,
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class AvailabilityRequestDTO {
+        @NotNull(message = "Available date cannot be null")
+        @FutureOrPresent(message = "Available date must be in the present or future")
+        private LocalDateTime availableDate;
 
-        @NotNull(message = "The available slots are required")
-        @Min(value = 1, message = "There must be at least one available slot")
-        Integer availableSlots,
+        @NotNull(message = "Available slots cannot be null")
+        @Min(value = 1, message = "Available slots must be at least 1")
+        private Integer availableSlots;
 
-        @NotNull(message = "The departure time is required")
-        LocalDateTime departureTime,
+        @NotNull(message = "Departure time cannot be null")
+        private LocalDateTime departureTime;
 
-        @NotNull(message = "The return time is required")
-        LocalDateTime returnTime
-) {
+        @NotNull(message = "Return time cannot be null")
+        private LocalDateTime returnTime;
 }
