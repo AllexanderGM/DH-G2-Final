@@ -19,8 +19,6 @@ export const SearchProvider = ({ children }) => {
   const [allTours, setAllTours] = useState(null)
   const [advancedSearchParams, setAdvancedSearchParams] = useState({
     dateRange: null
-    // Agregar más parámetros de búsqueda avanzado según sea necesario
-    // Por ejemplo, filtrar por categorías, precios, etc.
   })
 
   const loadTours = useCallback(async () => {
@@ -42,13 +40,26 @@ export const SearchProvider = ({ children }) => {
 
   useEffect(() => {
     loadTours()
+
+    // Escuchar el evento de reset para DateRangePicker
+    const handleResetEvent = () => {
+      setAdvancedSearchParams({
+        dateRange: null
+      })
+    }
+
+    window.addEventListener('reset-date-range', handleResetEvent)
+
+    return () => {
+      window.removeEventListener('reset-date-range', handleResetEvent)
+    }
   }, [loadTours])
 
   const updateSearchTerm = useCallback(term => {
     setSearchTerm(term)
   }, [])
 
-  // Función para actualizar los parámetros de búsqueda avanzado
+  // Función para actualizar los parámetros de búsqueda avanzada
   const updateAdvancedSearchParams = useCallback(params => {
     setAdvancedSearchParams(prev => ({
       ...prev,
@@ -59,6 +70,7 @@ export const SearchProvider = ({ children }) => {
   const searchTours = useCallback(async () => {
     setLoading(true)
     console.log('Searching tours with term:', searchTerm)
+    console.log('Advanced search params:', advancedSearchParams)
 
     try {
       if (!allTours) {
@@ -66,13 +78,11 @@ export const SearchProvider = ({ children }) => {
         return
       }
 
-      if (!searchTerm.trim()) {
+      if (!searchTerm.trim() && !advancedSearchParams.dateRange?.startDate) {
         setSearchResults(allTours)
         setLoading(false)
         return
       }
-
-      const lowercaseSearchTerm = searchTerm.toLowerCase().trim()
 
       if (!allTours.data || !Array.isArray(allTours.data)) {
         console.error('Unexpected data structure:', allTours)
@@ -81,11 +91,13 @@ export const SearchProvider = ({ children }) => {
         return
       }
 
-      const filteredResults = {
-        ...allTours,
-        data: allTours.data.filter(tour => {
-          console.log('Filtering tour:', tour.name)
+      let filteredResults = [...allTours.data]
 
+      // Filtrar por término de búsqueda
+      if (searchTerm.trim()) {
+        const lowercaseSearchTerm = searchTerm.toLowerCase().trim()
+
+        filteredResults = filteredResults.filter(tour => {
           return (
             // Campos básicos
             (tour.name && tour.name.toLowerCase().includes(lowercaseSearchTerm)) ||
@@ -94,30 +106,52 @@ export const SearchProvider = ({ children }) => {
             (tour.destination?.country && tour.destination.country.toLowerCase().includes(lowercaseSearchTerm)) ||
             (tour.destination?.region && tour.destination.region.toLowerCase().includes(lowercaseSearchTerm)) ||
             (tour.destination?.city?.name && tour.destination.city.name.toLowerCase().includes(lowercaseSearchTerm)) ||
-            // Tags (comprobando que sea un array y sus elementos sean strings)
+            // Tags
             (Array.isArray(tour.tags) && tour.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(lowercaseSearchTerm)))
           )
         })
       }
 
-      console.log('Filtered results:', filteredResults)
-      setSearchResults(filteredResults)
+      // Filtrar por rango de fechas
+      if (advancedSearchParams.dateRange?.startDate) {
+        const startDate = new Date(advancedSearchParams.dateRange.startDate)
+        const endDate = advancedSearchParams.dateRange.endDate ? new Date(advancedSearchParams.dateRange.endDate) : null
+
+        // Aquí añadiríamos la lógica para filtrar por fechas
+        // Por ahora es un placeholder hasta que tengamos información de fechas en los tours
+        console.log('Filtering by date range:', startDate, endDate)
+
+        // Cuando tengamos datos de fechas de tours, podríamos hacer algo como:
+        /*
+        filteredResults = filteredResults.filter(tour => {
+          const tourStartDate = new Date(tour.startDate)
+          return tourStartDate >= startDate && (!endDate || tourStartDate <= endDate)
+        })
+        */
+      }
+
+      console.log('Filtered results count:', filteredResults.length)
+
+      setSearchResults({
+        ...allTours,
+        data: filteredResults
+      })
     } catch (error) {
       console.error('Error searching tours:', error)
       setSearchResults({ success: false, error: error.message })
     } finally {
       setLoading(false)
     }
-  }, [searchTerm, allTours, loadTours])
+  }, [searchTerm, advancedSearchParams, allTours, loadTours])
 
-  // Esperando por cambios en searchTerm y ejecutar la función searchTours
+  // Ejecutar la búsqueda cuando cambian los parámetros
   useEffect(() => {
     const delay = setTimeout(() => {
       searchTours()
     }, 300) // Debounce search por 300ms
 
     return () => clearTimeout(delay)
-  }, [searchTerm, searchTours])
+  }, [searchTerm, advancedSearchParams.dateRange, searchTours])
 
   const value = {
     searchTerm,

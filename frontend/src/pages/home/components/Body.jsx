@@ -6,18 +6,53 @@ import CardMain from '../../../components/ui/CardTour.jsx'
 import './body.scss'
 
 const Body = () => {
-  const { searchResults, loading, searchTerm } = useSearch()
+  const { searchResults, loading, searchTerm, advancedSearchParams } = useSearch()
   const { success, data = [] } = searchResults || {}
 
   const emptyPlaces = success && data.length === 0
-  const isSearching = searchTerm.trim() !== ''
+  const isSearching = searchTerm.trim() !== '' || advancedSearchParams.dateRange?.startDate
+
+  // Función para formatear las fechas
+  const formatDate = dateString => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  }
 
   // Determinar el título basado en el estado de búsqueda
   let title = 'Recomendaciones'
+  let subtitle = ''
+
   if (isSearching) {
-    title = `Resultados para "${searchTerm}"`
+    // Construir título con término de búsqueda
+    if (searchTerm.trim()) {
+      title = `Resultados para "${searchTerm}"`
+    } else {
+      title = 'Resultados de búsqueda'
+    }
+
+    // Agregar información de fechas si están presentes
+    if (advancedSearchParams.dateRange?.startDate) {
+      const startFormatted = formatDate(advancedSearchParams.dateRange.startDate)
+
+      if (advancedSearchParams.dateRange.endDate) {
+        const endFormatted = formatDate(advancedSearchParams.dateRange.endDate)
+        subtitle = `Fechas: ${startFormatted} - ${endFormatted}`
+      } else {
+        subtitle = `Fecha: ${startFormatted}`
+      }
+    }
+
+    // Mensaje cuando no hay resultados
     if (emptyPlaces) {
-      title = `No se encontraron resultados para "${searchTerm}"`
+      title = `No se encontraron resultados`
+      if (searchTerm.trim()) {
+        subtitle = `para "${searchTerm}"`
+      }
     }
   } else if (emptyPlaces) {
     title = 'No hay tours disponibles...'
@@ -26,6 +61,7 @@ const Body = () => {
   return (
     <div className="tours_body-container">
       <h1 className="title">{title}</h1>
+      {subtitle && <p className="subtitle">{subtitle}</p>}
 
       <div className="tours_body-content">
         {loading ? (

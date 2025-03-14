@@ -2,7 +2,11 @@
   @apply text-center flex flex-col items-center;
 
   .title {
-    @apply text-xl text-gray-600 mb-6;
+    @apply text-base text-gray-600 mt-3;
+  }
+
+  .subtitle {
+    @apply text-sm text-gray-500 mb-6;
   }
 
   .tours_body-content {
