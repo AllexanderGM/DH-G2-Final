@@ -19,6 +19,8 @@ import {
 } from '@heroui/react'
 
 import { EyeIcon, DeleteIcon, EditIcon, SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
+import { normalizeWords } from '@utils/normalizeWords.js'
+import CrearTourForm from './CrearTourForm.jsx'
 
 export const INITIAL_VISIBLE_COLUMNS = [
   { name: 'NOMBRE', uid: 'nombre' },
@@ -29,23 +31,18 @@ export const INITIAL_VISIBLE_COLUMNS = [
 ]
 export const columns = [...INITIAL_VISIBLE_COLUMNS]
 
+// Mapa de colores para las categorías
 const statusColorMap = {
-  Playa: 'primary',
-  Cultural: 'success',
-  Aventura: 'warning',
-  Relax: 'secondary',
-  Familiar: 'success',
-  Urbano: 'danger'
+  BEACH: 'primary',
+  VACATION: 'success',
+  ADVENTURE: 'warning',
+  ECOTOURISM: 'secondary',
+  LUXURY: 'success',
+  CITY: 'danger',
+  MOUNTAIN: 'warning',
+  CRUISE: 'primary',
+  ADRENALIN: 'danger'
 }
-// Opciones basadas en los posibles tags del backend
-export const statusOptions = [
-  { name: 'Playa', uid: 'Playa' },
-  { name: 'Aventura', uid: 'Aventura' },
-  { name: 'Cultural', uid: 'Cultural' },
-  { name: 'Relax', uid: 'Relax' },
-  { name: 'Familiar', uid: 'Familiar' },
-  { name: 'Urbano', uid: 'Urbano' }
-]
 
 export function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''
@@ -56,6 +53,7 @@ const TableTours = () => {
   const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
@@ -76,6 +74,26 @@ const TableTours = () => {
     return columns.filter(column => Array.from(visibleColumns).includes(column.uid))
   }, [visibleColumns])
 
+  // Extraemos las categorías únicas de los tours para el filtro
+  const statusOptions = useMemo(() => {
+    const categoriesSet = new Set()
+
+    lugares.forEach(tour => {
+      if (Array.isArray(tour.tags)) {
+        tour.tags.forEach(tag => {
+          categoriesSet.add(tag)
+        })
+      } else if (tour.categoria) {
+        categoriesSet.add(tour.categoria)
+      }
+    })
+
+    return Array.from(categoriesSet).map(category => ({
+      name: normalizeWords(category),
+      uid: category
+    }))
+  }, [lugares])
+
   const filteredItems = useMemo(() => {
     let filteredTours = [...lugares]
 
@@ -84,11 +102,19 @@ const TableTours = () => {
     }
 
     if (statusFilter !== 'all' && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredTours = filteredTours.filter(tour => Array.from(statusFilter).includes(tour.categoria))
+      filteredTours = filteredTours.filter(tour => {
+        // Si tour.tags es un array, verificamos si contiene alguno de los valores seleccionados
+        if (Array.isArray(tour.tags)) {
+          return tour.tags.some(tag => Array.from(statusFilter).includes(tag))
+        }
+
+        // Si categoria es una sola cadena (primer tag)
+        return Array.from(statusFilter).includes(tour.categoria)
+      })
     }
 
     return filteredTours
-  }, [lugares, filterValue, statusFilter, hasSearchFilter])
+  }, [lugares, filterValue, statusFilter, hasSearchFilter, statusOptions.length])
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage)
 
@@ -130,12 +156,14 @@ const TableTours = () => {
             idPaquete: tour.id,
             nombre: tour.name || 'Sin nombre',
             destino: tour.destination?.city?.name || tour.destination?.country || 'Sin destino',
-            categoria: Array.isArray(tour.tags) && tour.tags.length > 0 ? tour.tags[0] : 'Cultural',
+            // Usamos el primer tag como categoría principal para mostrar en la tabla
+            categoria: Array.isArray(tour.tags) && tour.tags.length > 0 ? tour.tags[0] : 'Sin categoría',
             precio: tour.adultPrice || 0,
             imagenes: Array.isArray(tour.images) ? tour.images : [],
             description: tour.description,
             childPrice: tour.childPrice,
             status: tour.status?.status,
+            // Guardamos todos los tags originales para el filtrado
             tags: tour.tags,
             includes: tour.includes,
             destination: tour.destination,
@@ -158,7 +186,7 @@ const TableTours = () => {
               idPaquete: tour.id,
               nombre: tour.name || 'Sin nombre',
               destino: tour.destination?.city?.name || tour.destination?.country || 'Sin destino',
-              categoria: Array.isArray(tour.tags) && tour.tags.length > 0 ? tour.tags[0] : 'Cultural',
+              categoria: Array.isArray(tour.tags) && tour.tags.length > 0 ? tour.tags[0] : 'Sin categoría',
               precio: tour.adultPrice || 0,
               imagenes: Array.isArray(tour.images) ? tour.images : [],
               description: tour.description,
@@ -205,7 +233,7 @@ const TableTours = () => {
       case 'categoria':
         return (
           <Chip className="capitalize" color={statusColorMap[lugar.categoria] || 'default'} size="sm" variant="flat">
-            {cellValue || 'No definida'}
+            {normalizeWords(cellValue) || 'No definida'}
           </Chip>
         )
       case 'precio':
@@ -281,6 +309,22 @@ const TableTours = () => {
     fetchLugares()
   }, [fetchLugares])
 
+  const handleOpenCreateModal = useCallback(() => {
+    setIsCreateModalOpen(true)
+  }, [])
+
+  const handleCloseCreateModal = useCallback(() => {
+    setIsCreateModalOpen(false)
+  }, [])
+
+  const handleTourCreated = useCallback(
+    newTour => {
+      console.log('Tour creado:', newTour)
+      fetchLugares() // Actualizamos la lista después de crear
+    },
+    [fetchLugares]
+  )
+
   const bottomContent = useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
@@ -348,6 +392,7 @@ const TableTours = () => {
                 closeOnSelect={false}
                 selectedKeys={statusFilter}
                 selectionMode="multiple"
+                shouldCloseOnItemClick={false}
                 onSelectionChange={setStatusFilter}>
                 {statusOptions.map(status => (
                   <DropdownItem key={status.uid} className="capitalize">
@@ -368,6 +413,7 @@ const TableTours = () => {
                 closeOnSelect={false}
                 selectedKeys={visibleColumns}
                 selectionMode="multiple"
+                shouldCloseOnItemClick={false}
                 onSelectionChange={setVisibleColumns}>
                 {columns.map(column => (
                   <DropdownItem key={column.uid} className="capitalize">
@@ -379,7 +425,7 @@ const TableTours = () => {
             <Button variant="light" onPress={handleRefresh} isLoading={loading}>
               Actualizar
             </Button>
-            <Button color="primary" endContent={<PlusIcon />}>
+            <Button color="primary" endContent={<PlusIcon />} onPress={handleOpenCreateModal}>
               Crear Tour
             </Button>
           </div>
@@ -409,42 +455,49 @@ const TableTours = () => {
     onClear,
     handleRefresh,
     loading,
-    error
+    error,
+    statusOptions,
+    handleOpenCreateModal
   ])
 
   return (
-    <Table
-      isHeaderSticky
-      aria-label="Tours Table"
-      className="w-full max-w-6xl mt-6"
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      selectedKeys={selectedKeys}
-      selectionMode="multiple"
-      sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys}
-      onSortChange={setSortDescriptor}>
-      <TableHeader columns={headerColumns}>
-        {column => (
-          <TableColumn key={column.uid} align={column.uid === 'actions' ? 'center' : 'start'}>
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody
-        items={sortedItems}
-        emptyContent={loading ? 'Cargando...' : error ? `Error: ${error}` : 'No se encontraron paquetes'}
-        loadingContent={<div>Cargando tours...</div>}
-        loadingState={loading ? 'loading' : 'idle'}>
-        {item => (
-          <TableRow key={item.idPaquete || item.id || Math.random().toString()}>
-            {columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <>
+      <Table
+        isHeaderSticky
+        aria-label="Tours Table"
+        className="w-full max-w-6xl mt-6"
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}>
+        <TableHeader columns={headerColumns}>
+          {column => (
+            <TableColumn key={column.uid} align={column.uid === 'actions' ? 'center' : 'start'}>
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={sortedItems}
+          emptyContent={loading ? 'Cargando...' : error ? `Error: ${error}` : 'No se encontraron paquetes'}
+          loadingContent={<div>Cargando tours...</div>}
+          loadingState={loading ? 'loading' : 'idle'}>
+          {item => (
+            <TableRow key={item.idPaquete || item.id || Math.random().toString()}>
+              {columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      {/* Modal para crear nuevo tour */}
+      <CrearTourForm isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} onSuccess={handleTourCreated} />
+    </>
   )
 }
 
