@@ -35,11 +35,6 @@ public class UserService {
     private final IRoleUserRepository rolRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @PostConstruct
-    public void init() {
-        System.out.println("Super Admin Email cargado: " + superAdminEmail);
-    }
-
     public UserResponseDTO get(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
         logger.info("Usuario encontrado correctamente {}", user.getEmail());
@@ -110,7 +105,6 @@ public class UserService {
         } else {
             throw new UnauthorizedException("No tienes permisos de Super Admin");
         }
-        logger.info("hola juan" + userId);
         User user = userRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
 

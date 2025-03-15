@@ -65,7 +65,8 @@ public class SecurityConfiguration {
                             // 🔹 Rutas protegidas para cambiar roles (Solo ADMIN)
                             auth.requestMatchers(HttpMethod.POST, "/users/{id}/admin").permitAll();
                             auth.requestMatchers(HttpMethod.DELETE, "/users/{id}/admin").permitAll();
-                            //auth.requestMatchers(HttpMethod.DELETE, "/users/{id}/admin").hasRole("ADMIN");   como estaba antes
+                            //auth.requestMatchers(HttpMethod.POST, "/users/{id}/admin").hasRole("ADMIN");
+                            //auth.requestMatchers(HttpMethod.DELETE, "/users/{id}/admin").hasRole("ADMIN");   //como estaba antes
 
                             auth.anyRequest().authenticated();
                         })

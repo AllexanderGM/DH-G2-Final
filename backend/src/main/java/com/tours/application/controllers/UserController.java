@@ -34,9 +34,8 @@ public class UserController {
         return ResponseEntity.ok(userService.delete(email));
     }
 
-    //codigo nuevo
+
     @PostMapping("/{id}/admin")
-    //@PreAuthorize("hasRole('ADMIN')") // Solo admins pueden ejecutar este endpoint
     public ResponseEntity<MessageResponseDTO> assignAdminRole(
             @RequestHeader("Super-Admin-Email") String superAdminEmail,
             @PathVariable String id) {
@@ -45,8 +44,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}/admin")
-    //@PreAuthorize("hasRole('ADMIN')") // Solo admins pueden ejecutar este endpoint
+    @PutMapping("/{id}/admin")
     public ResponseEntity<MessageResponseDTO> removeAdminRole(
             @RequestHeader("Super-Admin-Email") String superAdminEmail,
             @PathVariable String id) {
