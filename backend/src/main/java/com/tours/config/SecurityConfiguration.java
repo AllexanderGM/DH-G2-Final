@@ -61,6 +61,12 @@ public class SecurityConfiguration {
                             // 🔹 Rutas para los turs
                             auth.requestMatchers(HttpMethod.GET, "/tours").permitAll();
                             auth.requestMatchers(HttpMethod.GET, "/tours/**").permitAll();
+
+                            // 🔹 Rutas protegidas para cambiar roles (Solo ADMIN)
+                            auth.requestMatchers(HttpMethod.POST, "/users/{id}/admin").permitAll();
+                            auth.requestMatchers(HttpMethod.DELETE, "/users/{id}/admin").permitAll();
+                            //auth.requestMatchers(HttpMethod.DELETE, "/users/{id}/admin").hasRole("ADMIN");   como estaba antes
+
                             auth.anyRequest().authenticated();
                         })
                 .csrf(AbstractHttpConfigurer::disable)
