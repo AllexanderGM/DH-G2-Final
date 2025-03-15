@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,7 @@ public class AvailabilityService {
 
     public List<AvailabilityResponseDTO> getAvailabilityByTourId(Long tourId) {
         Tour tour = tourRepository.findById(tourId)
-                .orElseThrow(() -> new NotFoundException("Tour not found with ID: " + tourId));
+                .orElseThrow(() -> new NotFoundException("No se encontró el tour con ID: " + tourId));
 
         List<Availability> availabilities = availabilityRepository.findByTour(tour);
         return availabilities.stream()
@@ -41,13 +42,36 @@ public class AvailabilityService {
 
     public AvailabilityResponseDTO addAvailabilityToTour(Long tourId, AvailabilityRequestDTO availabilityDTO) {
         Tour tour = tourRepository.findById(tourId)
-                .orElseThrow(() -> new NotFoundException("Tour not found with ID: " + tourId));
+                .orElseThrow(() -> new NotFoundException("No se encontró el tour con ID: " + tourId));
+
+        // Validar que la fecha sea en el futuro
+        if (availabilityDTO.getAvailableDate().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("La fecha de disponibilidad debe ser en el futuro");
+        }
+
+        // Validar que la hora de regreso sea posterior a la hora de salida
+        if (availabilityDTO.getReturnTime().isBefore(availabilityDTO.getDepartureTime()) || availabilityDTO.getReturnTime().equals(availabilityDTO.getDepartureTime())) {
+            throw new BadRequestException("La hora de regreso debe ser posterior a la hora de salida");
+        }
+
+        // Validar que los cupos sean positivos
+        if (availabilityDTO.getAvailableSlots() <= 0) {
+            throw new BadRequestException("Los cupos disponibles deben ser mayores a cero");
+        }
+
+        // Validar que no haya superposición con otras disponibilidades
+        List<Availability> existingAvailabilities = availabilityRepository.findByTour(tour);
+        for (Availability existingAvailability : existingAvailabilities) {
+            if (isOverlapping(availabilityDTO, existingAvailability)) {
+                throw new BadRequestException("La disponibilidad se superpone con otra ya existente");
+            }
+        }
 
         Availability availability = new Availability();
-        availability.setAvailableDate(availabilityDTO.getAvailableDate()); // Cambio aquí
-        availability.setAvailableSlots(availabilityDTO.getAvailableSlots()); // Cambio aquí
-        availability.setDepartureTime(availabilityDTO.getDepartureTime()); // Cambio aquí
-        availability.setReturnTime(availabilityDTO.getReturnTime()); // Cambio aquí
+        availability.setAvailableDate(availabilityDTO.getAvailableDate());
+        availability.setAvailableSlots(availabilityDTO.getAvailableSlots());
+        availability.setDepartureTime(availabilityDTO.getDepartureTime());
+        availability.setReturnTime(availabilityDTO.getReturnTime());
         availability.setTour(tour);
 
         Availability savedAvailability = availabilityRepository.save(availability);
@@ -56,10 +80,10 @@ public class AvailabilityService {
 
     public List<AvailabilityResponseDTO> findAvailabilitiesByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate == null || endDate == null) {
-            throw new BadRequestException("Start date and end date are required");
+            throw new BadRequestException("La fecha de inicio y la fecha de fin son obligatorias");
         }
         if (startDate.isAfter(endDate)) {
-            throw new BadRequestException("Start date must be before end date");
+            throw new BadRequestException("La fecha de inicio debe ser anterior a la fecha de fin");
         }
         List<Availability> availabilities = availabilityRepository.findByDateRange(startDate, endDate);
         return availabilities.stream()
@@ -69,5 +93,14 @@ public class AvailabilityService {
                     return new AvailabilityResponseDTO(availability, isReserved);
                 })
                 .collect(Collectors.toList());
+    }
+
+    private boolean isOverlapping(AvailabilityRequestDTO newAvailability, Availability existingAvailability) {
+        LocalDateTime newStart = newAvailability.getAvailableDate().withHour(newAvailability.getDepartureTime().getHour()).withMinute(newAvailability.getDepartureTime().getMinute());
+        LocalDateTime newEnd = newAvailability.getAvailableDate().withHour(newAvailability.getReturnTime().getHour()).withMinute(newAvailability.getReturnTime().getMinute());
+        LocalDateTime existingStart = existingAvailability.getAvailableDate().withHour(existingAvailability.getDepartureTime().getHour()).withMinute(existingAvailability.getDepartureTime().getMinute());
+        LocalDateTime existingEnd = existingAvailability.getAvailableDate().withHour(existingAvailability.getReturnTime().getHour()).withMinute(existingAvailability.getReturnTime().getMinute());
+
+        return newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
     }
 }
