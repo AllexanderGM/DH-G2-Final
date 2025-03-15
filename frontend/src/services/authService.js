@@ -4,9 +4,6 @@ import { Cookies } from 'react-cookie'
 const cookies = new Cookies()
 
 // Simula generación de JWT
-const generateToken = user => {
-  return `simulated-jwt-token-${user.id}-${user.role}-${Date.now()}`
-}
 
 export const login = async (email, password) => {
   const configFetch = {
@@ -115,4 +112,10 @@ export const register = async userData => {
   const result = await response.json()
 
   return result.message
+}
+
+export const getAuthToken = () => {
+  const token = cookies.get('auth_token')
+  console.log('Auth token from cookies:', token) // Debugging log
+  return token
 }
