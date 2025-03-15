@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,6 +52,9 @@ public class SecurityConfiguration {
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()))
                 .authorizeHttpRequests(
                         auth -> {
+                            // 🔹 Ruta para Documentacion
+                            auth.requestMatchers("/swagger-ui/**").permitAll();
+                            auth.requestMatchers("/v3/api-docs*/**").permitAll();
                             // 🔹 Rutas para el sistema
                             auth.requestMatchers(HttpMethod.GET, "/", "/system").permitAll();
 
@@ -62,6 +66,7 @@ public class SecurityConfiguration {
                             auth.requestMatchers(HttpMethod.GET, "/tours").permitAll();
                             auth.requestMatchers(HttpMethod.GET, "/tours/**").permitAll();
                             auth.anyRequest().authenticated();
+
                         })
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -91,5 +96,11 @@ public class SecurityConfiguration {
         foundToken.setExpired(true);
         foundToken.setRevoked(true);
         tokenRepository.save(foundToken);
+    }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(
+                "/swagger-ui/", "/v3/api-docs/","/swagger-ui.html"
+        );
     }
 }
