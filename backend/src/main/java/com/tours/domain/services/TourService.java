@@ -2,6 +2,7 @@ package com.tours.domain.services;
 
 import com.tours.domain.dto.tour.TourRequestDTO;
 import com.tours.domain.dto.tour.TourResponseDTO;
+import com.tours.exception.BadRequestException;
 import com.tours.exception.DuplicateNameException;
 import com.tours.exception.NotFoundException;
 import com.tours.infrastructure.entities.location.Location;
@@ -131,7 +132,9 @@ public class TourService {
     public Optional<TourResponseDTO> updateTags(Long id, List<TagTourOptions> tags) {
         Tour existingTour = tourRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tour no encontrado"));
-
+        if (tags.size() > 3) {
+            throw new BadRequestException("No se pueden agregar más de 3 categorías al tour");
+        }
         // Guardamos el tour sin tags primero
         tourRepository.save(existingTour);
 

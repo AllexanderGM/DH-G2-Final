@@ -39,7 +39,7 @@ public class User implements UserDetails {
     @NotBlank(message = "El documento es obligatorio")
     private String document;
 
-    @Pattern(regexp = "\\d{9}", message = "El teléfono debe tener 9 dígitos")
+    @Pattern(regexp = "\\d{9}", message = "El teléfono debe tener 9 dgitos")
     private String phone;
 
     @NotNull(message = "La fecha de nacimiento es obligatoria")
@@ -72,7 +72,11 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return "";
+        return this.name + " " + this.lastname;
+    }
+
+    public String getEmail() {
+        return this.email;
     }
 
     @Override

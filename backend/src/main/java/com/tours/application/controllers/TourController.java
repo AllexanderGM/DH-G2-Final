@@ -2,9 +2,12 @@ package com.tours.application.controllers;
 
 import com.tours.domain.dto.tour.TourRequestDTO;
 import com.tours.domain.dto.tour.TourResponseDTO;
+import com.tours.domain.dto.tour.filter.TourFilterDTO;
+import com.tours.domain.services.FilterTourService;
 import com.tours.domain.services.TourService;
 import com.tours.infrastructure.entities.tour.TagTourOptions;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TourController {
     private final TourService tourService;
+    private final FilterTourService filterTourService;
 
     @GetMapping
     public ResponseEntity<?> getAll() {
@@ -62,4 +66,11 @@ public class TourController {
         return ResponseEntity.ok(tourService.updateTags(id, tags));
     }
 
+    @PostMapping("/filter")
+    public Page<TourFilterDTO> buscarTours(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String categoria,
+            Pageable pageable) {
+        return filterTourService.searchTours(query, categoria, pageable);
+    }
 }
