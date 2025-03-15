@@ -1,5 +1,6 @@
 package com.tours.infrastructure.entities.tour;
 
+import com.tours.infrastructure.entities.booking.Availability;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -41,9 +43,14 @@ public class Tour {
     @JoinColumn(name = "status_id")
     private StatusTour statusTour;
 
-    @ManyToOne
-    @JoinColumn(name = "tag_id")
-    private TagTour tag;
+    @ManyToMany
+    @JoinTable(
+            name = "tour_tag_relation",
+            joinColumns = @JoinColumn(name = "tour_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<TagTour> tags = new ArrayList<>();
+
 
     @ManyToMany
     @JoinTable(
@@ -60,4 +67,7 @@ public class Tour {
     @ManyToOne
     @JoinColumn(name = "hotel_id")
     private HotelTour hotelTour;
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true) // Changed from "tour" to "pack"
+    private List<Availability> availabilities;
+
 }

@@ -1,20 +1,33 @@
 import { useAuth } from '@context/AuthContext'
 
-import Layout from './Layout.jsx'
-import ClientLayout from './ClientLayout.jsx'
 import AdminLayout from './AdminLayout.jsx'
+import ClientLayout from './ClientLayout.jsx'
+import Layout from './Layout.jsx'
 
 const DynamicLayout = () => {
-  const { user } = useAuth()
+  const { user, loading, isAdmin } = useAuth()
 
-  if (!user || !user.role) return <Layout />
-
-  const layoutOptions = {
-    ADMIN: <AdminLayout />,
-    CLIENT: <ClientLayout />
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <div className="flex items-center justify-center flex-grow">
+          <div className="text-center">
+            <p className="text-xl">Cargando...</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
-  return layoutOptions[user.role] || <Layout />
+  if (user && isAdmin) {
+    return <AdminLayout />
+  }
+
+  if (user) {
+    return <ClientLayout />
+  }
+
+  return <Layout />
 }
 
 export default DynamicLayout

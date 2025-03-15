@@ -1,27 +1,38 @@
-import { useEffect, useState } from 'react'
 import { Spinner } from '@heroui/react'
-import { toursAllRandom } from '@services/tourService.js'
+import { useSearch } from '@context/SearchContext'
 
 import CardMain from '../../../components/ui/CardTour.jsx'
 
 import './body.scss'
 
 const Body = () => {
-  const [places, setPlaces] = useState(null)
-  const { success, data = [] } = places || {}
+  const { searchResults, loading, searchTerm } = useSearch()
+  const { success, data = [] } = searchResults || {}
 
-  useEffect(() => {
-    toursAllRandom()
-      .then(setPlaces)
-      .catch(error => console.error('Error:', error))
-  }, [])
+  const emptyPlaces = success && data.length === 0
+  const isSearching = searchTerm.trim() !== ''
+
+  // Determinar el título basado en el estado de búsqueda
+  let title = 'Recomendaciones'
+  if (isSearching) {
+    title = `Resultados para "${searchTerm}"`
+    if (emptyPlaces) {
+      title = `No se encontraron resultados para "${searchTerm}"`
+    }
+  } else if (emptyPlaces) {
+    title = 'No hay tours disponibles...'
+  }
 
   return (
     <div className="tours_body-container">
-      <h1 className="title">Recomendaciones</h1>
+      <h1 className="title">{title}</h1>
 
       <div className="tours_body-content">
-        {success ? (
+        {loading ? (
+          <div className="grid content-center gap-8">
+            <Spinner classNames={{ label: 'text-foreground mt-4' }} label="Cargando" variant="wave" />
+          </div>
+        ) : success ? (
           <div className="tours_body-grid">
             {data.slice(0, 9).map(place => (
               <CardMain key={place.id} data={place} />
@@ -29,7 +40,7 @@ const Body = () => {
           </div>
         ) : (
           <div className="grid content-center gap-8">
-            <Spinner classNames={{ label: 'text-foreground mt-4' }} label="Cargando" variant="wave" />
+            <p className="text-center text-gray-500">Error al cargar los datos. Por favor, inténtalo de nuevo más tarde.</p>
           </div>
         )}
       </div>
