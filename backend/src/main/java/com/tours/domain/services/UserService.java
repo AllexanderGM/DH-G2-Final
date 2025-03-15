@@ -104,14 +104,14 @@ public class UserService {
     }
 
     //codigo nuevo
-    public MessageResponseDTO grantAdminRole(String superAdminEmail, String userEmail) {
+    public MessageResponseDTO grantAdminRole(String superAdminEmail, String userId) {
         if (this.superAdminEmail != null && this.superAdminEmail.equals(superAdminEmail)) {
             // Lógica para Super Admin
         } else {
             throw new UnauthorizedException("No tienes permisos de Super Admin");
         }
-
-        User user = userRepository.findByEmail(userEmail)
+        logger.info("hola juan" + userId);
+        User user = userRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
 
         Role adminRole = rolRepository.findByUserRol(UserRol.ADMIN)
@@ -124,12 +124,12 @@ public class UserService {
         return new MessageResponseDTO("El usuario ahora es ADMIN");
     }
 
-    public MessageResponseDTO revokeAdminRole(String superAdminEmail, String userEmail) {
+    public MessageResponseDTO revokeAdminRole(String superAdminEmail, String userId) {
         if (!this.superAdminEmail.equals(superAdminEmail)) {
             throw new UnauthorizedException("No tienes permisos para modificar roles");
         }
 
-        User user = userRepository.findByEmail(userEmail)
+        User user = userRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
 
         Role userRole = rolRepository.findByUserRol(UserRol.CLIENT)

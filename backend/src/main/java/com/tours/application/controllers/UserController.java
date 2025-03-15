@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/admin")
-    @PreAuthorize("hasRole('ADMIN')") // Solo admins pueden ejecutar este endpoint
+    //@PreAuthorize("hasRole('ADMIN')") // Solo admins pueden ejecutar este endpoint
     public ResponseEntity<MessageResponseDTO> removeAdminRole(
             @RequestHeader("Super-Admin-Email") String superAdminEmail,
             @PathVariable String id) {
