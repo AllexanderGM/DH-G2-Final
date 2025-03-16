@@ -38,8 +38,8 @@ const SERVICIOS = [
   },
   {
     // **
-    value: 'Snack',
-    label: 'Snack',
+    value: 'Snacks',
+    label: 'Snacks',
     icon: 'cookie',
     defaultDetails: 'Todo el día',
     description: 'Aperitivos entre comidas'
@@ -81,8 +81,8 @@ const SERVICIOS = [
   },
   {
     // **
-    value: 'Seguro de vida',
-    label: 'Seguro de vida',
+    value: 'Seguro de viaje',
+    label: 'Seguro de viaje',
     icon: 'health_and_safety',
     defaultDetails: 'Cobertura total',
     description: 'Protección y asistencia durante el viaje'
@@ -130,8 +130,8 @@ const SERVICIOS = [
     description: 'Gratificaciones para el personal de servicio'
   },
   {
-    value: 'Asistencia',
-    label: 'Asistencia',
+    value: 'Asistencia 24/7',
+    label: 'Asistencia 24/7',
     icon: 'support_agent',
     defaultDetails: '24/7',
     description: 'Ayuda disponible durante toda la experiencia'
