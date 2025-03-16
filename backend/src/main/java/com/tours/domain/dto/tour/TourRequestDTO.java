@@ -46,6 +46,6 @@ public record TourRequestDTO(
         Long hotel,
 
         @NotNull(message = "Ingresa la disponibilidad")
-        @Valid AvailabilityRequestDTO availability
+        @Valid List<AvailabilityRequestDTO> availability
         ) {
 }

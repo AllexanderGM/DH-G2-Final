@@ -2,6 +2,7 @@ package com.tours.domain.services;
 
 import com.tours.domain.dto.tour.TourRequestDTO;
 import com.tours.domain.dto.tour.TourResponseDTO;
+import com.tours.domain.dto.tour.availability.AvailabilityRequestDTO;
 import com.tours.exception.BadRequestException;
 import com.tours.exception.DuplicateNameException;
 import com.tours.exception.NotFoundException;
@@ -128,24 +129,25 @@ public class TourService {
         newTour.setHotelTour(hotelTour);
         newTour.setTags(tagList);
         // Inicializa la lista de availabilities
-        List<Availability> availabilities = new ArrayList<>();
 
         // Verifica si el DTO contiene disponibilidad y la agrega a la lista
-        if (tour.availability() != null) {
-            Availability availability = new Availability();
-            availability.setAvailableDate(tour.availability().availableDate());
-            availability.setAvailableSlots(tour.availability().availableSlots());
-            availability.setDepartureTime(tour.availability().departureTime());
-            availability.setReturnTime(tour.availability().returnTime());
-            availability.setTour(newTour);  // Asigna el tour a la disponibilidad
+        if (tour.availability() != null && !tour.availability().isEmpty()) {
+            List<Availability> availabilities = new ArrayList<>();
 
-            availabilities.add(availability);
-        } else {
-            logger.warn("No se encontró disponibilidad en la solicitud.");
+            for (AvailabilityRequestDTO availRequest : tour.availability()) {
+                Availability availability = new Availability();
+                availability.setAvailableDate(availRequest.availableDate());
+                availability.setAvailableSlots(availRequest.availableSlots());
+                availability.setDepartureTime(availRequest.departureTime());
+                availability.setReturnTime(availRequest.returnTime());
+                availability.setTour(newTour);  // Asigna el tour a la disponibilidad
+
+                availabilities.add(availability);
+            }
+
+            // Asigna la lista de disponibilidades al nuevo tour
+            newTour.setAvailabilities(availabilities);
         }
-
-        // Asigna la lista de availabilities al Tour
-        newTour.setAvailabilities(availabilities);
         return newTour;
     }
     @Transactional
