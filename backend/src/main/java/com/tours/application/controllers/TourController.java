@@ -2,15 +2,21 @@ package com.tours.application.controllers;
 
 import com.tours.domain.dto.tour.TourRequestDTO;
 import com.tours.domain.dto.tour.TourResponseDTO;
+import com.tours.domain.dto.tour.filter.TourFilterDTO;
+import com.tours.domain.services.FilterTourService;
 import com.tours.domain.services.TourService;
 import com.tours.infrastructure.entities.tour.TagTourOptions;
+import com.tours.infrastructure.entities.tour.Tour;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TourController {
     private final TourService tourService;
+    private final FilterTourService filterTourService;
 
     @GetMapping
     public ResponseEntity<?> getAll() {
@@ -62,4 +69,24 @@ public class TourController {
         return ResponseEntity.ok(tourService.updateTags(id, tags));
     }
 
+    @GetMapping("/filter/category")
+    public ResponseEntity<List<Tour>> filterByCategory(@RequestBody TourFilterDTO filtro) {
+        List<Tour> tours = filterTourService.filterByCategory(filtro);
+        return ResponseEntity.ok(tours);
+    }
+    @GetMapping("/filter/name")
+    public ResponseEntity<List<Tour>> searchByName(@RequestParam String name) {
+        List<Tour> tours = tourService.searchByName(name);
+        return ResponseEntity.ok(tours);
+    }
+
+    @GetMapping("/filter/advanced")
+    public ResponseEntity<List<Tour>> searchByNameAndAvailability(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+
+        List<Tour> tours = tourService.searchByNameAndDate(name, startDate, endDate);
+        return ResponseEntity.ok(tours);
+    }
 }

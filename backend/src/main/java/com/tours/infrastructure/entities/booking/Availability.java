@@ -1,5 +1,7 @@
 package com.tours.infrastructure.entities.booking;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.tours.infrastructure.entities.tour.Tour;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,6 +21,7 @@ public class Availability {
     private Long id;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "tour_id")
     private Tour tour;
 
