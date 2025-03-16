@@ -1,29 +1,25 @@
 package com.tours.infrastructure.repositories.filter;
 
+import com.tours.infrastructure.entities.tour.TagTour;
+import com.tours.infrastructure.entities.tour.TagTourOptions;
 import com.tours.infrastructure.entities.tour.Tour;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TourSpecification {
-
-    public static Specification<Tour> filterByCriteria(String query, String tags) {
-        return (Root<Tour> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-            Predicate predicate = cb.conjunction();
-
-            if (query != null && !query.isEmpty()) {
-                Predicate namePredicate = cb.like(cb.lower(root.get("name")), "%" + query.toLowerCase() + "%");
-                predicate = cb.and(predicate, namePredicate);
+    public static Specification<Tour> hasTags(List<String> tagNames) {
+        return (Root<Tour> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+            if (tagNames == null || tagNames.isEmpty()) {
+                return cb.conjunction();
             }
+            Join<Tour, TagTour> tagsJoin = root.join("tags");
+            List<TagTourOptions> tagEnums = tagNames.stream()
+                    .map(TagTourOptions::lookup)
+                    .collect(Collectors.toList());
 
-            if (tags != null && !tags.isEmpty()) {
-                Predicate categoriaPredicate = cb.equal(root.get("category"), tags);
-                predicate = cb.and(predicate, categoriaPredicate);
-            }
-
-            return predicate;
+            return tagsJoin.get("tagTourOptions").in(tagEnums);
         };
     }
 }

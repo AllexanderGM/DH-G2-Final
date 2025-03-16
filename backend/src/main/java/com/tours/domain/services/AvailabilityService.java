@@ -45,17 +45,17 @@ public class AvailabilityService {
                 .orElseThrow(() -> new NotFoundException("No se encontró el tour con ID: " + tourId));
 
         // Validar que la fecha sea en el futuro
-        if (availabilityDTO.getAvailableDate().isBefore(LocalDateTime.now())) {
+        if (availabilityDTO.availableDate().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("La fecha de disponibilidad debe ser en el futuro");
         }
 
         // Validar que la hora de regreso sea posterior a la hora de salida
-        if (availabilityDTO.getReturnTime().isBefore(availabilityDTO.getDepartureTime()) || availabilityDTO.getReturnTime().equals(availabilityDTO.getDepartureTime())) {
+        if (availabilityDTO.returnTime().isBefore(availabilityDTO.departureTime()) || availabilityDTO.returnTime().equals(availabilityDTO.departureTime())) {
             throw new BadRequestException("La hora de regreso debe ser posterior a la hora de salida");
         }
 
         // Validar que los cupos sean positivos
-        if (availabilityDTO.getAvailableSlots() <= 0) {
+        if (availabilityDTO.availableSlots() <= 0) {
             throw new BadRequestException("Los cupos disponibles deben ser mayores a cero");
         }
 
@@ -68,10 +68,10 @@ public class AvailabilityService {
         }
 
         Availability availability = new Availability();
-        availability.setAvailableDate(availabilityDTO.getAvailableDate());
-        availability.setAvailableSlots(availabilityDTO.getAvailableSlots());
-        availability.setDepartureTime(availabilityDTO.getDepartureTime());
-        availability.setReturnTime(availabilityDTO.getReturnTime());
+        availability.setAvailableDate(availabilityDTO.availableDate());
+        availability.setAvailableSlots(availabilityDTO.availableSlots());
+        availability.setDepartureTime(availabilityDTO.departureTime());
+        availability.setReturnTime(availabilityDTO.returnTime());
         availability.setTour(tour);
 
         Availability savedAvailability = availabilityRepository.save(availability);
@@ -96,8 +96,8 @@ public class AvailabilityService {
     }
 
     private boolean isOverlapping(AvailabilityRequestDTO newAvailability, Availability existingAvailability) {
-        LocalDateTime newStart = newAvailability.getAvailableDate().withHour(newAvailability.getDepartureTime().getHour()).withMinute(newAvailability.getDepartureTime().getMinute());
-        LocalDateTime newEnd = newAvailability.getAvailableDate().withHour(newAvailability.getReturnTime().getHour()).withMinute(newAvailability.getReturnTime().getMinute());
+        LocalDateTime newStart = newAvailability.availableDate().withHour(newAvailability.departureTime().getHour()).withMinute(newAvailability.departureTime().getMinute());
+        LocalDateTime newEnd = newAvailability.availableDate().withHour(newAvailability.returnTime().getHour()).withMinute(newAvailability.returnTime().getMinute());
         LocalDateTime existingStart = existingAvailability.getAvailableDate().withHour(existingAvailability.getDepartureTime().getHour()).withMinute(existingAvailability.getDepartureTime().getMinute());
         LocalDateTime existingEnd = existingAvailability.getAvailableDate().withHour(existingAvailability.getReturnTime().getHour()).withMinute(existingAvailability.getReturnTime().getMinute());
 

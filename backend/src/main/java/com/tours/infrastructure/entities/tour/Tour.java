@@ -1,5 +1,6 @@
 package com.tours.infrastructure.entities.tour;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.tours.infrastructure.entities.booking.Availability;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -49,6 +50,7 @@ public class Tour {
             joinColumns = @JoinColumn(name = "tour_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
+    @JsonManagedReference
     private List<TagTour> tags = new ArrayList<>();
 
 
@@ -58,6 +60,7 @@ public class Tour {
             joinColumns = @JoinColumn(name = "tour_id"),
             inverseJoinColumns = @JoinColumn(name = "include_tours_id")
     )
+    @JsonManagedReference
     private List<IncludeTours> includeTours;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -67,7 +70,9 @@ public class Tour {
     @ManyToOne
     @JoinColumn(name = "hotel_id")
     private HotelTour hotelTour;
-    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true) // Changed from "tour" to "pack"
+
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Availability> availabilities;
 
 }

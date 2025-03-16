@@ -14,10 +14,6 @@ import java.util.List;
 @Getter
 @Setter
 public class TourFilterDTO {
-    private String query;      // Texto de búsqueda (ej: "Cusco")
-    private List<TagTour> tags;  // Categoría del tour (ej: "Aventura")
+    private List<String> tags; // Lista de tags seleccionados
 
-    public TourFilterDTO(Tour tour) {
-        this.tags = tour.getTags();
-    }
 }
