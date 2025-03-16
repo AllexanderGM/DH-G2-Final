@@ -37,7 +37,6 @@ const SERVICIOS = [
     description: 'Tickets de acceso a atracciones o eventos'
   },
   {
-    // **
     value: 'Snacks',
     label: 'Snacks',
     icon: 'cookie',
@@ -80,7 +79,6 @@ const SERVICIOS = [
     description: 'Acompañamiento profesional durante el recorrido'
   },
   {
-    // **
     value: 'Seguro de viaje',
     label: 'Seguro de viaje',
     icon: 'health_and_safety',
@@ -147,6 +145,21 @@ const REGIONES = [
   { value: 'Oceania', label: 'Oceanía' }
 ]
 
+// Función para obtener fecha y hora actual en formato ISO para los inputs datetime-local
+const getCurrentDateTimeISO = () => {
+  const now = new Date()
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
+  return now.toISOString().slice(0, 16)
+}
+
+// Función para obtener fecha futura (en días) en formato ISO
+const getFutureDateTimeISO = days => {
+  const future = new Date()
+  future.setDate(future.getDate() + days)
+  future.setMinutes(future.getMinutes() - future.getTimezoneOffset())
+  return future.toISOString().slice(0, 16)
+}
+
 const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -157,15 +170,21 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
     childPrice: '',
     images: ['', ''],
     status: 'Disponible',
-    tags: [], // Usará los valores del backend (BEACH, VACATION, etc.)
+    tags: [],
     includes: [],
     destination: {
-      region: 'Americas', // Solo para UI, no se envía al backend
+      region: 'Americas',
       country: '',
       city: ''
     },
     hotelName: '',
-    hotel: 4 // Corresponde a las estrellas
+    hotel: 4,
+    availability: {
+      availableDate: getFutureDateTimeISO(30), // Fecha disponible para reservar (30 días por defecto)
+      availableSlots: 10, // Número de cupos por defecto
+      departureTime: getFutureDateTimeISO(7), // Hora de salida (7 días por defecto)
+      returnTime: getFutureDateTimeISO(14) // Hora de regreso (14 días por defecto)
+    }
   })
 
   // Estado para los detalles de cada servicio incluido
@@ -176,18 +195,16 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
       const parts = field.split('.')
 
       if (parts.length === 2) {
-        // Para campos como 'destination.country' o 'destination.city'
-        const updatedData = {
+        // Para campos como 'destination.country' o 'availability.availableSlots'
+        setFormData({
           ...formData,
           [parts[0]]: {
             ...formData[parts[0]],
             [parts[1]]: value
           }
-        }
-        console.log(`Nuevo estado para ${field}:`, updatedData[parts[0]])
-        setFormData(updatedData)
+        })
       } else {
-        // Para cualquier otro nivel de anidación (aunque ya no deberíamos tener campos de 3 niveles)
+        // Para cualquier otro nivel de anidación
         console.warn('Campo con múltiples niveles no esperado:', field)
         setFormData({
           ...formData,
@@ -300,19 +317,52 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
         throw new Error('Debes seleccionar al menos un servicio incluido')
       }
 
+      // Validaciones para disponibilidad
+      if (!formData.availability.availableDate) {
+        throw new Error('La fecha disponible para reserva es obligatoria')
+      }
+
+      if (!formData.availability.departureTime) {
+        throw new Error('La fecha y hora de salida es obligatoria')
+      }
+
+      if (!formData.availability.returnTime) {
+        throw new Error('La fecha y hora de regreso es obligatoria')
+      }
+
+      // Verificar que la fecha de regreso sea posterior a la de salida
+      const departureDate = new Date(formData.availability.departureTime)
+      const returnDate = new Date(formData.availability.returnTime)
+
+      if (returnDate <= departureDate) {
+        throw new Error('La fecha de regreso debe ser posterior a la fecha de salida')
+      }
+
+      // Verificar que haya al menos un cupo disponible
+      if (parseInt(formData.availability.availableSlots) < 1) {
+        throw new Error('Debe haber al menos un cupo disponible')
+      }
+
       // Filtrar imágenes vacías
       const filteredImages = formData.images.filter(img => img.trim() !== '')
       if (filteredImages.length === 0) {
         filteredImages.push('https://via.placeholder.com/800x600?text=Imagen+del+tour')
       }
 
-      // Enviar solicitud a la API
-      const result = await createTour({
+      // Preparar datos para enviar a la API
+      const tourData = {
         ...formData,
         images: filteredImages,
         adultPrice: parseFloat(formData.adultPrice),
-        childPrice: parseFloat(formData.childPrice || '0')
-      })
+        childPrice: parseFloat(formData.childPrice || '0'),
+        availability: {
+          ...formData.availability,
+          availableSlots: parseInt(formData.availability.availableSlots)
+        }
+      }
+
+      // Enviar solicitud a la API
+      const result = await createTour(tourData)
 
       if (result.error) {
         throw new Error(result.message || 'Error al crear el tour')
@@ -333,12 +383,16 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
         destination: {
           region: 'Americas',
           country: '',
-          city: {
-            name: ''
-          }
+          city: ''
         },
         hotelName: '',
-        hotel: 4
+        hotel: 4,
+        availability: {
+          availableDate: getFutureDateTimeISO(30),
+          availableSlots: 10,
+          departureTime: getFutureDateTimeISO(7),
+          returnTime: getFutureDateTimeISO(14)
+        }
       })
       setIncludesDetails({})
 
@@ -574,6 +628,83 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
                       </div>
                     </div>
                   )}
+                </div>
+              </Tab>
+
+              {/* Nueva pestaña de disponibilidad */}
+              <Tab key="disponibilidad" title="Disponibilidad">
+                <div className="space-y-4 py-2">
+                  <p className="text-sm font-medium mb-3">Información de disponibilidad</p>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    <label htmlFor="availableDate" className={`${labelStyle} col-span-1`}>
+                      Fecha disponible para reserva
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Input
+                          id="availableDate"
+                          type="datetime-local"
+                          label="Fecha disponible"
+                          placeholder="Seleccione fecha y hora"
+                          value={formData.availability.availableDate}
+                          onChange={e => handleInputChange('availability.availableDate', e.target.value)}
+                          required
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Fecha límite hasta la que se pueden hacer reservas</p>
+                      </div>
+                      <div>
+                        <Input
+                          type="number"
+                          label="Cupos disponibles"
+                          placeholder="Número de plazas"
+                          min="1"
+                          value={formData.availability.availableSlots}
+                          onChange={e => handleInputChange('availability.availableSlots', e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <label htmlFor="departureTime" className={labelStyle}>
+                        Fecha y hora de salida
+                      </label>
+                      <Input
+                        id="departureTime"
+                        type="datetime-local"
+                        label="Salida"
+                        placeholder="Seleccione fecha y hora"
+                        value={formData.availability.departureTime}
+                        onChange={e => handleInputChange('availability.departureTime', e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="returnTime" className={labelStyle}>
+                        Fecha y hora de regreso
+                      </label>
+                      <Input
+                        id="returnTime"
+                        type="datetime-local"
+                        label="Regreso"
+                        placeholder="Seleccione fecha y hora"
+                        value={formData.availability.returnTime}
+                        onChange={e => handleInputChange('availability.returnTime', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-md mt-4">
+                    <p className="text-sm text-blue-800">
+                      <span className="font-medium">Nota:</span> La fecha de disponibilidad indica hasta cuándo los clientes pueden reservar
+                      este tour. Las fechas de salida y regreso definen cuándo comienza y termina el tour.
+                    </p>
+                  </div>
                 </div>
               </Tab>
             </Tabs>

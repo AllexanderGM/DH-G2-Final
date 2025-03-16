@@ -76,7 +76,15 @@ export const createTour = async tourData => {
       },
 
       // Hotel debe ser un ID (Long), no un objeto o string
-      hotel: typeof tourData.hotel === 'number' ? tourData.hotel : typeof tourData.hotelStars === 'number' ? tourData.hotelStars : 4
+      hotel: typeof tourData.hotel === 'number' ? tourData.hotel : typeof tourData.hotelStars === 'number' ? tourData.hotelStars : 4,
+
+      // Añadimos la sección de disponibilidad
+      availability: {
+        availableDate: tourData.availability?.availableDate || '',
+        availableSlots: parseInt(tourData.availability?.availableSlots || 10),
+        departureTime: tourData.availability?.departureTime || '',
+        returnTime: tourData.availability?.returnTime || ''
+      }
     }
 
     console.log('Datos preparados para backend:', JSON.stringify(requestData, null, 2))
