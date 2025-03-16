@@ -11,6 +11,7 @@ import ProfilePage from '@pages/user/ProfilePage.jsx'
 import EditUserProfile from '@pages/userEdit/EditUserProfile.jsx'
 import FavoritesPage from '@pages/favorites/FavoritesPage.jsx'
 import Users from '@components/Users.jsx'
+import ConfirmReserv from '@pages/confirmReservation/ConfirmReserv.jsx'
 
 import RequireAuth from './RequireAuth.jsx'
 import App from './App.jsx'
@@ -35,7 +36,7 @@ const router = createBrowserRouter([
           { path: 'login', element: <IniciarSesion /> },
           { path: 'register', element: <RegistrarUsuario /> },
           { path: 'users', element: <Users /> },
-
+          {path: 'tour/:id/confirm', element: <ConfirmReserv/>},
           // Rutas protegidas para clientes
           {
             path: 'favoritos',

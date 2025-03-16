@@ -7,7 +7,7 @@ function GeneralContext({ children }) {
   const hrefFunc = useHref
 
   return (
-    <HeroUIProvider navigate={navigate} useHref={hrefFunc}>
+    <HeroUIProvider  locale="es-ES" navigate={navigate} useHref={hrefFunc}>
       {children}
     </HeroUIProvider>
   )
