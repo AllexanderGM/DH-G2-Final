@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "39ba573c-1c3a-414c-86e9-0513cc7a6161",
+		"_postman_id": "dd6c47f7-ed88-4450-9451-8da7b1907a7d",
 		"name": "DH-G2-Final",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "24525606",
-		"_collection_link": "https://lively-eclipse-999823.postman.co/workspace/DMPA---Javeriana~71f9bc35-06d6-41d1-aabb-ee5a6e6913cb/collection/24525606-39ba573c-1c3a-414c-86e9-0513cc7a6161?action=share&source=collection_link&creator=24525606"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22246148"
 	},
 	"item": [
 		{
@@ -24,7 +23,16 @@
 								}
 							}
 						},
-						"url": "{{URL_LOCAL}}/auth/register"
+						"url": {
+							"raw": "{{URL_LOCAL}}/auth/register",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
 					},
 					"response": []
 				},
@@ -55,7 +63,16 @@
 								}
 							}
 						},
-						"url": "{{URL_LOCAL}}/auth/login"
+						"url": {
+							"raw": "{{URL_LOCAL}}/auth/login",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
 					},
 					"response": []
 				},
@@ -64,13 +81,26 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
-						"url": "{{URL_LOCAL}}/auth/refresh"
+						"url": {
+							"raw": "{{URL_LOCAL}}/auth/refresh",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
 					},
 					"response": []
 				},
@@ -79,13 +109,26 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
-						"url": "{{URL_LOCAL}}/auth/logout"
+						"url": {
+							"raw": "{{URL_LOCAL}}/auth/logout",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
 					},
 					"response": []
 				}
@@ -99,7 +142,15 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{URL_LOCAL}}/usuarios"
+						"url": {
+							"raw": "{{URL_LOCAL}}/usuarios",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"usuarios"
+							]
+						}
 					},
 					"response": []
 				}
@@ -113,7 +164,16 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{URL_LOCAL}}/tours/1"
+						"url": {
+							"raw": "{{URL_LOCAL}}/tours/1",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"tours",
+								"1"
+							]
+						}
 					},
 					"response": []
 				},
@@ -122,7 +182,15 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{URL_LOCAL}}/tours"
+						"url": {
+							"raw": "{{URL_LOCAL}}/tours",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"tours"
+							]
+						}
 					},
 					"response": []
 				},
@@ -193,7 +261,16 @@
 								}
 							}
 						},
-						"url": "{{URL_LOCAL}}/tours/random"
+						"url": {
+							"raw": "{{URL_LOCAL}}/tours/random",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"tours",
+								"random"
+							]
+						}
 					},
 					"response": []
 				},
@@ -202,22 +279,34 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Machu Pasdwicchu 7\",\r\n    \"description\": \"Viaje cultural, una aventura que incluye visitas a ruinas incas, caminatas por montañas y observación de animales y aves que habitan\",\r\n    \"adultPrice\": 6000.0,\r\n    \"childPrice\": 6000.0,\r\n    \"images\": [\r\n        \"https://i.pinimg.com/736x/72/af/ca/72afcae3b7f498fb166e831d78032e44.jpg\",\r\n        \"https://i.pinimg.com/736x/a0/e6/5e/a0e65e336fd8a72e84bc795c94fe81d8.jpg\"\r\n    ],\r\n    \"status\": \"Disponible\",\r\n    \"tag\": \"VACATION\",\r\n    \"includes\": [\"Alojamiento\", \"Boletos\"],\r\n    \"destination\": {\r\n        \"country\": \"Afghanistan\",\r\n        \"city\":\"Herat\"\r\n    },\r\n    \"hotel\": 1\r\n}",
+							"raw": "{\r\n    \"name\": \"Tag Mahal\",\r\n    \"description\": \"Viaje cultural, una aventura que incluye visitas a ruinas incas, caminatas por montañas y observación de animales y aves que habitan\",\r\n    \"adultPrice\": 6000.0,\r\n    \"childPrice\": 6000.0,\r\n    \"images\": [\r\n        \"https://i.pinimg.com/736x/72/af/ca/72afcae3b7f498fb166e831d78032e44.jpg\",\r\n        \"https://i.pinimg.com/736x/a0/e6/5e/a0e65e336fd8a72e84bc795c94fe81d8.jpg\"\r\n    ],\r\n    \"status\": \"Disponible\",\r\n    \"tags\": [\"CITY\"],\r\n    \"includes\": [\"Alojamiento\", \"Boletos\"],\r\n    \"destination\": {\r\n        \"country\": \"Afghanistan\",\r\n        \"city\":\"Herat\"\r\n    },\r\n    \"hotel\": 1,\r\n    \"availability\": {\r\n        \"availableDate\": \"2025-05-25T09:00:00\",\r\n        \"availableSlots\": 10,\r\n        \"departureTime\": \"2025-05-25T06:00:00\",\r\n        \"returnTime\": \"2025-04-26T18:00:00\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{URL_LOCAL}}/tours"
+						"url": {
+							"raw": "{{URL_LOCAL}}/tours",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"tours"
+							]
+						}
 					},
 					"response": []
 				}
@@ -228,11 +317,146 @@
 			"item": []
 		},
 		{
+			"name": "filtros",
+			"item": [
+				{
+					"name": "Por Categoria",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"tags\": [\"BEACH\",\"LUXURY\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL_LOCAL}}/tours/filter/category",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"tours",
+								"filter",
+								"category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Por nombre",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"tags\": [\"BEACH\",\"M\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL_LOCAL}}/tours/filter/name?name=niagara",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"tours",
+								"filter",
+								"name"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "niagara"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Por Nombre y Fecha",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL_LOCAL}}/tours/filter/advanced?name=niagara&startDate=2025-03-21T00:00:00&endDate=2026-04-30T23:59:59",
+							"host": [
+								"{{URL_LOCAL}}"
+							],
+							"path": [
+								"tours",
+								"filter",
+								"advanced"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "niagara"
+								},
+								{
+									"key": "startDate",
+									"value": "2025-03-21T00:00:00"
+								},
+								{
+									"key": "endDate",
+									"value": "2026-04-30T23:59:59"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Info general",
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "{{URL_LOCAL}}/"
+				"url": {
+					"raw": "{{URL_LOCAL}}/",
+					"host": [
+						"{{URL_LOCAL}}"
+					],
+					"path": [
+						""
+					]
+				}
 			},
 			"response": []
 		},
@@ -241,7 +465,15 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "{{URL_LOCAL}}/system"
+				"url": {
+					"raw": "{{URL_LOCAL}}/system",
+					"host": [
+						"{{URL_LOCAL}}"
+					],
+					"path": [
+						"system"
+					]
+				}
 			},
 			"response": []
 		}

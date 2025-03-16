@@ -21,8 +21,8 @@ public interface ITourRepository extends JpaRepository<Tour, Long> {
     @Query("SELECT t FROM Tour t " +
             "LEFT JOIN t.availabilities a " + // LEFT JOIN para incluir tours sin disponibilidad
             "WHERE (:name IS NULL OR LOWER(t.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
-            "AND (:startDate IS NULL OR a.availableDate >= COALESCE(:startDate, a.availableDate)) " +
-            "AND (:endDate IS NULL OR a.availableDate <= COALESCE(:endDate, a.availableDate))")
+            "AND (:startDate IS NULL OR a.departureTime >= COALESCE(:startDate, a.departureTime)) " +
+            "AND (:endDate IS NULL OR a.departureTime <= COALESCE(:endDate, a.departureTime))")
     List<Tour> findByFilters(@Param("name") String name,
                              @Param("startDate") LocalDateTime startDate,
                              @Param("endDate") LocalDateTime endDate);

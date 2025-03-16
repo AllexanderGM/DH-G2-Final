@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IFilterTourRepository extends JpaRepository<Tour, Long>, JpaSpecificationExecutor<Tour> {
+
+
 }

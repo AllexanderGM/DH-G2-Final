@@ -69,7 +69,7 @@ public class TourController {
         return ResponseEntity.ok(tourService.updateTags(id, tags));
     }
 
-    @PostMapping("/filter/category")
+    @GetMapping("/filter/category")
     public ResponseEntity<List<Tour>> filterByCategory(@RequestBody TourFilterDTO filtro) {
         List<Tour> tours = filterTourService.filterByCategory(filtro);
         return ResponseEntity.ok(tours);
