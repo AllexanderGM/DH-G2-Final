@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Table,
   TableHeader,
@@ -21,6 +22,7 @@ import {
 import { EyeIcon, DeleteIcon, EditIcon, SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
 import { normalizeWords } from '@utils/normalizeWords.js'
 import CrearTourForm from './CrearTourForm.jsx'
+import EditarTourForm from './EditarTourForm.jsx'
 
 export const INITIAL_VISIBLE_COLUMNS = [
   { name: 'NOMBRE', uid: 'nombre' },
@@ -54,6 +56,8 @@ const TableTours = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingTour, setEditingTour] = useState(null)
 
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
@@ -167,7 +171,8 @@ const TableTours = () => {
             tags: tour.tags,
             includes: tour.includes,
             destination: tour.destination,
-            hotel: tour.hotel
+            hotel: tour.hotel,
+            availability: tour.availability
           }))
         : []
 
@@ -195,7 +200,8 @@ const TableTours = () => {
               tags: tour.tags,
               includes: tour.includes,
               destination: tour.destination,
-              hotel: tour.hotel
+              hotel: tour.hotel,
+              availability: tour.availability
             }))
             setLugares(processedMockData)
             setError('Usando datos de desarrollo (mock)')
@@ -213,66 +219,88 @@ const TableTours = () => {
     fetchLugares()
   }, [fetchLugares])
 
-  const renderCell = useCallback((lugar, columnKey) => {
-    const cellValue = lugar[columnKey]
-
-    switch (columnKey) {
-      case 'nombre':
-        return (
-          <User
-            avatarProps={{
-              radius: 'lg',
-              src: lugar.imagenes && lugar.imagenes.length > 0 ? lugar.imagenes[0] : 'https://via.placeholder.com/150'
-            }}
-            name={cellValue || 'Sin nombre'}
-            description={
-              lugar.description ? (lugar.description.length > 30 ? lugar.description.substring(0, 30) + '...' : lugar.description) : ''
-            }
-          />
-        )
-      case 'categoria':
-        return (
-          <Chip className="capitalize" color={statusColorMap[lugar.categoria] || 'default'} size="sm" variant="flat">
-            {normalizeWords(cellValue) || 'No definida'}
-          </Chip>
-        )
-      case 'precio':
-        // Formateamos el precio con separadores de miles y 2 decimales
-        return `${(cellValue || 0).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })}`
-      case 'destino':
-        // Mostramos el destino con más detalle si está disponible
-        if (lugar.destination) {
-          const fullDestination = [lugar.destination.city?.name, lugar.destination.country].filter(Boolean).join(', ')
-          return fullDestination || cellValue || 'Sin destino'
-        }
-        return cellValue || 'Sin destino'
-      case 'actions':
-        return (
-          <div className="relative flex items-center justify-center gap-2">
-            <Tooltip content="Detalles">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <EyeIcon />
-              </span>
-            </Tooltip>
-            <Tooltip content="Editar">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <EditIcon />
-              </span>
-            </Tooltip>
-            <Tooltip color="danger" content="Eliminar">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                <DeleteIcon />
-              </span>
-            </Tooltip>
-          </div>
-        )
-      default:
-        return cellValue || '-'
-    }
+  // Funciones para manejar la edición
+  const handleOpenEditModal = useCallback(tour => {
+    setEditingTour(tour)
+    setIsEditModalOpen(true)
   }, [])
+
+  const handleCloseEditModal = useCallback(() => {
+    setIsEditModalOpen(false)
+    setEditingTour(null)
+  }, [])
+
+  const handleTourUpdated = useCallback(
+    updatedTour => {
+      console.log('Tour actualizado:', updatedTour)
+      fetchLugares() // Actualizamos la lista después de editar
+    },
+    [fetchLugares]
+  )
+
+  const renderCell = useCallback(
+    (lugar, columnKey) => {
+      const cellValue = lugar[columnKey]
+
+      switch (columnKey) {
+        case 'nombre':
+          return (
+            <User
+              avatarProps={{
+                radius: 'lg',
+                src: lugar.imagenes && lugar.imagenes.length > 0 ? lugar.imagenes[0] : 'https://via.placeholder.com/150'
+              }}
+              name={cellValue || 'Sin nombre'}
+              description={
+                lugar.description ? (lugar.description.length > 30 ? lugar.description.substring(0, 30) + '...' : lugar.description) : ''
+              }
+            />
+          )
+        case 'categoria':
+          return (
+            <Chip className="capitalize" color={statusColorMap[lugar.categoria] || 'default'} size="sm" variant="flat">
+              {normalizeWords(cellValue) || 'No definida'}
+            </Chip>
+          )
+        case 'precio':
+          // Formateamos el precio con separadores de miles y 2 decimales
+          return `${(cellValue || 0).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })}`
+        case 'destino':
+          // Mostramos el destino con más detalle si está disponible
+          if (lugar.destination) {
+            const fullDestination = [lugar.destination.city?.name, lugar.destination.country].filter(Boolean).join(', ')
+            return fullDestination || cellValue || 'Sin destino'
+          }
+          return cellValue || 'Sin destino'
+        case 'actions':
+          return (
+            <div className="relative flex items-center justify-center gap-2">
+              <Tooltip content="Detalles">
+                <Link to={`/tour/${lugar.idPaquete}`} className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                  <EyeIcon />
+                </Link>
+              </Tooltip>
+              <Tooltip content="Editar">
+                <span onClick={() => handleOpenEditModal(lugar)} className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                  <EditIcon />
+                </span>
+              </Tooltip>
+              <Tooltip color="danger" content="Eliminar">
+                <span className="text-lg text-danger cursor-pointer active:opacity-50">
+                  <DeleteIcon />
+                </span>
+              </Tooltip>
+            </div>
+          )
+        default:
+          return cellValue || '-'
+      }
+    },
+    [handleOpenEditModal]
+  )
 
   const onNextPage = useCallback(() => {
     if (page < pages) {
@@ -497,6 +525,11 @@ const TableTours = () => {
 
       {/* Modal para crear nuevo tour */}
       <CrearTourForm isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} onSuccess={handleTourCreated} />
+
+      {/* Modal para editar tour */}
+      {editingTour && (
+        <EditarTourForm isOpen={isEditModalOpen} onClose={handleCloseEditModal} onSuccess={handleTourUpdated} tourData={editingTour} />
+      )}
     </>
   )
 }
