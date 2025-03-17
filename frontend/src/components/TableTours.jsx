@@ -16,11 +16,18 @@ import {
   User,
   Chip,
   Tooltip,
-  Button
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter
 } from '@heroui/react'
 
-import { EyeIcon, DeleteIcon, EditIcon, SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
 import { normalizeWords } from '@utils/normalizeWords.js'
+import { deleteTour } from '@services/tourService.js'
+
+import { EyeIcon, DeleteIcon, EditIcon, SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
 import CrearTourForm from './CrearTourForm.jsx'
 import EditarTourForm from './EditarTourForm.jsx'
 
@@ -58,6 +65,10 @@ const TableTours = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editingTour, setEditingTour] = useState(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [tourToDelete, setTourToDelete] = useState(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
 
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
@@ -238,6 +249,45 @@ const TableTours = () => {
     [fetchLugares]
   )
 
+  // 3. Función para abrir el modal de confirmación de eliminación
+  const handleOpenDeleteModal = useCallback(tour => {
+    setTourToDelete(tour)
+    setIsDeleteModalOpen(true)
+    setDeleteError(null)
+  }, [])
+
+  // 4. Función para cerrar el modal de confirmación
+  const handleCloseDeleteModal = useCallback(() => {
+    setIsDeleteModalOpen(false)
+    setTourToDelete(null)
+    setDeleteError(null)
+  }, [])
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!tourToDelete) return
+
+    try {
+      setDeleteLoading(true)
+      setDeleteError(null)
+
+      const success = await deleteTour(tourToDelete.idPaquete)
+
+      if (success) {
+        // Actualizar la lista después de eliminar
+        fetchLugares()
+        setIsDeleteModalOpen(false)
+        setTourToDelete(null)
+      } else {
+        setDeleteError('No se pudo eliminar el tour. Intenta nuevamente.')
+      }
+    } catch (error) {
+      console.error('Error al eliminar tour:', error)
+      setDeleteError(`Error: ${error.message || 'No se pudo eliminar el tour'}`)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }, [tourToDelete, fetchLugares])
+
   const renderCell = useCallback(
     (lugar, columnKey) => {
       const cellValue = lugar[columnKey]
@@ -252,7 +302,7 @@ const TableTours = () => {
               }}
               name={cellValue || 'Sin nombre'}
               description={
-                lugar.description ? (lugar.description.length > 30 ? lugar.description.substring(0, 30) + '...' : lugar.description) : ''
+                lugar.description ? (lugar.description.length > 30 ? `${lugar.description.substring(0, 30)}...` : lugar.description) : ''
               }
             />
           )
@@ -289,7 +339,7 @@ const TableTours = () => {
                 </span>
               </Tooltip>
               <Tooltip color="danger" content="Eliminar">
-                <span className="text-lg text-danger cursor-pointer active:opacity-50">
+                <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => handleOpenDeleteModal(lugar)}>
                   <DeleteIcon />
                 </span>
               </Tooltip>
@@ -530,6 +580,27 @@ const TableTours = () => {
       {editingTour && (
         <EditarTourForm isOpen={isEditModalOpen} onClose={handleCloseEditModal} onSuccess={handleTourUpdated} tourData={editingTour} />
       )}
+      <Modal isOpen={isDeleteModalOpen} onClose={handleCloseDeleteModal} backdrop="blur" size="sm">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">Confirmar eliminación</ModalHeader>
+          <ModalBody>
+            {deleteError && <p className="text-danger">{deleteError}</p>}
+            <p>
+              ¿Estás seguro que deseas eliminar el tour
+              <span className="font-bold"> {tourToDelete?.nombre}</span>?
+            </p>
+            <p className="text-small text-default-500">Esta acción no se puede deshacer.</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="flat" color="default" onPress={handleCloseDeleteModal}>
+              Cancelar
+            </Button>
+            <Button color="danger" onPress={handleConfirmDelete} isLoading={deleteLoading}>
+              Eliminar
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   )
 }
