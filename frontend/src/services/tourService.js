@@ -79,12 +79,22 @@ export const createTour = async tourData => {
       hotel: typeof tourData.hotel === 'number' ? tourData.hotel : typeof tourData.hotelStars === 'number' ? tourData.hotelStars : 4,
 
       // Añadimos la sección de disponibilidad
-      availability: {
-        availableDate: tourData.availability?.availableDate || '',
-        availableSlots: parseInt(tourData.availability?.availableSlots || 10),
-        departureTime: tourData.availability?.departureTime || '',
-        returnTime: tourData.availability?.returnTime || ''
-      }
+      // availability: {
+      //   availableDate: tourData.availability?.availableDate || '',
+      //   availableSlots: parseInt(tourData.availability?.availableSlots || 10),
+      //   departureTime: tourData.availability?.departureTime || '',
+      //   returnTime: tourData.availability?.returnTime || ''
+      // }
+      availability: Array.isArray(tourData.availability)
+        ? tourData.availability
+        : [
+            {
+              availableDate: tourData.availability?.availableDate || '',
+              availableSlots: parseInt(tourData.availability?.availableSlots || 10),
+              departureTime: tourData.availability?.departureTime || '',
+              returnTime: tourData.availability?.returnTime || ''
+            }
+          ]
     }
 
     console.log('Datos preparados para backend:', JSON.stringify(requestData, null, 2))
@@ -138,6 +148,10 @@ export const createTour = async tourData => {
 export const updateTour = async (id, tourData) => {
   try {
     const token = getToken()
+
+    if (tourData.availability && !Array.isArray(tourData.availability)) {
+      tourData.availability = [tourData.availability]
+    }
 
     const response = await fetch(`${URL}/tours/${id}`, {
       method: 'PUT',

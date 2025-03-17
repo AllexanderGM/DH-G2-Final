@@ -179,16 +179,19 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
     },
     hotelName: '',
     hotel: 4,
-    availability: {
-      availableDate: getFutureDateTimeISO(30), // Fecha disponible para reservar (30 días por defecto)
-      availableSlots: 10, // Número de cupos por defecto
-      departureTime: getFutureDateTimeISO(7), // Hora de salida (7 días por defecto)
-      returnTime: getFutureDateTimeISO(14) // Hora de regreso (14 días por defecto)
-    }
+    availability: [
+      {
+        availableDate: getFutureDateTimeISO(30), // Fecha disponible para reservar (30 días por defecto)
+        availableSlots: 10, // Número de cupos por defecto
+        departureTime: getFutureDateTimeISO(7), // Hora de salida (7 días por defecto)
+        returnTime: getFutureDateTimeISO(14) // Hora de regreso (14 días por defecto)
+      }
+    ]
   })
 
   // Estado para los detalles de cada servicio incluido
   const [includesDetails, setIncludesDetails] = useState({})
+  const [availabilityCount, setAvailabilityCount] = useState(1)
 
   const handleInputChange = (field, value) => {
     if (field.includes('.')) {
@@ -286,6 +289,59 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
     })
   }
 
+  const handleAvailabilityChange = (index, field, value) => {
+    const newAvailability = [...formData.availability]
+
+    // Asegurarse de que el objeto existe en ese índice
+    if (!newAvailability[index]) {
+      newAvailability[index] = {
+        availableDate: getFutureDateTimeISO(30),
+        availableSlots: 10,
+        departureTime: getFutureDateTimeISO(7),
+        returnTime: getFutureDateTimeISO(14)
+      }
+    }
+
+    // Actualizar campo específico
+    newAvailability[index][field] = value
+
+    setFormData({
+      ...formData,
+      availability: newAvailability
+    })
+  }
+
+  const handleAddAvailability = () => {
+    const newAvailability = [...formData.availability]
+    newAvailability.push({
+      availableDate: getFutureDateTimeISO(30 + availabilityCount * 7),
+      availableSlots: 10,
+      departureTime: getFutureDateTimeISO(7 + availabilityCount * 7),
+      returnTime: getFutureDateTimeISO(14 + availabilityCount * 7)
+    })
+
+    setFormData({
+      ...formData,
+      availability: newAvailability
+    })
+
+    setAvailabilityCount(availabilityCount + 1)
+  }
+
+  const handleRemoveAvailability = index => {
+    if (formData.availability.length <= 1) {
+      return
+    }
+
+    const newAvailability = formData.availability.filter((_, i) => i !== index)
+
+    setFormData({
+      ...formData,
+      availability: newAvailability
+    })
+    setAvailabilityCount(availabilityCount - 1)
+  }
+
   const handleSubmit = async e => {
     e.preventDefault()
     setLoading(true)
@@ -318,29 +374,32 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
       }
 
       // Validaciones para disponibilidad
-      if (!formData.availability.availableDate) {
-        throw new Error('La fecha disponible para reserva es obligatoria')
-      }
+      for (let i = 0; i < formData.availability.length; i++) {
+        const avail = formData.availability[i]
+        if (!avail.availableDate) {
+          throw new Error(`La fecha disponible para reserva ${i + 1} es obligatoria`)
+        }
 
-      if (!formData.availability.departureTime) {
-        throw new Error('La fecha y hora de salida es obligatoria')
-      }
+        if (!avail.departureTime) {
+          throw new Error(`La fecha y hora de salida ${i + 1} es obligatoria`)
+        }
 
-      if (!formData.availability.returnTime) {
-        throw new Error('La fecha y hora de regreso es obligatoria')
-      }
+        if (!avail.returnTime) {
+          throw new Error(`La fecha y hora de regreso ${i + 1} es obligatoria`)
+        }
 
-      // Verificar que la fecha de regreso sea posterior a la de salida
-      const departureDate = new Date(formData.availability.departureTime)
-      const returnDate = new Date(formData.availability.returnTime)
+        // Verificar que la fecha de regreso sea posterior a la de salida
+        const departureDate = new Date(avail.departureTime)
+        const returnDate = new Date(avail.returnTime)
 
-      if (returnDate <= departureDate) {
-        throw new Error('La fecha de regreso debe ser posterior a la fecha de salida')
-      }
+        if (returnDate <= departureDate) {
+          throw new Error(`La fecha de regreso ${i + 1} debe ser posterior a la fecha de salida`)
+        }
 
-      // Verificar que haya al menos un cupo disponible
-      if (parseInt(formData.availability.availableSlots) < 1) {
-        throw new Error('Debe haber al menos un cupo disponible')
+        // Verificar que haya al menos un cupo disponible
+        if (parseInt(avail.availableSlots) < 1) {
+          throw new Error(`Debe haber al menos un cupo disponible ${i + 1}`)
+        }
       }
 
       // Filtrar imágenes vacías
@@ -355,10 +414,10 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
         images: filteredImages,
         adultPrice: parseFloat(formData.adultPrice),
         childPrice: parseFloat(formData.childPrice || '0'),
-        availability: {
-          ...formData.availability,
-          availableSlots: parseInt(formData.availability.availableSlots)
-        }
+        availability: formData.availability.map(avail => ({
+          ...avail,
+          availableSlots: parseInt(avail.availableSlots)
+        }))
       }
 
       // Enviar solicitud a la API
@@ -387,14 +446,17 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
         },
         hotelName: '',
         hotel: 4,
-        availability: {
-          availableDate: getFutureDateTimeISO(30),
-          availableSlots: 10,
-          departureTime: getFutureDateTimeISO(7),
-          returnTime: getFutureDateTimeISO(14)
-        }
+        availability: [
+          {
+            availableDate: getFutureDateTimeISO(30),
+            availableSlots: 10,
+            departureTime: getFutureDateTimeISO(7),
+            returnTime: getFutureDateTimeISO(14)
+          }
+        ]
       })
       setIncludesDetails({})
+      setAvailabilityCount(1)
 
       // Cerrar modal y notificar éxito
       onSuccess && onSuccess(result)
@@ -634,75 +696,82 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
               {/* Nueva pestaña de disponibilidad */}
               <Tab key="disponibilidad" title="Disponibilidad">
                 <div className="space-y-4 py-2">
-                  <p className="text-sm font-medium mb-3">Información de disponibilidad</p>
-
-                  <div className="grid grid-cols-1 gap-4">
-                    <label htmlFor="availableDate" className={`${labelStyle} col-span-1`}>
-                      Fecha disponible para reserva
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Input
-                          id="availableDate"
-                          type="datetime-local"
-                          label="Fecha disponible"
-                          placeholder="Seleccione fecha y hora"
-                          value={formData.availability.availableDate}
-                          onChange={e => handleInputChange('availability.availableDate', e.target.value)}
-                          required
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Fecha límite hasta la que se pueden hacer reservas</p>
-                      </div>
-                      <div>
-                        <Input
-                          type="number"
-                          label="Cupos disponibles"
-                          placeholder="Número de plazas"
-                          min="1"
-                          value={formData.availability.availableSlots}
-                          onChange={e => handleInputChange('availability.availableSlots', e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-medium mb-3">Fechas de disponibilidad</p>
+                    <Button size="sm" color="primary" variant="flat" onClick={handleAddAvailability}>
+                      <span className="material-symbols-outlined mr-1">add</span>
+                      Añadir fecha
+                    </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                      <label htmlFor="departureTime" className={labelStyle}>
-                        Fecha y hora de salida
-                      </label>
-                      <Input
-                        id="departureTime"
-                        type="datetime-local"
-                        label="Salida"
-                        placeholder="Seleccione fecha y hora"
-                        value={formData.availability.departureTime}
-                        onChange={e => handleInputChange('availability.departureTime', e.target.value)}
-                        required
-                      />
-                    </div>
+                  {formData.availability.map((avail, index) => (
+                    <div key={index} className="mb-8 p-4 border rounded-lg bg-gray-50">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-md font-medium">Disponibilidad {index + 1}</h3>
+                        {formData.availability.length > 1 && (
+                          <Button size="sm" color="danger" variant="light" onClick={() => handleRemoveAvailability(index)}>
+                            <span className="material-symbols-outlined">delete</span>
+                          </Button>
+                        )}
+                      </div>
 
-                    <div>
-                      <label htmlFor="returnTime" className={labelStyle}>
-                        Fecha y hora de regreso
-                      </label>
-                      <Input
-                        id="returnTime"
-                        type="datetime-local"
-                        label="Regreso"
-                        placeholder="Seleccione fecha y hora"
-                        value={formData.availability.returnTime}
-                        onChange={e => handleInputChange('availability.returnTime', e.target.value)}
-                        required
-                      />
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Input
+                              type="datetime-local"
+                              label="Fecha disponible para reserva"
+                              placeholder="Seleccione fecha y hora"
+                              value={avail.availableDate}
+                              onChange={e => handleAvailabilityChange(index, 'availableDate', e.target.value)}
+                              required
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Fecha límite para reservar</p>
+                          </div>
+                          <div>
+                            <Input
+                              type="number"
+                              label="Cupos disponibles"
+                              placeholder="Número de plazas"
+                              min="1"
+                              value={avail.availableSlots}
+                              onChange={e => handleAvailabilityChange(index, 'availableSlots', e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                          <div>
+                            <Input
+                              type="datetime-local"
+                              label="Fecha y hora de salida"
+                              placeholder="Seleccione fecha y hora"
+                              value={avail.departureTime}
+                              onChange={e => handleAvailabilityChange(index, 'departureTime', e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Input
+                              type="datetime-local"
+                              label="Fecha y hora de regreso"
+                              placeholder="Seleccione fecha y hora"
+                              value={avail.returnTime}
+                              onChange={e => handleAvailabilityChange(index, 'returnTime', e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
 
                   <div className="p-3 bg-blue-50 border border-blue-200 rounded-md mt-4">
                     <p className="text-sm text-blue-800">
-                      <span className="font-medium">Nota:</span> La fecha de disponibilidad indica hasta cuándo los clientes pueden reservar
-                      este tour. Las fechas de salida y regreso definen cuándo comienza y termina el tour.
+                      <span className="font-medium">Nota:</span> Puedes agregar múltiples fechas de disponibilidad para este tour. La fecha
+                      de disponibilidad indica hasta cuándo los clientes pueden reservar este tour. Las fechas de salida y regreso definen
+                      cuándo comienza y termina el tour.
                     </p>
                   </div>
                 </div>
