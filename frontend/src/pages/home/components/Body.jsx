@@ -14,27 +14,6 @@ const Body = () => {
   const emptyPlaces = success && data.length === 0
   const isSearching = searchTerm.trim() !== ''
 
-  // Este efecto solo muestra en consola las disponibilidades
-  useEffect(() => {
-    const logAvailabilities = async () => {
-      if (!data || data.length === 0) return
-
-      console.log('====== DISPONIBILIDADES DE TOURS ======')
-
-      for (const tour of data) {
-        if (!tour.id) continue
-
-        const availabilities = await getTourAvailabilities(tour.id)
-        console.log(`Tour: ${tour.name} (ID: ${tour.id})`)
-        console.log('Disponibilidades:', availabilities)
-      }
-    }
-
-    if (success && data.length > 0) {
-      logAvailabilities()
-    }
-  }, [data, success])
-
   // Determinar el título basado en el estado de búsqueda
   let title = 'Recomendaciones'
   if (isSearching) {

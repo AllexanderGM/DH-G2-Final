@@ -61,10 +61,15 @@ export const SearchProvider = ({ children }) => {
 
   // Función para actualizar los parámetros de búsqueda avanzada
   const updateAdvancedSearchParams = useCallback(params => {
-    setAdvancedSearchParams(prev => ({
-      ...prev,
-      ...params
-    }))
+    console.log('SearchContext - Actualizando parámetros avanzados:', params)
+    setAdvancedSearchParams(prev => {
+      const newParams = {
+        ...prev,
+        ...params
+      }
+      console.log('SearchContext - Nuevos parámetros:', newParams)
+      return newParams
+    })
   }, [])
 
   const searchTours = useCallback(async () => {
@@ -78,7 +83,7 @@ export const SearchProvider = ({ children }) => {
         return
       }
 
-      if (!searchTerm.trim() && !advancedSearchParams.dateRange?.startDate) {
+      if (!searchTerm.trim() && !(advancedSearchParams.dateRange?.startDate || advancedSearchParams.dateRange?.start)) {
         setSearchResults(allTours)
         setLoading(false)
         return
@@ -96,41 +101,84 @@ export const SearchProvider = ({ children }) => {
       // Filtrar por término de búsqueda
       if (searchTerm.trim()) {
         const lowercaseSearchTerm = searchTerm.toLowerCase().trim()
-
         filteredResults = filteredResults.filter(tour => {
           return (
-            // Campos básicos
             (tour.name && tour.name.toLowerCase().includes(lowercaseSearchTerm)) ||
             (tour.description && tour.description.toLowerCase().includes(lowercaseSearchTerm)) ||
-            // Campos de destino
             (tour.destination?.country && tour.destination.country.toLowerCase().includes(lowercaseSearchTerm)) ||
             (tour.destination?.region && tour.destination.region.toLowerCase().includes(lowercaseSearchTerm)) ||
             (tour.destination?.city?.name && tour.destination.city.name.toLowerCase().includes(lowercaseSearchTerm)) ||
-            // Tags
             (Array.isArray(tour.tags) && tour.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(lowercaseSearchTerm)))
           )
         })
       }
 
       // Filtrar por rango de fechas
-      if (advancedSearchParams.dateRange?.startDate) {
-        const startDate = new Date(advancedSearchParams.dateRange.startDate)
-        const endDate = advancedSearchParams.dateRange.endDate ? new Date(advancedSearchParams.dateRange.endDate) : null
+      if (advancedSearchParams.dateRange?.startDate || advancedSearchParams.dateRange?.start) {
+        console.log('Filtering by date range:', advancedSearchParams.dateRange)
 
-        // Aquí añadiríamos la lógica para filtrar por fechas
-        // Por ahora es un placeholder hasta que tengamos información de fechas en los tours
-        console.log('Filtering by date range:', startDate, endDate)
+        let startDate = null
+        let endDate = null
 
-        // Cuando tengamos datos de fechas de tours, podríamos hacer algo como:
-        /*
-        filteredResults = filteredResults.filter(tour => {
-          const tourStartDate = new Date(tour.startDate)
-          return tourStartDate >= startDate && (!endDate || tourStartDate <= endDate)
-        })
-        */
+        try {
+          // Verificar si la fecha está como string ISO o como objeto {day, month, year}
+          if (typeof advancedSearchParams.dateRange?.startDate === 'string') {
+            startDate = new Date(advancedSearchParams.dateRange.startDate)
+          } else if (advancedSearchParams.dateRange?.start) {
+            const { day, month, year } = advancedSearchParams.dateRange.start
+            startDate = new Date(year, month - 1, day, 0, 0, 0, 0)
+          }
+
+          if (typeof advancedSearchParams.dateRange?.endDate === 'string') {
+            endDate = new Date(advancedSearchParams.dateRange.endDate)
+          } else if (advancedSearchParams.dateRange?.end) {
+            const { day, month, year } = advancedSearchParams.dateRange.end
+            // Crear la fecha de fin a las 23:59:59 para incluir todo el día
+            endDate = new Date(year, month - 1, day, 23, 59, 59, 999)
+          }
+
+          if (startDate && !endDate) {
+            endDate = new Date(startDate)
+            endDate.setDate(endDate.getDate() + 1)
+            endDate.setHours(23, 59, 59, 999)
+          }
+
+          console.log('Fechas para filtrado - Inicio:', startDate.toISOString(), 'Fin:', endDate.toISOString())
+
+          // Filtrar los resultados basados en la disponibilidad de los tours
+          filteredResults = filteredResults.filter(tour => {
+            // Si el tour no tiene disponibilidad, lo mantenemos (no filtramos)
+            if (!tour.availability || !Array.isArray(tour.availability) || tour.availability.length === 0) {
+              return true
+            }
+
+            // Verificar si alguna fecha de salida del tour está dentro del rango seleccionado
+            return tour.availability.some(avail => {
+              if (!avail.departureTime) return false
+
+              try {
+                const departureDate = new Date(avail.departureTime)
+                console.log(
+                  `Tour ${tour.name} - fecha salida:`,
+                  departureDate.toISOString(),
+                  'Dentro del rango:',
+                  departureDate >= startDate && departureDate <= endDate
+                )
+
+                // Una fecha está en el rango si: departureDate >= startDate Y departureDate <= endDate
+                return departureDate >= startDate && departureDate <= endDate
+              } catch (e) {
+                console.error('Error procesando fecha del tour:', e, avail)
+                return false
+              }
+            })
+          })
+
+          console.log('Resultados después de filtrar por fechas:', filteredResults.length)
+        } catch (error) {
+          console.error('Error en el filtrado por fechas:', error)
+        }
       }
-
-      console.log('Filtered results count:', filteredResults.length)
 
       setSearchResults({
         ...allTours,

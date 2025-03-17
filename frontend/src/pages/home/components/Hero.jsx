@@ -3,40 +3,31 @@ import { useState, useEffect } from 'react'
 import { useSearch } from '@context/SearchContext'
 import './hero.scss'
 import SearchIcon from '@components/SearchIcon.jsx'
-import DateRangePicker from './DateRangePicker.jsx'
 import image from '@assets/Backgrounds/topography.svg'
 import pinIcon from '@assets/Icons/pin.png'
 
+import DateRangePicker from './DateRangePicker.jsx'
+
 const Hero = () => {
-  const { searchTerm, updateSearchTerm, loading, searchTours } = useSearch()
+  const { searchTerm, updateSearchTerm, loading } = useSearch()
   const [inputValue, setInputValue] = useState(searchTerm)
 
-  // Sync inputValue with searchTerm from context
   useEffect(() => {
     setInputValue(searchTerm)
   }, [searchTerm])
 
-  // Handle input changes with debounce
   const handleInputChange = e => {
     const newValue = e.target.value
     setInputValue(newValue)
 
-    // Update the search context
     updateSearchTerm(newValue)
   }
 
-  // Handle clear input
   const handleClear = () => {
     setInputValue('')
     updateSearchTerm('')
   }
 
-  // Handle search button click
-  const handleSearch = () => {
-    searchTours()
-  }
-
-  // Handle reset of all search fields
   const handleReset = () => {
     setInputValue('')
     updateSearchTerm('')
@@ -97,13 +88,11 @@ const Hero = () => {
               />
             </div>
 
-            {/* Date picker */}
             <div className="md:col-span-5 ">
               <label className="block text-sm font-medium text-gray-700 text-left mb-1">¿Cuándo viajas?</label>
               <DateRangePicker />
             </div>
 
-            {/* Reset button */}
             <div className="md:col-span-2 flex items-end">
               <Button variant="flat" color="default" className="w-full h-12" onClick={handleReset}>
                 Reset
