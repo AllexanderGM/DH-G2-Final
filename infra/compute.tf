@@ -1,35 +1,29 @@
 # 🔹 EC2 para backend
-resource "aws_instance" "backend" {
-  ami             = "ami-0c55b159cbfafe1f0" # ✅ AMI de Amazon Linux 2
-  instance_type   = "t2.micro"
-  key_name        = "mi-clave-aws" # ❗ Asegúrate de tener esta clave creada en AWS
-  security_groups = [aws_security_group.sg.id]
-  subnet_id       = aws_subnet.private.id # ❗ Está en la subred privada, sin acceso directo a Internet
+module "ec2" {
+  source            = "terraform-aws-modules/ec2-instance/aws"
+  version           = "5.7.1"
+  name              = "${var.prefix}-backend"
+  instance_type     = "t2.micro"
+  ami               = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 (ajusta la AMI según región)
+  key_name          = "mi-key"
+  vpc_id            = module.vpc.vpc_id
+  subnet_id         = module.vpc.private_subnet_ids[0] # Ahora usa el ID generado por el módulo
+  security_group_id = module.security_groups.app_sg_id
+  prefix            = var.prefix
 
   user_data = <<-EOF
     #!/bin/bash
-    set -ex
+    amazon-linux-extras enable docker
+    yum install -y docker
+    systemctl start docker
+    systemctl enable docker
+    usermod -aG docker ec2-user
 
-    # 🔹 Actualizar paquetes
-    sudo yum update -y
-
-    # 🔹 Instalar Docker y permitir ejecución sin sudo
-    sudo yum install -y docker
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    sudo usermod -aG docker ec2-user
-
-    # 🔹 Instalar docker-compose (opcional)
-    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-
-    # 🔹 Autenticación en GitHub Container Registry (GHCR)
+    # Iniciar sesión en Docker Hub (si es necesario)
     echo "${var.docker_registry_password}" | docker login -u "${var.docker_registry_user}" --password-stdin
 
-    # 🔹 Descargar y ejecutar el contenedor del backend
+    # Descargar y ejecutar la imagen de Docker
     docker pull ${var.docker_image_backend}
-    docker run -d -p 8080:8080 --name backend ${var.docker_image_backend}
+    docker run -d -p 80:3000 ${var.docker_image_backend}
   EOF
-
-  tags = { Name = "${var.prefix}-Backend" }
 }
