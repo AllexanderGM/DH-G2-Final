@@ -2,8 +2,11 @@ package com.tours.domain.services;
 
 import com.tours.domain.dto.tour.TourRequestDTO;
 import com.tours.domain.dto.tour.TourResponseDTO;
+import com.tours.domain.dto.tour.availability.AvailabilityRequestDTO;
+import com.tours.exception.BadRequestException;
 import com.tours.exception.DuplicateNameException;
 import com.tours.exception.NotFoundException;
+import com.tours.infrastructure.entities.booking.Availability;
 import com.tours.infrastructure.entities.location.Location;
 import com.tours.infrastructure.entities.tour.*;
 import com.tours.infrastructure.repositories.location.ILocationRepository;
@@ -17,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -124,14 +128,35 @@ public class TourService {
         newTour.setDestinationTour(new DestinationTour(null, location.getImage(), location.getRegion(), tour.destination().country(), tour.destination().city()));
         newTour.setHotelTour(hotelTour);
         newTour.setTags(tagList);
+        // Inicializa la lista de availabilities
 
+        // Verifica si el DTO contiene disponibilidad y la agrega a la lista
+        if (tour.availability() != null && !tour.availability().isEmpty()) {
+            List<Availability> availabilities = new ArrayList<>();
+
+            for (AvailabilityRequestDTO availRequest : tour.availability()) {
+                Availability availability = new Availability();
+                availability.setAvailableDate(availRequest.availableDate());
+                availability.setAvailableSlots(availRequest.availableSlots());
+                availability.setDepartureTime(availRequest.departureTime());
+                availability.setReturnTime(availRequest.returnTime());
+                availability.setTour(newTour);  // Asigna el tour a la disponibilidad
+
+                availabilities.add(availability);
+            }
+
+            // Asigna la lista de disponibilidades al nuevo tour
+            newTour.setAvailabilities(availabilities);
+        }
         return newTour;
     }
     @Transactional
     public Optional<TourResponseDTO> updateTags(Long id, List<TagTourOptions> tags) {
         Tour existingTour = tourRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tour no encontrado"));
-
+        if (tags.size() > 3) {
+            throw new BadRequestException("No se pueden agregar más de 3 categorías al tour");
+        }
         // Guardamos el tour sin tags primero
         tourRepository.save(existingTour);
 
@@ -150,5 +175,12 @@ public class TourService {
 
         return Optional.of(new TourResponseDTO(existingTour));
     }
+    public List<Tour> searchByName(String name) {
+        return tourRepository.findByNameContainingIgnoreCase(name);
+    }
 
+
+    public List<Tour> searchByNameAndDate(String name, LocalDateTime startDate, LocalDateTime endDate) {
+        return tourRepository.findByFilters(name, startDate, endDate);
+    }
 }

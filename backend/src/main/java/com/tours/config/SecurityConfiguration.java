@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,10 +48,14 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.cors(Customizer.withDefaults())
+        return http
+                .cors(Customizer.withDefaults())
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()))
                 .authorizeHttpRequests(
                         auth -> {
+                            // 🔹 Rutas para Swagger
+                            auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll();
+
                             // 🔹 Rutas para el sistema
                             auth.requestMatchers(HttpMethod.GET, "/", "/system").permitAll();
 
@@ -61,7 +66,10 @@ public class SecurityConfiguration {
                             // 🔹 Rutas para los turs
                             auth.requestMatchers(HttpMethod.GET, "/tours").permitAll();
                             auth.requestMatchers(HttpMethod.GET, "/tours/**").permitAll();
+
+                            // 🔹 Cualquier otra ruta requiere autenticación
                             auth.anyRequest().authenticated();
+
                         })
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -70,8 +78,8 @@ public class SecurityConfiguration {
                 .authenticationProvider(authenticationProvider)
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            final var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+                        .addLogoutHandler((request, response, authentication) -> {
+                            final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
                             logout(authHeader);
                         })
                         .logoutSuccessHandler((request, response, authentication) ->
@@ -91,5 +99,11 @@ public class SecurityConfiguration {
         foundToken.setExpired(true);
         foundToken.setRevoked(true);
         tokenRepository.save(foundToken);
+    }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(
+                "/swagger-ui/", "/v3/api-docs/","/swagger-ui.html"
+        );
     }
 }
