@@ -1,44 +1,40 @@
-import { Input, Button } from '@heroui/react'
+import { Input, Button, Image } from '@heroui/react'
 import { useState, useEffect } from 'react'
 import { useSearch } from '@context/SearchContext'
 import './hero.scss'
 import SearchIcon from '@components/SearchIcon.jsx'
-// import DateRangePicker from './DateRangePicker.jsx'
 import image from '@assets/Backgrounds/topography.svg'
+import pinIcon from '@assets/Icons/pin.png'
+
+import DateRangePicker from './DateRangePicker.jsx'
 
 const Hero = () => {
-  const { searchTerm, updateSearchTerm, loading, searchTours } = useSearch()
+  const { searchTerm, updateSearchTerm, loading } = useSearch()
   const [inputValue, setInputValue] = useState(searchTerm)
-  const [expanded, setExpanded] = useState(false)
 
-  // Sync inputValue with searchTerm from context
   useEffect(() => {
     setInputValue(searchTerm)
   }, [searchTerm])
 
-  // Handle input changes with debounce
   const handleInputChange = e => {
     const newValue = e.target.value
     setInputValue(newValue)
 
-    // Update the search context
     updateSearchTerm(newValue)
   }
 
-  // Handle clear input
   const handleClear = () => {
     setInputValue('')
     updateSearchTerm('')
   }
 
-  // Handle search button click
-  const handleSearch = () => {
-    searchTours()
-  }
+  const handleReset = () => {
+    setInputValue('')
+    updateSearchTerm('')
 
-  // Toggle advanced search
-  const toggleAdvancedSearch = () => {
-    setExpanded(!expanded)
+    // Reset date range in context (handled by SearchContext)
+    const event = new CustomEvent('reset-date-range')
+    window.dispatchEvent(event)
   }
 
   return (
@@ -46,20 +42,24 @@ const Hero = () => {
       className="flex flex-col justify-center items-center h-auto py-12 text-center mb-14 hero_container"
       style={{ backgroundImage: `url("${image}")` }}>
       <div className="pattern_overlay"></div>
-      <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 `}>
+      <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 relative`}>
         <span className="inline-block">
-          <span>🌎</span> La búsqueda perfecta,
+          <span className="inline-block absolute top-7 -left-9 w-full h-full opacity-75">
+            <Image src={pinIcon} alt="pin" width={53} className="-rotate-12 " />
+          </span>
+          La búsqueda perfecta,
         </span>
         <br />
         <span className="bg-gradient-to-r from-[#E86C6E] to-primary/70 text-transparent bg-clip-text">del tour perfecto</span>
       </h1>
-      <p className="text-center max-w-2xl mb-6 text-slate-700">
-        Encuentra experiencias únicas seleccionando destino y fechas para descubrir los mejores tours disponibles.
+      <p className="text-center max-w-xl mb-6 text-slate-700">
+        Encuentra experiencias únicas seleccionando destino y fechas para descubrir{' '}
+        <span className="text-[#E86C6E] font-medium">los mejores tours disponibles.</span>
       </p>
 
       <div className="w-full max-w-6xl px-[50px] md:px-[150px] rounded-2xl">
         <div className="bg-white/90 backdrop-blur rounded-xl shadow-lg p-4">
-          <div className="grid grid-cols-1 md:grid-cols-8 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* Destino input */}
             <div className="md:col-span-5">
               <label className="block text-sm font-medium text-gray-700 text-left mb-1">¿Dónde quieres ir?</label>
@@ -78,7 +78,8 @@ const Hero = () => {
                     'group-data-[focus=true]:bg-default-100',
                     '!cursor-text',
                     'group-data-[focus=true]:border-1',
-                    'group-data-[focus=true]:border-[#E86C6E]'
+                    'group-data-[focus=true]:border-[#E86C6E]',
+                    'h-12'
                   ]
                 }}
                 placeholder="Buscar destinos..."
@@ -87,28 +88,15 @@ const Hero = () => {
               />
             </div>
 
-            {/* Date picker - only show if expanded */}
-            {expanded && (
-              <div className="md:col-span-3">
-                <label className="block text-sm font-medium text-gray-700 text-left mb-1">¿Cuándo viajas?</label>
-                <DateRangePicker />
-              </div>
-            )}
+            <div className="md:col-span-5 ">
+              <label className="block text-sm font-medium text-gray-700 text-left mb-1">¿Cuándo viajas?</label>
+              <DateRangePicker />
+            </div>
 
-            {/* Search button */}
-            <div className={`${expanded ? 'md:col-span-8' : 'md:col-span-3'} flex items-end`}>
-              <div className="flex w-full gap-2">
-                <Button
-                  color="primary"
-                  className="w-full h-12 bg-gradient-to-r from-[#E86C6E] to-primary hover:opacity-90"
-                  onClick={handleSearch}
-                  isDisabled={loading}>
-                  Buscar tours
-                </Button>
-                <Button variant="flat" color="default" className="h-12" onClick={toggleAdvancedSearch}>
-                  {expanded ? 'Simple' : 'Avanzado'}
-                </Button>
-              </div>
+            <div className="md:col-span-2 flex items-end">
+              <Button variant="flat" color="default" className="w-full h-12" onClick={handleReset}>
+                Reset
+              </Button>
             </div>
           </div>
         </div>

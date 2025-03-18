@@ -23,7 +23,6 @@ public record TourResponseDTO(
         List<IncludeDTO> includes,
         DestinationResponseDTO destination,
         HotelDTO hotel,
-
         List<AvailabilityResponseDTO> availability
 ) {
     private static final Logger logger = LoggerFactory.getLogger(TourResponseDTO.class);

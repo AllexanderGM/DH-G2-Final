@@ -39,6 +39,8 @@ function Navbar() {
     dynamicPortion = <NavbarRegularPortion />
   }
 
+  console.log('name from navbar:', name)
+
   return (
     <NavbarUi isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} classNames={{ wrapper: 'max-w-6xl mx-auto' }}>
       {/* Marca y Logo */}

@@ -10,6 +10,7 @@ const HomePage = () => {
   return (
     <SearchProvider>
       <Hero />
+      {/* <DateRangeDisplay /> */}
       <div className="home_categories-container">
         <Categories />
         <Body />

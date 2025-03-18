@@ -19,8 +19,6 @@ export const SearchProvider = ({ children }) => {
   const [allTours, setAllTours] = useState(null)
   const [advancedSearchParams, setAdvancedSearchParams] = useState({
     dateRange: null
-    // Agregar más parámetros de búsqueda avanzado según sea necesario
-    // Por ejemplo, filtrar por categorías, precios, etc.
   })
 
   const loadTours = useCallback(async () => {
@@ -42,23 +40,42 @@ export const SearchProvider = ({ children }) => {
 
   useEffect(() => {
     loadTours()
+
+    // Escuchar el evento de reset para DateRangePicker
+    const handleResetEvent = () => {
+      setAdvancedSearchParams({
+        dateRange: null
+      })
+    }
+
+    window.addEventListener('reset-date-range', handleResetEvent)
+
+    return () => {
+      window.removeEventListener('reset-date-range', handleResetEvent)
+    }
   }, [loadTours])
 
   const updateSearchTerm = useCallback(term => {
     setSearchTerm(term)
   }, [])
 
-  // Función para actualizar los parámetros de búsqueda avanzado
+  // Función para actualizar los parámetros de búsqueda avanzada
   const updateAdvancedSearchParams = useCallback(params => {
-    setAdvancedSearchParams(prev => ({
-      ...prev,
-      ...params
-    }))
+    console.log('SearchContext - Actualizando parámetros avanzados:', params)
+    setAdvancedSearchParams(prev => {
+      const newParams = {
+        ...prev,
+        ...params
+      }
+      console.log('SearchContext - Nuevos parámetros:', newParams)
+      return newParams
+    })
   }, [])
 
   const searchTours = useCallback(async () => {
     setLoading(true)
     console.log('Searching tours with term:', searchTerm)
+    console.log('Advanced search params:', advancedSearchParams)
 
     try {
       if (!allTours) {
@@ -66,13 +83,11 @@ export const SearchProvider = ({ children }) => {
         return
       }
 
-      if (!searchTerm.trim()) {
+      if (!searchTerm.trim() && !(advancedSearchParams.dateRange?.startDate || advancedSearchParams.dateRange?.start)) {
         setSearchResults(allTours)
         setLoading(false)
         return
       }
-
-      const lowercaseSearchTerm = searchTerm.toLowerCase().trim()
 
       if (!allTours.data || !Array.isArray(allTours.data)) {
         console.error('Unexpected data structure:', allTours)
@@ -81,43 +96,110 @@ export const SearchProvider = ({ children }) => {
         return
       }
 
-      const filteredResults = {
-        ...allTours,
-        data: allTours.data.filter(tour => {
-          console.log('Filtering tour:', tour.name)
+      let filteredResults = [...allTours.data]
 
+      // Filtrar por término de búsqueda
+      if (searchTerm.trim()) {
+        const lowercaseSearchTerm = searchTerm.toLowerCase().trim()
+        filteredResults = filteredResults.filter(tour => {
           return (
-            // Campos básicos
             (tour.name && tour.name.toLowerCase().includes(lowercaseSearchTerm)) ||
             (tour.description && tour.description.toLowerCase().includes(lowercaseSearchTerm)) ||
-            // Campos de destino
             (tour.destination?.country && tour.destination.country.toLowerCase().includes(lowercaseSearchTerm)) ||
             (tour.destination?.region && tour.destination.region.toLowerCase().includes(lowercaseSearchTerm)) ||
             (tour.destination?.city?.name && tour.destination.city.name.toLowerCase().includes(lowercaseSearchTerm)) ||
-            // Tags (comprobando que sea un array y sus elementos sean strings)
             (Array.isArray(tour.tags) && tour.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(lowercaseSearchTerm)))
           )
         })
       }
 
-      console.log('Filtered results:', filteredResults)
-      setSearchResults(filteredResults)
+      // Filtrar por rango de fechas
+      if (advancedSearchParams.dateRange?.startDate || advancedSearchParams.dateRange?.start) {
+        console.log('Filtering by date range:', advancedSearchParams.dateRange)
+
+        let startDate = null
+        let endDate = null
+
+        try {
+          // Verificar si la fecha está como string ISO o como objeto {day, month, year}
+          if (typeof advancedSearchParams.dateRange?.startDate === 'string') {
+            startDate = new Date(advancedSearchParams.dateRange.startDate)
+          } else if (advancedSearchParams.dateRange?.start) {
+            const { day, month, year } = advancedSearchParams.dateRange.start
+            startDate = new Date(year, month - 1, day, 0, 0, 0, 0)
+          }
+
+          if (typeof advancedSearchParams.dateRange?.endDate === 'string') {
+            endDate = new Date(advancedSearchParams.dateRange.endDate)
+          } else if (advancedSearchParams.dateRange?.end) {
+            const { day, month, year } = advancedSearchParams.dateRange.end
+            // Crear la fecha de fin a las 23:59:59 para incluir todo el día
+            endDate = new Date(year, month - 1, day, 23, 59, 59, 999)
+          }
+
+          if (startDate && !endDate) {
+            endDate = new Date(startDate)
+            endDate.setDate(endDate.getDate() + 1)
+            endDate.setHours(23, 59, 59, 999)
+          }
+
+          console.log('Fechas para filtrado - Inicio:', startDate.toISOString(), 'Fin:', endDate.toISOString())
+
+          // Filtrar los resultados basados en la disponibilidad de los tours
+          filteredResults = filteredResults.filter(tour => {
+            // Si el tour no tiene disponibilidad, lo mantenemos (no filtramos)
+            if (!tour.availability || !Array.isArray(tour.availability) || tour.availability.length === 0) {
+              return true
+            }
+
+            // Verificar si alguna fecha de salida del tour está dentro del rango seleccionado
+            return tour.availability.some(avail => {
+              if (!avail.departureTime) return false
+
+              try {
+                const departureDate = new Date(avail.departureTime)
+                console.log(
+                  `Tour ${tour.name} - fecha salida:`,
+                  departureDate.toISOString(),
+                  'Dentro del rango:',
+                  departureDate >= startDate && departureDate <= endDate
+                )
+
+                // Una fecha está en el rango si: departureDate >= startDate Y departureDate <= endDate
+                return departureDate >= startDate && departureDate <= endDate
+              } catch (e) {
+                console.error('Error procesando fecha del tour:', e, avail)
+                return false
+              }
+            })
+          })
+
+          console.log('Resultados después de filtrar por fechas:', filteredResults.length)
+        } catch (error) {
+          console.error('Error en el filtrado por fechas:', error)
+        }
+      }
+
+      setSearchResults({
+        ...allTours,
+        data: filteredResults
+      })
     } catch (error) {
       console.error('Error searching tours:', error)
       setSearchResults({ success: false, error: error.message })
     } finally {
       setLoading(false)
     }
-  }, [searchTerm, allTours, loadTours])
+  }, [searchTerm, advancedSearchParams, allTours, loadTours])
 
-  // Esperando por cambios en searchTerm y ejecutar la función searchTours
+  // Ejecutar la búsqueda cuando cambian los parámetros
   useEffect(() => {
     const delay = setTimeout(() => {
       searchTours()
     }, 300) // Debounce search por 300ms
 
     return () => clearTimeout(delay)
-  }, [searchTerm, searchTours])
+  }, [searchTerm, advancedSearchParams.dateRange, searchTours])
 
   const value = {
     searchTerm,

@@ -1,5 +1,7 @@
 import { Spinner } from '@heroui/react'
 import { useSearch } from '@context/SearchContext'
+import { useEffect } from 'react'
+import { getTourAvailabilities } from '@services/availabilityService.js'
 
 import CardMain from '../../../components/ui/CardTour.jsx'
 
