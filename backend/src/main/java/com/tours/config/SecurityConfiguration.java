@@ -67,7 +67,12 @@ public class SecurityConfiguration {
                             auth.requestMatchers(HttpMethod.GET, "/tours").permitAll();
                             auth.requestMatchers(HttpMethod.GET, "/tours/**").permitAll();
 
-                            // 🔹 Cualquier otra ruta requiere autenticación
+                            // 🔹 Rutas protegidas para cambiar roles (Solo ADMIN)
+                            auth.requestMatchers(HttpMethod.POST, "/users/{id}/admin").permitAll();
+                            auth.requestMatchers(HttpMethod.DELETE, "/users/{id}/admin").permitAll();
+                            //auth.requestMatchers(HttpMethod.POST, "/users/{id}/admin").hasRole("ADMIN");
+                            //auth.requestMatchers(HttpMethod.DELETE, "/users/{id}/admin").hasRole("ADMIN");   //como estaba antes
+
                             auth.anyRequest().authenticated();
 
                         })

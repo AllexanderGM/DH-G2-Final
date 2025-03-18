@@ -9,6 +9,7 @@ import com.tours.infrastructure.entities.user.User;
 import com.tours.infrastructure.entities.user.UserRol;
 import com.tours.infrastructure.repositories.user.IRoleUserRepository;
 import com.tours.infrastructure.repositories.user.IUserRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +28,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService {
+    @Value("${ADMIN_USERNAME}")
+    private String superAdminEmail;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private static final Map<String, String> tokenBlacklist = new ConcurrentHashMap<>();
@@ -100,5 +104,42 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+    }
+
+    public MessageResponseDTO grantAdminRole(String superAdminEmail, String userId) {
+        if (this.superAdminEmail != null && this.superAdminEmail.equals(superAdminEmail)) {
+            // Lógica para Super Admin
+        } else {
+            throw new UnauthorizedException("No tienes permisos de Super Admin");
+        }
+        User user = userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
+
+        Role adminRole = rolRepository.findByUserRol(UserRol.ADMIN)
+                .orElseThrow(() -> new UnauthorizedException("Rol ADMIN no encontrado"));
+
+        user.setRole(adminRole);
+        userRepository.save(user);
+        logger.info("El usuario {} ahora es ADMIN", user.getEmail());
+
+        return new MessageResponseDTO("El usuario ahora es ADMIN");
+    }
+
+    public MessageResponseDTO revokeAdminRole(String superAdminEmail, String userId) {
+        if (!this.superAdminEmail.equals(superAdminEmail)) {
+            throw new UnauthorizedException("No tienes permisos para modificar roles");
+        }
+
+        User user = userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
+
+        Role userRole = rolRepository.findByUserRol(UserRol.CLIENT)
+                .orElseThrow(() -> new UnauthorizedException("Rol CLIENT no encontrado"));
+
+        user.setRole(userRole);
+        userRepository.save(user);
+        logger.info("El usuario {} ya no es ADMIN", user.getEmail());
+
+        return new MessageResponseDTO("El usuario ya no es ADMIN");
     }
 }
