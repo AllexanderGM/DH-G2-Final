@@ -1,50 +1,120 @@
-import { Link } from 'react-router-dom'
-import { Card, CardHeader, CardFooter, CardBody, Calendar } from '@heroui/react'
-import { today, getLocalTimeZone, isWeekend } from '@internationalized/date'
-import { useLocale, I18nProvider } from '@react-aria/i18n'
+import React, { useState, useEffect } from 'react'
+import { Card, CardHeader, CardFooter, CardBody, Button, Spinner } from '@heroui/react'
+import DisponibilidadCalendario from './DisponibilidadCalendario'
+// Eliminamos la importación de getTourById que ya no usaremos
+// import { getTourById } from '../services/tourService'
 
-import BrandButton from './BrandButton.jsx'
-import CalendarWithPresets from './CaledarWithPresets.jsx'
+const CardDetalle = ({ tour, onReservar }) => {
+  const [loading, setLoading] = useState(false)
+  const [disponibilidad, setDisponibilidad] = useState([])
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [error, setError] = useState(null)
 
-const CardDetalle = ({ tour }) => {
-  let now = today(getLocalTimeZone())
-  let confirmURL = `/tour/${tour.id}/confirm`
-  let disabledRanges = [
-    [now, now.add({ days: 5 })],
-    [now.add({ days: 14 }), now.add({ days: 16 })],
-    [now.add({ days: 23 }), now.add({ days: 24 })]
-  ]
-  let { locale } = useLocale()
+  useEffect(() => {
+    if (!tour || !tour.id) return
 
-  let isDateUnavailable = date =>
-    isWeekend(date, locale) || disabledRanges.some(interval => date.compare(interval[0]) >= 0 && date.compare(interval[1]) <= 0)
+    setLoading(true)
+    try {
+      console.log('Tour recibido en CardDetalle:', tour)
+      console.log('Disponibilidad recibida en CardDetalle:', tour.availability)
+
+      // Usar los datos de disponibilidad ya obtenidos en el tour
+      if (tour.availability) {
+        // Asegurarnos de que disponibilidad sea un array
+        const availabilityArray = Array.isArray(tour.availability) ? tour.availability : [tour.availability].filter(Boolean)
+
+        console.log('Array de disponibilidad procesado en CardDetalle:', availabilityArray)
+
+        // Ordenar las fechas de disponibilidad
+        const availabilityOrdenada = [...availabilityArray].sort((a, b) => {
+          const dateA = new Date(a.departureTime || a.availableDate || 0)
+          const dateB = new Date(b.departureTime || b.availableDate || 0)
+          return dateA - dateB
+        })
+
+        console.log('Disponibilidad ordenada en CardDetalle:', availabilityOrdenada)
+        setDisponibilidad(availabilityOrdenada)
+      } else {
+        console.warn('No se encontraron datos de disponibilidad en el tour')
+        setDisponibilidad([])
+      }
+    } catch (err) {
+      console.error('Error procesando disponibilidad:', err)
+      setError('No se pudo procesar la disponibilidad. Intente más tarde.')
+    } finally {
+      setLoading(false)
+    }
+  }, [tour])
+
+  const handleDateSelected = dateInfo => {
+    setSelectedDate(dateInfo)
+    console.log('Fecha seleccionada en CardDetalle:', dateInfo)
+
+    if (onReservar) {
+      onReservar({
+        tour,
+        fechaSeleccionada: dateInfo
+      })
+    }
+  }
+
+  // Para la demostración, si no tenemos tour, creamos uno de ejemplo
+  const demoTour = {
+    id: 1,
+    name: 'Tour al Valle del Aconcagua',
+    adultPrice: 69.99,
+    childPrice: 39.99,
+    description: 'Descubre la belleza natural del Valle del Aconcagua con este tour de día completo',
+    images: ['https://via.placeholder.com/800x600?text=Valle+del+Aconcagua'],
+    destination: {
+      country: 'Chile',
+      city: { name: 'Valparaíso' }
+    }
+  }
+
+  const tourToUse = tour || demoTour
 
   return (
     <div className="rounded-lg">
       <Card className="py-3 px-4">
-        <CardHeader className="pb-0 pt-2 px-4 mb-5 flex flex-col items-center justify-center">
-          {/* <p>
-            Precio:{' '}
-            <data value={tour.adultPrice} className="font-bold text-xl">
-              ${tour.adultPrice}
-            </data>{' '}
-            USD
-          </p> */}
-          <div value={tour.adultPrice} className="font-semibold text-md text-gray-800">
-            Fechas disponibles
-          </div>{' '}
+        <CardHeader className="pb-0 pt-2 px-4 mb-2 flex flex-col items-center justify-center">
+          <div className="font-semibold text-lg text-gray-800">Reserva tu experiencia</div>
+          <div className="flex justify-between w-full mt-2">
+            <div className="text-sm text-gray-500">
+              Desde <span className="font-medium text-black">${tourToUse.childPrice}</span> niño
+            </div>
+            <div className="text-sm text-gray-500">
+              Desde <span className="font-medium text-black">${tourToUse.adultPrice}</span> adulto
+            </div>
+          </div>
         </CardHeader>
-        <CardBody className="overflow-visible py-2 flex flex-col items-center justify-center mb-6">
-          {/* <I18nProvider locale="es">
-            <Calendar aria-label="Date (Unavailable)" isDateUnavailable={isDateUnavailable} />
-          </I18nProvider> */}
-          <CalendarWithPresets />
+
+        <CardBody className="overflow-visible py-2">
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <Spinner color="primary" size="lg" />
+            </div>
+          ) : error ? (
+            <div className="text-center text-red-500 p-4">
+              <p>{error}</p>
+              <Button variant="flat" color="primary" size="sm" className="mt-2" onClick={() => window.location.reload()}>
+                Reintentar
+              </Button>
+            </div>
+          ) : (
+            <DisponibilidadCalendario tour={{ ...tourToUse, availability: disponibilidad }} onSelectDate={handleDateSelected} />
+          )}
         </CardBody>
 
-        <CardFooter className="px-7">
-          <BrandButton color="brandColor" size="lg" variant="ghost" fullWidth={true} as={Link} to={confirmURL} state={{ tour }}>
-            <div className="text-lg">Iniciar reserva</div>
-          </BrandButton>
+        <CardFooter className="px-4 mt-2">
+          <Button
+            color="primary"
+            size="lg"
+            className="w-full bg-gradient-to-r from-red-400 to-red-600 hover:opacity-90 transition-opacity"
+            disabled={!selectedDate}
+            onClick={() => handleDateSelected(selectedDate)}>
+            <div className="text-lg">{selectedDate ? 'Iniciar reserva' : 'Selecciona una fecha'}</div>
+          </Button>
         </CardFooter>
       </Card>
     </div>

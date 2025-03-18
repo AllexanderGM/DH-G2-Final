@@ -55,12 +55,12 @@ function CalendarWithPresets() {
             }}
             defaultValue="exact_dates"
             orientation="horizontal">
-            <CustomRadio value="exact_dates">Exact dates</CustomRadio>
-            <CustomRadio value="1_day">1 day</CustomRadio>
-            <CustomRadio value="2_days">2 days</CustomRadio>
-            <CustomRadio value="3_days">3 days</CustomRadio>
-            <CustomRadio value="7_days">7 days</CustomRadio>
-            <CustomRadio value="14_days">14 days</CustomRadio>
+            <CustomRadio value="exact_dates">Fechas exactas</CustomRadio>
+            <CustomRadio value="1_day">1 día</CustomRadio>
+            <CustomRadio value="2_days">2 días</CustomRadio>
+            <CustomRadio value="3_days">3 días</CustomRadio>
+            <CustomRadio value="7_days">7 días</CustomRadio>
+            <CustomRadio value="14_days">14 días</CustomRadio>
           </RadioGroup>
         }
         classNames={{
@@ -85,20 +85,20 @@ function CalendarWithPresets() {
                 setValue(nextWeek)
                 setFocusedValue(nextWeek.end)
               }}>
-              Next week
+              Próxima semana
             </Button>
             <Button
               onPress={() => {
                 setValue(thisMonth)
                 setFocusedValue(thisMonth.start)
               }}>
-              This month
+              Este mes
             </Button>
             <Button
               onPress={() => {
                 setValue(nextMonthValue), setFocusedValue(nextMonthValue.start)
               }}>
-              Next month
+              Próximo mes
             </Button>
           </ButtonGroup>
         }
