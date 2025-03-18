@@ -1,13 +1,12 @@
-import { HeroUIProvider } from '@heroui/system'
+import { HeroUIProvider } from '@heroui/react'
 import { useHref, useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 function GeneralContext({ children }) {
   const navigate = useNavigate()
-  const hrefFunc = useHref
 
   return (
-    <HeroUIProvider navigate={navigate} useHref={hrefFunc}>
+    <HeroUIProvider navigate={navigate} useHref={useHref} locale="es-ES">
       {children}
     </HeroUIProvider>
   )

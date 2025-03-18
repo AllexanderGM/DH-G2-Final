@@ -7,6 +7,7 @@ import FavoritesCount from '../../pages/favorites/components/FavoritesCount.jsx'
 
 const NavbarClientPortion = ({ avatar, name, lastName, email }) => {
   const { logout } = useAuth()
+  console.log('name from navbar client portion:', name)
 
   return (
     <div className="flex gap-3 items-center">

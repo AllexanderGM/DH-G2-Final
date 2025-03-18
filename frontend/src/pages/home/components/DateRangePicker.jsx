@@ -1,97 +1,105 @@
-import { useState, useEffect } from 'react'
-import { Button, Popover, PopoverTrigger, PopoverContent } from '@heroui/react'
+import { useState, useEffect, useRef } from 'react'
+import { DateRangePicker as HeroDateRangePicker } from '@heroui/react'
 import { useSearch } from '@context/SearchContext'
-import { CalendarIcon } from '@utils/icons'
 
 const DateRangePicker = () => {
-  const { advancedSearchParams, updateAdvancedSearchParams } = useSearch()
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedRange, setSelectedRange] = useState({
+  const { updateAdvancedSearchParams } = useSearch()
+  const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null
   })
 
-  // Sync with context values
+  // Referencia para controlar la clave de renderizado
+  const [resetKey, setResetKey] = useState(0)
+  // Referencia al componente para métodos imperativos
+  const pickerRef = useRef(null)
+
+  // Función para convertir formato de fecha HeroUI a formato ISO
+  const convertToISOFormat = dateObject => {
+    if (!dateObject) return null
+
+    if (dateObject.day && dateObject.month && dateObject.year) {
+      // Crear fecha en formato ISO (año-mes-día)
+      const isoDate = new Date(
+        dateObject.year,
+        dateObject.month - 1, // Mes en JavaScript es 0-indexed
+        dateObject.day
+      )
+      return isoDate.toISOString()
+    }
+
+    return dateObject
+  }
+
+  const handleDateChange = range => {
+    console.log('DateRangePicker - Fecha seleccionada:', range)
+
+    setDateRange(range)
+
+    // Convertir fechas al formato que espera el backend (ISO)
+    const formattedRange = {
+      startDate: convertToISOFormat(range.start || range.startDate),
+      endDate: convertToISOFormat(range.end || range.endDate),
+      // Mantener también el formato original para compatibilidad
+      start: range.start,
+      end: range.end
+    }
+
+    console.log('DateRangePicker - Formato para backend:', formattedRange)
+
+    updateAdvancedSearchParams({ dateRange: formattedRange })
+  }
+
   useEffect(() => {
-    if (advancedSearchParams.dateRange) {
-      setSelectedRange(advancedSearchParams.dateRange)
+    const handleResetEvent = () => {
+      console.log('Reset event received in DateRangePicker')
+
+      setDateRange({
+        startDate: null,
+        endDate: null
+      })
+
+      updateAdvancedSearchParams({ dateRange: null })
+
+      setResetKey(prev => prev + 1)
+
+      if (pickerRef.current && typeof pickerRef.current.reset === 'function') {
+        pickerRef.current.reset()
+      }
     }
-  }, [advancedSearchParams.dateRange])
 
-  // Format dates for display
-  const formatDate = date => {
-    if (!date) return ''
-    return new Intl.DateTimeFormat('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }).format(date)
-  }
-
-  // Get display text
-  const getDisplayText = () => {
-    if (selectedRange.startDate && selectedRange.endDate) {
-      return `${formatDate(selectedRange.startDate)} - ${formatDate(selectedRange.endDate)}`
+    window.addEventListener('reset-date-range', handleResetEvent)
+    return () => {
+      window.removeEventListener('reset-date-range', handleResetEvent)
     }
-    return 'mm/dd/yyyy - mm/dd/yyyy'
-  }
+  }, [updateAdvancedSearchParams])
 
-  // Handle date selection
-  const handleDateChange = (startDate, endDate) => {
-    const newRange = { startDate, endDate }
-    setSelectedRange(newRange)
-    updateAdvancedSearchParams({ dateRange: newRange })
-  }
-
-  // Handle calendar opening/closing
-  const handleOpenChange = open => {
-    setIsOpen(open)
-  }
-
-  // Clear date selection
-  const handleClear = () => {
-    setSelectedRange({ startDate: null, endDate: null })
-    updateAdvancedSearchParams({ dateRange: null })
-  }
+  // Obtener la fecha actual y añadir un año
+  const today = new Date()
+  const maxDate = new Date(today)
+  maxDate.setFullYear(today.getFullYear() + 1)
 
   return (
-    <Popover isOpen={isOpen} onOpenChange={handleOpenChange}>
-      <PopoverTrigger>
-        <Button
-          variant="flat"
-          className="w-full h-12 justify-start px-4 text-left text-default-500"
-          startContent={<CalendarIcon className="text-default-500" />}>
-          {getDisplayText()}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent>
-        <div className="p-4">
-          <div className="flex flex-col gap-4">
-            {/* This would be replaced with an actual calendar component */}
-            <p className="text-sm text-default-500">
-              Nota: Esta es una implementación de marcador de posición. Integra aquí un componente de calendario real.
-            </p>
-            <div className="flex gap-2">
-              <Button
-                color="primary"
-                className="flex-1"
-                onClick={() => {
-                  // Sample dates for demonstration
-                  const today = new Date()
-                  const nextWeek = new Date()
-                  nextWeek.setDate(today.getDate() + 7)
-                  handleDateChange(today, nextWeek)
-                }}>
-                Aplicar
-              </Button>
-              <Button color="default" variant="flat" onClick={handleClear}>
-                Limpiar
-              </Button>
-            </div>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+    <HeroDateRangePicker
+      key={resetKey} // Esto fuerza la re-renderización cuando cambia
+      ref={pickerRef}
+      startDate={dateRange.startDate}
+      endDate={dateRange.endDate}
+      onChange={handleDateChange}
+      minDate={today}
+      maxDate={maxDate}
+      size="lg"
+      classNames={{
+        trigger: [
+          'bg-default-100',
+          'hover:bg-default-200',
+          'data-[focused=true]:bg-default-100',
+          'data-[focused=true]:border-1',
+          'data-[focused=true]:border-[#E86C6E]',
+          'h-12'
+        ]
+      }}
+    />
   )
 }
 

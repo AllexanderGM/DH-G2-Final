@@ -13,46 +13,24 @@ import {
   DropdownMenu,
   DropdownItem,
   User,
-  Chip,
   Tooltip,
   Button
 } from '@heroui/react'
 
+import { useAuth } from '@context/AuthContext.jsx'
+
 import { EyeIcon, DeleteIcon, EditIcon, SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
 
+// The column names in UI are in Spanish, but field names from API are in English
 export const INITIAL_VISIBLE_COLUMNS = [
   { name: 'ID', uid: 'id' },
-  { name: 'NOMBRE', uid: 'nombre' },
-  { name: 'APELLIDO', uid: 'apellido' },
-  { name: 'ESTADO', uid: 'estado' },
-  { name: 'PAIS', uid: 'pais' },
-  { name: 'ROL', uid: 'role' },
+  { name: 'NOMBRE', uid: 'name' },
+  { name: 'APELLIDO', uid: 'lastName' },
+  { name: 'EMAIL', uid: 'email' },
   { name: 'ACCIONES', uid: 'actions' }
 ]
 
 export const columns = [...INITIAL_VISIBLE_COLUMNS]
-
-const statusColorMap = {
-  activo: 'success',
-  inactivo: 'warning',
-  sospechoso: 'danger'
-}
-
-const roleColorMap = {
-  admin: 'danger',
-  user: 'primary',
-  undefined: 'default'
-}
-
-export const statusOptions = [
-  { name: 'Activo', uid: 'activo' },
-  { name: 'Inactivo', uid: 'inactivo' }
-]
-
-export const roleOptions = [
-  { name: 'Admin', uid: 'admin' },
-  { name: 'User', uid: 'user' }
-]
 
 export function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''
@@ -60,16 +38,15 @@ export function capitalize(s) {
 
 const TableUsers = () => {
   const [users, setUsers] = useState([])
-  const URL = 'http://localhost:8000/users'
+  const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
+  const { user: currentUser } = useAuth()
 
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
   const [visibleColumns, setVisibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS.map(col => col.uid)))
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [roleFilter, setRoleFilter] = useState('all')
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [sortDescriptor, setSortDescriptor] = useState({
-    column: 'nombre',
+    column: 'name',
     direction: 'ascending'
   })
   const [page, setPage] = useState(1)
@@ -90,27 +67,14 @@ const TableUsers = () => {
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter(
         user =>
-          user.nombre?.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.apellido?.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.email?.toLowerCase().includes(filterValue.toLowerCase())
+          ((user.name || user.nombre || '')?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
+          ((user.lastName || user.apellido || '')?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
+          (user.email?.toLowerCase() || '').includes(filterValue.toLowerCase())
       )
-    }
-    if (statusFilter !== 'all' && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredUsers = filteredUsers.filter(user => Array.from(statusFilter).includes(user.estado))
-    }
-
-    if (roleFilter !== 'all' && Array.from(roleFilter).length !== roleOptions.length) {
-      filteredUsers = filteredUsers.filter(user => {
-        // Handle cases where role is undefined
-        if (!user.role && Array.from(roleFilter).includes('undefined')) {
-          return true
-        }
-        return Array.from(roleFilter).includes(user.role)
-      })
     }
 
     return filteredUsers
-  }, [users, filterValue, statusFilter, roleFilter, hasSearchFilter])
+  }, [users, filterValue, hasSearchFilter])
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage)
 
@@ -123,10 +87,21 @@ const TableUsers = () => {
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
-      const first = a[sortDescriptor.column]
-      const second = b[sortDescriptor.column]
-      const cmp = first < second ? -1 : first > second ? 1 : 0
+      // Handle sorting with fallbacks for field names
+      let first, second
 
+      if (sortDescriptor.column === 'name') {
+        first = a.name || a.nombre || ''
+        second = b.name || b.nombre || ''
+      } else if (sortDescriptor.column === 'lastName') {
+        first = a.lastName || a.apellido || ''
+        second = b.lastName || b.apellido || ''
+      } else {
+        first = a[sortDescriptor.column] || ''
+        second = b[sortDescriptor.column] || ''
+      }
+
+      const cmp = first < second ? -1 : first > second ? 1 : 0
       return sortDescriptor.direction === 'descending' ? -cmp : cmp
     })
   }, [sortDescriptor, items])
@@ -136,13 +111,33 @@ const TableUsers = () => {
       setLoading(true)
       setError(null)
 
-      const response = await fetch(URL)
+      // Get authentication token
+      const token = localStorage.getItem('auth_token') || document.cookie.replace(/(?:(?:^|.*;\s*)auth_token\s*\=\s*([^;]*).*$)|^.*$/, '$1')
+
+      console.log('Fetching users from:', `${URL}/users`)
+
+      const response = await fetch(`${URL}/users`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json'
+        }
+      })
+
       if (!response.ok) {
         throw new Error(`Error al cargar los datos: ${response.status}`)
       }
+
       const data = await response.json()
       console.log('Usuarios recibidos:', data)
-      setUsers(data)
+
+      // Enhanced logging to help debug the data structure
+      if (data && data.length > 0) {
+        console.log('First user details:', JSON.stringify(data[0], null, 2))
+        console.log('User fields available:', Object.keys(data[0]))
+      }
+
+      // Use the data directly from the API
+      setUsers(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Error al cargar usuarios:', error)
       setError(error.message)
@@ -156,23 +151,32 @@ const TableUsers = () => {
   }, [fetchUsers])
 
   const renderCell = useCallback((user, columnKey) => {
+    // Add debugging to see user object structure
+    if (columnKey === 'name' && process.env.NODE_ENV === 'development') {
+      console.log('User object when rendering name:', user)
+    }
+
     const cellValue = user[columnKey]
 
     switch (columnKey) {
-      case 'nombre':
-        return <User avatarProps={{ radius: 'lg', src: user.avatar || '' }} description={user.email} name={cellValue} />
-      case 'estado':
+      case 'name':
+        // Try both field name possibilities
+        const userName = user.name || user.nombre || ''
         return (
-          <Chip className="capitalize" color={statusColorMap[user.estado] || 'default'} size="sm" variant="flat">
-            {cellValue || 'No definido'}
-          </Chip>
+          <User
+            avatarProps={{
+              radius: 'lg',
+              src: user.image || user.avatar || 'https://via.placeholder.com/150'
+            }}
+            description={user.email}
+            name={userName}
+          />
         )
-      case 'role':
-        return (
-          <Chip className="capitalize" color={roleColorMap[user.role] || 'default'} size="sm" variant="flat">
-            {cellValue || 'No definido'}
-          </Chip>
-        )
+      case 'lastName':
+        // Try both field name possibilities
+        return user.lastName || user.apellido || ''
+      case 'email':
+        return user.email || ''
       case 'actions':
         return (
           <div className="relative flex items-center justify-center gap-2">
@@ -194,7 +198,7 @@ const TableUsers = () => {
           </div>
         )
       default:
-        return cellValue
+        return cellValue || ''
     }
   }, [])
 
@@ -232,6 +236,11 @@ const TableUsers = () => {
   const handleRefresh = useCallback(() => {
     fetchUsers()
   }, [fetchUsers])
+
+  const handleCreateUser = useCallback(() => {
+    console.log('Crear nuevo usuario')
+    // If you have navigation: navigate('/register')
+  }, [])
 
   const bottomContent = useMemo(() => {
     return (
@@ -277,46 +286,6 @@ const TableUsers = () => {
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Estado
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Status Filter"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}>
-                {statusOptions.map(status => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Rol
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Role Filter"
-                closeOnSelect={false}
-                selectedKeys={roleFilter}
-                selectionMode="multiple"
-                onSelectionChange={setRoleFilter}>
-                {roleOptions.map(role => (
-                  <DropdownItem key={role.uid} className="capitalize">
-                    {capitalize(role.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                   Columnas
                 </Button>
               </DropdownTrigger>
@@ -337,7 +306,7 @@ const TableUsers = () => {
             <Button variant="light" onPress={handleRefresh} isLoading={loading}>
               Actualizar
             </Button>
-            <Button color="primary" endContent={<PlusIcon />}>
+            <Button color="primary" endContent={<PlusIcon />} onPress={handleCreateUser}>
               Crear Usuario
             </Button>
           </div>
@@ -359,8 +328,6 @@ const TableUsers = () => {
     )
   }, [
     filterValue,
-    statusFilter,
-    roleFilter,
     visibleColumns,
     onRowsPerPageChange,
     users.length,
@@ -368,7 +335,8 @@ const TableUsers = () => {
     onClear,
     loading,
     error,
-    handleRefresh
+    handleRefresh,
+    handleCreateUser
   ])
 
   return (

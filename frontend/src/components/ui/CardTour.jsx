@@ -92,6 +92,12 @@ const CardTour = ({ data }) => {
         <Divider className="card_tour-divider" />
 
         <p className="card_tour-description">{data.description}</p>
+
+        <p>
+          {data.availability.map((item, index) => (
+            <span key={index}>Fecha de disponibilidad: {item.availableDate}</span>
+          ))}
+        </p>
       </CardBody>
 
       <CardFooter className="card_tour-footer">

@@ -77,3 +77,35 @@ jobs:
                       sudo docker rm backend || true
                       sudo docker run -d -p 8080:8080 --name backend ghcr.io/<TU_USUARIO_GITHUB>/<TU_REPO>:latest
 
+
+
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies & Build
+        run: |
+          npm install
+          npm run build
+
+      - name: Upload to S3 with Cache-Control
+        run: |
+          aws s3 sync build/ s3://tu-bucket-s3/ --delete \
+            --cache-control "max-age=31536000, public"
+          aws s3 cp build/index.html s3://tu-bucket-s3/ \
+            --cache-control "no-cache, no-store, must-revalidate"
+
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id TU_DISTRIBUTION_ID \
+            --paths "/*"
