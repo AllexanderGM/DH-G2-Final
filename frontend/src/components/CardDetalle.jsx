@@ -7,13 +7,12 @@ import BrandButton from './BrandButton.jsx'
 
 const CardDetalle = ({ tour }) => {
   let now = today(getLocalTimeZone())
-
+  let confirmURL = `/tour/${tour.id}/confirm`
   let disabledRanges = [
     [now, now.add({ days: 5 })],
     [now.add({ days: 14 }), now.add({ days: 16 })],
     [now.add({ days: 23 }), now.add({ days: 24 })]
   ]
-
   let { locale } = useLocale()
 
   let isDateUnavailable = date =>
@@ -38,7 +37,7 @@ const CardDetalle = ({ tour }) => {
         </CardBody>
 
         <CardFooter>
-          <BrandButton color="brandColor" size="md" variant="ghost" fullWidth={true} as={Link} to="/">
+          <BrandButton color="brandColor" size="md" variant="ghost" fullWidth={true} as={Link} to={confirmURL} state={{ tour }}>
             Reservar ahora
           </BrandButton>
         </CardFooter>
