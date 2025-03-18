@@ -44,7 +44,8 @@ const CardTour = ({ data }) => {
   return (
     <Card className="card_tour">
       <CardHeader className="card_tour-header">
-        {renderTags(data.tags)}
+        <div className="w-full flex justify-start gap-2">{renderTags(data.tags)}</div>
+
         <div className="flex justify-between w-full items-center">
           <Link to={URL} className="card_tour-title">
             {data.name}
