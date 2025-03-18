@@ -1,9 +1,9 @@
 import React from 'react'
-import { RangeCalendar, Radio, RadioGroup, Button, ButtonGroup, cn } from '@heroui/react'
+import { RangeCalendar, Radio, RadioGroup, Button, ButtonGroup, cn, Calendar } from '@heroui/react'
 import { today, getLocalTimeZone, startOfWeek, startOfMonth, endOfWeek, endOfMonth } from '@internationalized/date'
 import { useLocale } from '@react-aria/i18n'
 
-export default function App() {
+function CalendarWithPresets() {
   let [value, setValue] = React.useState({
     start: today(getLocalTimeZone()),
     end: today(getLocalTimeZone()).add({ weeks: 1, days: 3 })
@@ -109,3 +109,5 @@ export default function App() {
     </div>
   )
 }
+
+export default CalendarWithPresets
