@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Card, CardHeader, CardFooter, CardBody, Button, Spinner } from '@heroui/react'
 import DisponibilidadCalendario from './DisponibilidadCalendario'
+import CardPriceDetalle from './CardPriceDetalle'
 // Eliminamos la importación de getTourById que ya no usaremos
 // import { getTourById } from '../services/tourService'
 
@@ -75,21 +76,16 @@ const CardDetalle = ({ tour, onReservar }) => {
   const tourToUse = tour || demoTour
 
   return (
-    <div className="rounded-lg">
-      <Card className="py-3 px-4">
-        <CardHeader className="pb-0 pt-2 px-4 mb-2 flex flex-col items-center justify-center">
-          <div className="font-semibold text-lg text-gray-800">Reserva tu experiencia</div>
-          <div className="flex justify-between w-full mt-2">
-            <div className="text-sm text-gray-500">
-              Desde <span className="font-medium text-black">${tourToUse.childPrice}</span> niño
-            </div>
-            <div className="text-sm text-gray-500">
-              Desde <span className="font-medium text-black">${tourToUse.adultPrice}</span> adulto
-            </div>
+    <div className="lg:col-span-2 rounded-lg">
+      <CardPriceDetalle tourToUse={tourToUse} />
+      <Card>
+        <CardHeader className="mb-2 flex flex-col items-center justify-center p-0 m-0">
+          <div className="h-16 w-full bg-gray-100 p-10 flex justify-center items-center">
+            <div className="font-semibold text-2xl text-gray-800">Fechas disponibles</div>
           </div>
         </CardHeader>
 
-        <CardBody className="overflow-visible py-2">
+        <CardBody className="overflow-visible py-2 flex justify-center items-center">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Spinner color="primary" size="lg" />
@@ -97,12 +93,14 @@ const CardDetalle = ({ tour, onReservar }) => {
           ) : error ? (
             <div className="text-center text-red-500 p-4">
               <p>{error}</p>
-              <Button variant="flat" color="primary" size="sm" className="mt-2" onClick={() => window.location.reload()}>
+              <Button variant="flat" color="primary" size="sm" className="mt-2" onPress={() => window.location.reload()}>
                 Reintentar
               </Button>
             </div>
           ) : (
-            <DisponibilidadCalendario tour={{ ...tourToUse, availability: disponibilidad }} onSelectDate={handleDateSelected} />
+            <div className="flex justify-center items-center">
+              <DisponibilidadCalendario tour={{ ...tourToUse, availability: disponibilidad }} onSelectDate={handleDateSelected} />
+            </div>
           )}
         </CardBody>
 
@@ -112,7 +110,7 @@ const CardDetalle = ({ tour, onReservar }) => {
             size="lg"
             className="w-full bg-gradient-to-r from-red-400 to-red-600 hover:opacity-90 transition-opacity"
             disabled={!selectedDate}
-            onClick={() => handleDateSelected(selectedDate)}>
+            onPress={() => handleDateSelected(selectedDate)}>
             <div className="text-lg">{selectedDate ? 'Iniciar reserva' : 'Selecciona una fecha'}</div>
           </Button>
         </CardFooter>

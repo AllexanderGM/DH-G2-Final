@@ -19,12 +19,24 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
       console.log('Datos de disponibilidad procesados:', availabilityArray)
 
       // Procesar las fechas de disponibilidad
+      // En DisponibilidadCalendario.jsx, modificar el procesamiento de fechas:
       const processedAvailabilities = availabilityArray
         .map(avail => {
           try {
-            // Procesar fechas de salida y regreso
-            const departureDate = avail.departureTime ? new Date(avail.departureTime) : null
-            const returnDate = avail.returnTime ? new Date(avail.returnTime) : null
+            let departureDate = null
+            let returnDate = null
+
+            if (avail.departureTime) {
+              // Extraer solo la parte de fecha, ignorando la hora
+              const departureDateString = avail.departureTime.split('T')[0]
+              departureDate = new Date(departureDateString + 'T00:00:00')
+            }
+
+            if (avail.returnTime) {
+              // Hacer lo mismo con la fecha de regreso para consistencia
+              const returnDateString = avail.returnTime.split('T')[0]
+              returnDate = new Date(returnDateString + 'T00:00:00')
+            }
 
             // Verificar si las fechas son válidas
             if (!departureDate || isNaN(departureDate.getTime())) {
@@ -37,10 +49,16 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
               return null
             }
 
+            // Guardar la hora original para mostrarla correctamente
+            const departureTime = avail.departureTime ? new Date(avail.departureTime) : null
+            const returnTime = avail.returnTime ? new Date(avail.returnTime) : null
+
             return {
               id: avail.id,
-              departureDate,
-              returnDate,
+              departureDate, // Fecha normalizada (solo fecha, sin hora)
+              returnDate, // Fecha normalizada (solo fecha, sin hora)
+              departureTime, // Fecha+hora original para mostrar
+              returnTime, // Fecha+hora original para mostrar
               availableSlots: avail.availableSlots || 0,
               bookUntilDate: avail.availableDate ? new Date(avail.availableDate) : null,
               originalData: avail
@@ -122,9 +140,7 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
   }
 
   return (
-    <div className="rounded-lg bg-white p-2">
-      <h3 className="text-lg font-semibold text-center mb-4">Fechas disponibles</h3>
-
+    <div className="rounded-lg bg-white p-2 px-12">
       <div className="mb-4">
         <Calendar aria-label="Calendario de disponibilidad" isDateUnavailable={isDateUnavailable} onChange={handleDateSelect} />
       </div>
@@ -135,13 +151,13 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
           <div className="mt-2 space-y-2 text-sm">
             <p>
               <span className="font-medium">Salida:</span>{' '}
-              {selectedAvailability.departureDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}{' '}
-              {selectedAvailability.departureDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+              {selectedAvailability.departureTime.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}{' '}
+              {selectedAvailability.departureTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
             </p>
             <p>
               <span className="font-medium">Regreso:</span>{' '}
-              {selectedAvailability.returnDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}{' '}
-              {selectedAvailability.returnDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+              {selectedAvailability.returnTime.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}{' '}
+              {selectedAvailability.returnTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
             </p>
             <p>
               <span className="font-medium">Cupos disponibles:</span> {selectedAvailability.availableSlots}
@@ -155,20 +171,6 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
           </div>
         </div>
       )}
-
-      <Button
-        color="danger"
-        className="w-full mt-4 bg-[#ee6c6e] hover:bg-[#d65a5c] mb-2"
-        disabled={!selectedAvailability}
-        onClick={() =>
-          onSelectDate &&
-          onSelectDate({
-            availability: selectedAvailability,
-            range: selectedDateRange
-          })
-        }>
-        {selectedAvailability ? 'Seleccionar esta fecha' : 'Selecciona una fecha disponible'}
-      </Button>
     </div>
   )
 }
