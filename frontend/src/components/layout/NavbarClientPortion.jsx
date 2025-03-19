@@ -28,11 +28,11 @@ const NavbarClientPortion = ({ avatar, name, lastName, email }) => {
           </DropdownTrigger>
 
           <DropdownMenu aria-label="Profile Actions">
-            <DropdownItem key="profile">
-              <Link to="/profile-user">Mi Perfil</Link>
+            <DropdownItem key="profile" href="/profile-user">
+              Mi perfil
             </DropdownItem>
-            <DropdownItem key="favorites">
-              <Link to="/favoritos">Mis Tours Guardados</Link>
+            <DropdownItem key="favorites" href="/favoritos">
+              Mis Tours Favritos
             </DropdownItem>
             <DropdownItem key="logout" color="danger" onPress={logout}>
               Cerrar sesión

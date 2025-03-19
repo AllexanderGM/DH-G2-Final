@@ -165,9 +165,11 @@ const CardTour = ({ data }) => {
           </div>
         </div>
 
-        <Button color="primary" className="card_tour-button">
-          <Link to={URL}>Ver más</Link>
-        </Button>
+        <Link to={URL}>
+          <Button color="primary" className="card_tour-button">
+            Ver más
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   )

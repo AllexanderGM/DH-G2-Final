@@ -35,8 +35,8 @@ const NavbarAdmin = ({ avatar, name, lastName, email }) => {
             </DropdownTrigger>
 
             <DropdownMenu aria-label="Profile Actions">
-              <DropdownItem key="profile">
-                <Link to="/profile-user">Mi Perfil</Link>
+              <DropdownItem key="profile" href="/profile-user">
+                Mi perfil
               </DropdownItem>
               <DropdownItem key="logout" color="danger" onPress={logout}>
                 Cerrar sesión
