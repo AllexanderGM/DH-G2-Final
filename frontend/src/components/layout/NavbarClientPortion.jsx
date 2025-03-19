@@ -32,7 +32,7 @@ const NavbarClientPortion = ({ avatar, name, lastName, email }) => {
               Mi perfil
             </DropdownItem>
             <DropdownItem key="favorites" href="/favoritos">
-              Mis Tours Favritos
+              Mis tours favoritos
             </DropdownItem>
             <DropdownItem key="logout" color="danger" onPress={logout}>
               Cerrar sesión
