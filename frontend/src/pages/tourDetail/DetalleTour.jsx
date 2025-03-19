@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import DetalleGallery from '@components/DetalleGallery'
 import BodyDetalle from '@components/BodyDetalle'
+import { Helmet } from 'react-helmet-async'
 
 const DetalleTour = () => {
   const { id } = useParams()
@@ -63,10 +64,36 @@ const DetalleTour = () => {
     return <p className="text-center mt-10 text-red-500">Error: {error}</p>
   }
 
+  // Construir la URL completa para compartir
+  const currentUrl = window.location.href
+
+  // Obtener primera imagen para metadatos
+  const imageUrl = tour && tour.images && tour.images[0] ? tour.images[0] : 'https://via.placeholder.com/1200x630?text=Glocal+Tours'
+
   return (
     <div className="max-w-6xl mx-auto p-6 min-h-screen bg-gray-100 mb-28">
       {tour ? (
         <>
+          {/* Metadatos para Open Graph y Twitter Cards */}
+          <Helmet>
+            <title>{tour.name} | Glocal Tours</title>
+            <meta name="description" content={tour.description} />
+
+            {/* Open Graph / Facebook */}
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content={currentUrl} />
+            <meta property="og:title" content={`${tour.name} | Glocal Tours`} />
+            <meta property="og:description" content={tour.description} />
+            <meta property="og:image" content={imageUrl} />
+
+            {/* Twitter */}
+            <meta property="twitter:card" content="summary_large_image" />
+            <meta property="twitter:url" content={currentUrl} />
+            <meta property="twitter:title" content={`${tour.name} | Glocal Tours`} />
+            <meta property="twitter:description" content={tour.description} />
+            <meta property="twitter:image" content={imageUrl} />
+          </Helmet>
+
           <div className="flex justify-between items-center h-[100px]">
             <h1>
               {tour.name}. {tour.destination.city.name}.

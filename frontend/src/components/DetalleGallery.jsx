@@ -2,6 +2,7 @@ import { Image } from '@heroui/react'
 import LightGallery from 'lightgallery/react'
 import lgThumbnail from 'lightgallery/plugins/thumbnail'
 import lgZoom from 'lightgallery/plugins/zoom'
+import ShareButtons from './ShareButtons'
 
 import 'lightgallery/css/lightgallery.css'
 import 'lightgallery/css/lg-zoom.css'
@@ -50,6 +51,9 @@ const DetalleGallery = ({ tour }) => {
 
   return (
     <div className="mb-20">
+      <div className="flex justify-end mb-4">
+        <ShareButtons tour={tour} />
+      </div>
       <LightGallery animateThumb={true} speed={500} plugins={[lgThumbnail, lgZoom]} elementClassNames="grid grid-cols-3 grid-rows-2 gap-1">
         {pseudoGallery.map((image, index) => (
           <a
