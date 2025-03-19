@@ -50,16 +50,13 @@ const DetalleGallery = ({ tour }) => {
   ]
 
   return (
-    <div className="mb-20">
-      <div className="flex justify-end mb-4">
-        <ShareButtons tour={tour} />
-      </div>
+    <div className="mb-10">
       <LightGallery animateThumb={true} speed={500} plugins={[lgThumbnail, lgZoom]} elementClassNames="grid grid-cols-3 grid-rows-2 gap-1">
         {pseudoGallery.map((image, index) => (
           <a
             href={image.src}
             key={image.imageId}
-            className="block overflow-hidden first:row-span-2 first:rounded-tl-xl first:rounded-bl-xl last:rounded-br-xl [&:nth-child(3)]:rounded-tr-xl">
+            className="block overflow-hidden first:row-span-2  first:rounded-bl-xl last:rounded-br-xl">
             <Image
               src={image.src}
               classNames={{

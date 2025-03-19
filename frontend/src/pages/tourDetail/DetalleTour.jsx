@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { Button } from '@heroui/react'
+import ShareButtons from '@components/ShareButtons'
 import DetalleGallery from '@components/DetalleGallery'
 import BodyDetalle from '@components/BodyDetalle'
 import { Helmet } from 'react-helmet-async'
@@ -71,7 +73,7 @@ const DetalleTour = () => {
   const imageUrl = tour && tour.images && tour.images[0] ? tour.images[0] : 'https://via.placeholder.com/1200x630?text=Glocal+Tours'
 
   return (
-    <div className="max-w-6xl mx-auto p-6 min-h-screen bg-gray-100 mb-28">
+    <div className="max-w-6xl mx-auto p-6 min-h-screen bg-gray-100 mb-28 mt-8">
       {tour ? (
         <>
           {/* Metadatos para Open Graph y Twitter Cards */}
@@ -94,17 +96,33 @@ const DetalleTour = () => {
             <meta property="twitter:image" content={imageUrl} />
           </Helmet>
 
-          <div className="flex justify-between items-center h-[100px]">
-            <h1>
-              {tour.name}. {tour.destination.city.name}.
-            </h1>
-            <Link to="/">
-              <span
-                className="material-symbols-outlined text-2xl text-gray-500 transition-all duration-200 hover:text-gray-900 hover:text-3xl"
-                width="100%">
-                arrow_back_ios
-              </span>
-            </Link>
+          <div className="sticky top-0 bg-white/90 backdrop-blur-sm z-10 border-b rounded-tl-xl rounded-tr-xl">
+            <div className="max-w-6xl mx-auto flex items-center px-4 py-3">
+              {/* Contenedor izquierdo con ancho fijo */}
+              <div className="w-12 flex justify-start">
+                <Link to="/" className="flex items-center text-gray-600 hover:text-primary-500 transition-colors">
+                  <span className="material-symbols-outlined">arrow_back_ios</span>
+                </Link>
+              </div>
+
+              <h1 className="flex-grow text-gray-800 text-center text-xl sm:text-1xl font-bold truncate">{tour.name}</h1>
+
+              {/* Contenedor derecho con ancho fijo igual al izquierdo */}
+              <div className="w-12 flex justify-end">
+                <div className="flex items-center space-x-1">
+                  <Button
+                    color="primary"
+                    variant="light"
+                    isIconOnly
+                    aria-label="Guardar"
+                    className="min-w-0 w-10 h-10 p-0 flex items-center justify-center">
+                    <span className="material-symbols-outlined">favorite_border</span>
+                  </Button>
+
+                  <ShareButtons tour={tour} />
+                </div>
+              </div>
+            </div>
           </div>
 
           <DetalleGallery tour={tour} />

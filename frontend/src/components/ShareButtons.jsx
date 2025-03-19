@@ -38,9 +38,12 @@ const ShareButtons = ({ tour, currentUrl }) => {
     <div className="flex flex-col items-start">
       <Popover placement="bottom">
         <PopoverTrigger>
-          <Button color="primary" variant="light" startContent={<span className="material-symbols-outlined">share</span>} className="mb-2">
-            Compartir
-          </Button>
+          <Button
+            isIconOnly
+            color="primary"
+            variant="light"
+            startContent={<span className="material-symbols-outlined">share</span>}
+            className="mb-0"></Button>
         </PopoverTrigger>
         <PopoverContent>
           <div className="p-2">
@@ -71,7 +74,7 @@ const ShareButtons = ({ tour, currentUrl }) => {
               <div className="flex items-center">
                 <input type="text" value={shareUrl} readOnly className="flex-grow p-2 text-sm border rounded-l-md bg-gray-50" />
                 <Tooltip content={copied ? '¡Enlace copiado!' : 'Copiar enlace'}>
-                  <Button color={copied ? 'success' : 'primary'} onClick={handleCopyLink} className="rounded-l-none h-full">
+                  <Button color={copied ? 'success' : 'primary'} onPress={handleCopyLink} className="rounded-l-none h-full">
                     <span className="material-symbols-outlined">{copied ? 'check' : 'content_copy'}</span>
                   </Button>
                 </Tooltip>

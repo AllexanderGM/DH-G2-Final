@@ -28,7 +28,7 @@ const BodyDetalle = ({ tour }) => {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5 lg:gap-10">
         <div className="lg:col-span-3 pr-0 pl-0">
           <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
-            <h2 className="text-2xl font-bold mb-4">Incluye</h2>
+            <h2 className="text-2xl text-gray-800 font-bold mb-4">Incluye</h2>
             <CardBody className="grid grid-cols-3 ">
               <div className="flex justify-start items-center ">
                 <div className="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center mr-3">
@@ -70,7 +70,7 @@ const BodyDetalle = ({ tour }) => {
           </Card>
           <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
             <div>
-              <h2 className="text-2xl font-bold mb-6">Descripción del lugar</h2>
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">Descripción del lugar</h2>
             </div>
             <p className="text-slate-700">
               El Valle del Aconcagua es una cuenca de origen cordillerano, ubicada en la Región de Valparaíso a unos 90 km al norte de
@@ -79,7 +79,7 @@ const BodyDetalle = ({ tour }) => {
             </p>
           </Card>
           <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
-            <h2 className="text-2xl font-bold mb-4">Detalles</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">Detalles</h2>
             <div className="grid grid-cols-2 gap-4">
               <Chip size="sm" variant="flat" color="primary" className="flex items-center justify-start px-3">
                 <span className="material-symbols-outlined icon text-base mr-2 flex-shrink-0">face</span>
@@ -100,7 +100,7 @@ const BodyDetalle = ({ tour }) => {
             </div>
           </Card>
           <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
-            <h2 className="text-2xl font-bold mb-4">Itinerario</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">Itinerario</h2>
             <div className="relative pl-6">
               <div className="absolute left-[0.35rem] top-0 bottom-0 w-0.5 bg-gray-300"></div>
               <ul className="text-slate-700 list-none space-y-4">
