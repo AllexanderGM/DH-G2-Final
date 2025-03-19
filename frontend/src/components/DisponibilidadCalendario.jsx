@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Calendar, Card, CardHeader, CardBody, Button } from '@heroui/react'
 import { ChevronLeft, ChevronRight, Clock, Calendar as CalendarIcon, Users } from 'lucide-react'
 import { today, getLocalTimeZone } from '@internationalized/date'
+import { Link } from 'react-router-dom'
 
 const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
   const [availabilities, setAvailabilities] = useState([])
@@ -186,11 +187,13 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
         )}
 
         {selectedAvailability && (
-          <Button
-            className="w-full mt-4 bg-[#E86C6E] hover:bg-red-600 text-white text-md font-medium py-3 rounded-lg shadow-sm transition-colors"
-            onPress={() => console.log('Iniciar reserva', selectedAvailability)}>
-            Iniciar reserva
-          </Button>
+          <Link to={`/tour/${tour.id}/confirm`} state={{ tour: tour, availability: selectedAvailability }}>
+            <Button
+              className="w-full mt-4 bg-[#E86C6E] hover:bg-red-600 text-white text-md font-medium py-3 rounded-lg shadow-sm transition-colors"
+              onPress={() => console.log('Iniciar reserva', selectedAvailability)}>
+              Iniciar reserva
+            </Button>
+          </Link>
         )}
       </CardBody>
     </Card>
