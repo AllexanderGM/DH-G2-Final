@@ -12,9 +12,7 @@ const CardCategories = ({ item }) => {
       <CardBody className="card-categories-body">
         <span className="material-symbols-outlined">{item.icon}</span>
       </CardBody>
-      <CardFooter className="card-categories-footer">
-        <b>{item.title}</b>
-      </CardFooter>
+      <CardFooter className="card-categories-footer">{item.title}</CardFooter>
     </Card>
   )
 }

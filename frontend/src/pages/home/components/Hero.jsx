@@ -39,7 +39,7 @@ const Hero = () => {
 
   return (
     <div
-      className="flex flex-col justify-center items-center h-auto py-12 text-center mb-14 hero_container"
+      className="flex flex-col justify-center items-center h-auto py-12 text-center mb-6 hero_container"
       style={{ backgroundImage: `url("${image}")` }}>
       <div className="pattern_overlay"></div>
       <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 relative`}>
@@ -52,12 +52,13 @@ const Hero = () => {
         <br />
         <span className="bg-gradient-to-r from-[#E86C6E] to-primary/70 text-transparent bg-clip-text">del tour perfecto</span>
       </h1>
-      <p className="text-center max-w-xl mb-6 text-slate-700">
-        Encuentra experiencias únicas seleccionando destino y fechas para descubrir{' '}
-        <span className="text-[#E86C6E] font-medium">los mejores tours disponibles.</span>
-      </p>
+      {/* <p className="text-center max-w-xl mb-6 text-slate-700"> */}
+      {/*   Encuentra experiencias únicas seleccionando destino y fechas para descubrir{' '} */}
+      {/*   <span className="text-[#E86C6E] font-medium">los mejores tours disponibles.</span> */}
+      {/* </p> */}
 
-      <div className="w-full max-w-6xl px-[50px] md:px-[150px] rounded-2xl">
+      {/* <div className="w-full max-w-7xl px-[50px] md:px-[150px] rounded-2xl"> */}
+      <div className="w-full max-w-4xl rounded-2xl">
         <div className="bg-white/90 backdrop-blur rounded-xl shadow-lg p-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* Destino input */}
@@ -94,8 +95,8 @@ const Hero = () => {
             </div>
 
             <div className="md:col-span-2 flex items-end">
-              <Button variant="flat" color="default" className="w-full h-12" onClick={handleReset}>
-                Reset
+              <Button variant="flat" color="default" className="w-full h-12" onPress={handleReset}>
+                <span className="text-md">Limpiar</span>
               </Button>
             </div>
           </div>
