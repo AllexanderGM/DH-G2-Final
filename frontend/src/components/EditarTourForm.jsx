@@ -9,7 +9,7 @@ const CATEGORIAS = [
   { value: 'ADVENTURE', label: 'Aventura' },
   { value: 'ECOTOURISM', label: 'Ecoturismo' },
   { value: 'LUXURY', label: 'Lujo' },
-  { value: 'CITY', label: 'Urbano' },
+  { value: 'CITY', label: 'Ciudad' },
   { value: 'MOUNTAIN', label: 'Montaña' },
   { value: 'CRUISE', label: 'Crucero' },
   { value: 'ADRENALIN', label: 'Adrenalina' }

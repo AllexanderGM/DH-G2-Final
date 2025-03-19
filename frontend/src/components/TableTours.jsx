@@ -500,9 +500,9 @@ const TableTours = () => {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button variant="light" onPress={handleRefresh} isLoading={loading}>
-              Actualizar
-            </Button>
+            {/* <Button variant="light" onPress={handleRefresh} isLoading={loading}> */}
+            {/*   Actualizar */}
+            {/* </Button> */}
             <Button color="primary" endContent={<PlusIcon />} onPress={handleOpenCreateModal}>
               Crear Tour
             </Button>
