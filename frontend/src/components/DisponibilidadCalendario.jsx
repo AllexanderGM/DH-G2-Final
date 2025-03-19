@@ -155,7 +155,7 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
             <span className="material-symbols-outlined text-4xl text-gray-400 mb-3">calendar_month</span>
             <p className="text-gray-600 font-medium">Selecciona una fecha disponible</p>
             <p className="text-gray-500 text-sm mt-2">
-              Podras ver los detalles de disponibilidad de este tour, y continuar el proceso de reserva
+              Podrás ver los detalles de disponibilidad de este tour, y continuar el proceso de reserva
             </p>
           </div>
         )}
