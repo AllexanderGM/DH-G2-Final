@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { Calendar, Button, Badge } from '@heroui/react'
+import { useState, useEffect } from 'react'
+import { Calendar, Card, CardHeader, CardBody, Button } from '@heroui/react'
+import { ChevronLeft, ChevronRight, Clock, Calendar as CalendarIcon, Users } from 'lucide-react'
 import { today, getLocalTimeZone } from '@internationalized/date'
 
 const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
@@ -8,18 +9,9 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
   const [selectedAvailability, setSelectedAvailability] = useState(null)
 
   useEffect(() => {
-    console.log('Tour completo recibido en DisponibilidadCalendario:', tour)
-    console.log('Datos de disponibilidad recibidos en DisponibilidadCalendario:', tour?.availability)
-
-    if (tour && tour.availability) {
-      console.log('Array de disponibilidad recibido:', tour.availability)
-      // Asegurarnos de que availability sea un array
+    if (tour?.availability) {
       const availabilityArray = Array.isArray(tour.availability) ? tour.availability : [tour.availability].filter(Boolean)
 
-      console.log('Datos de disponibilidad procesados:', availabilityArray)
-
-      // Procesar las fechas de disponibilidad
-      // En DisponibilidadCalendario.jsx, modificar el procesamiento de fechas:
       const processedAvailabilities = availabilityArray
         .map(avail => {
           try {
@@ -27,75 +19,53 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
             let returnDate = null
 
             if (avail.departureTime) {
-              // Extraer solo la parte de fecha, ignorando la hora
               const departureDateString = avail.departureTime.split('T')[0]
-              departureDate = new Date(departureDateString + 'T00:00:00')
+              departureDate = new Date(`${departureDateString}T00:00:00`)
             }
 
             if (avail.returnTime) {
-              // Hacer lo mismo con la fecha de regreso para consistencia
               const returnDateString = avail.returnTime.split('T')[0]
-              returnDate = new Date(returnDateString + 'T00:00:00')
+              returnDate = new Date(`${returnDateString}T00:00:00`)
             }
 
-            // Verificar si las fechas son válidas
-            if (!departureDate || isNaN(departureDate.getTime())) {
-              console.warn('Fecha de salida inválida:', avail.departureTime)
+            if (!departureDate || isNaN(departureDate.getTime()) || !returnDate || isNaN(returnDate.getTime())) {
               return null
             }
 
-            if (!returnDate || isNaN(returnDate.getTime())) {
-              console.warn('Fecha de regreso inválida:', avail.returnTime)
-              return null
-            }
-
-            // Guardar la hora original para mostrarla correctamente
             const departureTime = avail.departureTime ? new Date(avail.departureTime) : null
             const returnTime = avail.returnTime ? new Date(avail.returnTime) : null
 
             return {
               id: avail.id,
-              departureDate, // Fecha normalizada (solo fecha, sin hora)
-              returnDate, // Fecha normalizada (solo fecha, sin hora)
-              departureTime, // Fecha+hora original para mostrar
-              returnTime, // Fecha+hora original para mostrar
+              departureDate,
+              returnDate,
+              departureTime,
+              returnTime,
               availableSlots: avail.availableSlots || 0,
               bookUntilDate: avail.availableDate ? new Date(avail.availableDate) : null,
               originalData: avail
             }
           } catch (error) {
-            console.error('Error procesando fechas de disponibilidad:', error, avail)
             return null
           }
         })
         .filter(Boolean)
 
-      console.log('Disponibilidades procesadas:', processedAvailabilities)
       setAvailabilities(processedAvailabilities)
     }
   }, [tour])
 
-  // Comprobar si una fecha está dentro de algún rango de disponibilidad
   const isDateInAvailabilityRange = dateObj => {
-    // Convertir de formato internationalized a Date JS
     const date = new Date(dateObj.year, dateObj.month - 1, dateObj.day)
-
-    return availabilities.some(avail => {
-      // Verificar si la fecha está dentro del rango de salida y regreso
-      return date >= avail.departureDate && date <= avail.returnDate
-    })
+    return availabilities.some(avail => date >= avail.departureDate && date <= avail.returnDate)
   }
 
-  // Obtener la disponibilidad para una fecha específica
   const getAvailabilityForDate = dateObj => {
     const date = new Date(dateObj.year, dateObj.month - 1, dateObj.day)
-
     return availabilities.find(avail => date >= avail.departureDate && date <= avail.returnDate)
   }
 
-  // Función para deshabilitar fechas no disponibles
   const isDateUnavailable = dateObj => {
-    // Desactivar fechas pasadas
     const date = new Date(dateObj.year, dateObj.month - 1, dateObj.day)
     const nowDate = new Date()
 
@@ -103,19 +73,14 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
       return true
     }
 
-    // Desactivar fechas sin disponibilidad
     return !isDateInAvailabilityRange(dateObj)
   }
 
-  // Manejar la selección de fecha
   const handleDateSelect = dateObj => {
     const availability = getAvailabilityForDate(dateObj)
 
     if (availability) {
-      // Convertir la fecha seleccionada a Date JS
       const selectedDate = new Date(dateObj.year, dateObj.month - 1, dateObj.day)
-
-      // Crear el rango de fechas seleccionado
       const range = {
         start: availability.departureDate,
         end: availability.returnDate
@@ -124,7 +89,6 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
       setSelectedDateRange(range)
       setSelectedAvailability(availability)
 
-      // Llamar al callback con la información de la disponibilidad
       if (onSelectDate) {
         onSelectDate({
           availability,
@@ -132,46 +96,104 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
           range
         })
       }
-
-      console.log('Fecha seleccionada:', selectedDate)
-      console.log('Rango completo:', range)
-      console.log('Disponibilidad seleccionada:', availability)
     }
   }
 
-  return (
-    <div className="rounded-lg bg-white p-2 px-12">
-      <div className="mb-4">
-        <Calendar aria-label="Calendario de disponibilidad" isDateUnavailable={isDateUnavailable} onChange={handleDateSelect} />
-      </div>
+  // Función para formatear fechas en español
+  const formatDate = date => {
+    return date.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    })
+  }
 
-      {selectedAvailability && (
-        <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <h4 className="font-medium text-primary">Detalles de la fecha</h4>
-          <div className="mt-2 space-y-2 text-sm">
-            <p>
-              <span className="font-medium">Salida:</span>{' '}
-              {selectedAvailability.departureTime.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}{' '}
-              {selectedAvailability.departureTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-            </p>
-            <p>
-              <span className="font-medium">Regreso:</span>{' '}
-              {selectedAvailability.returnTime.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}{' '}
-              {selectedAvailability.returnTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-            </p>
-            <p>
-              <span className="font-medium">Cupos disponibles:</span> {selectedAvailability.availableSlots}
-            </p>
-            {selectedAvailability.bookUntilDate && (
-              <p>
-                <span className="font-medium">Reservas hasta:</span>{' '}
-                {selectedAvailability.bookUntilDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </p>
-            )}
-          </div>
+  // Función para formatear hora
+  const formatTime = date => {
+    return date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  return (
+    <Card className="mb-4 overflow-hidden shadow-sm">
+      <CardBody className="p-4">
+        <div className="mb-4">
+          <Calendar
+            aria-label="Calendario de disponibilidad"
+            isDateUnavailable={isDateUnavailable}
+            onChange={handleDateSelect}
+            defaultFocusedValue={today(getLocalTimeZone())}
+            calendarWidth={340}
+            visibleMonths={1}
+            renderCell={(date, cellState) => {
+              const isAvailable = !isDateUnavailable(date)
+              const availability = isAvailable ? getAvailabilityForDate(date) : null
+              const isStart = availability?.departureDate?.getDate() === date.day
+              const isEnd = availability?.returnDate?.getDate() === date.day
+
+              // Destacar fechas de inicio y fin con colores diferentes
+              let cellStyle = ''
+              if (isStart) cellStyle = 'bg-red-500 text-white rounded-l-full'
+              else if (isEnd) cellStyle = 'bg-red-500 text-white rounded-r-full'
+              else if (isAvailable) cellStyle = 'bg-red-100'
+
+              return <div className={`w-10 h-10 flex items-center justify-center ${cellStyle}`}>{date.day}</div>
+            }}
+          />
         </div>
-      )}
-    </div>
+
+        {selectedAvailability && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h4 className="font-medium text-lg text-primary mb-3">Detalles de la fecha</h4>
+            <div className="space-y-3">
+              <div className="flex items-center">
+                <CalendarIcon className="h-5 w-5 mr-2 text-gray-500" />
+                <div>
+                  <span className="font-medium">Salida:</span> {formatDate(selectedAvailability.departureTime)}{' '}
+                  <span className="text-primary font-medium">{formatTime(selectedAvailability.departureTime)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <CalendarIcon className="h-5 w-5 mr-2 text-gray-500" />
+                <div>
+                  <span className="font-medium">Regreso:</span> {formatDate(selectedAvailability.returnTime)}{' '}
+                  <span className="text-primary font-medium">{formatTime(selectedAvailability.returnTime)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <Users className="h-5 w-5 mr-2 text-gray-500" />
+                <div>
+                  <span className="font-medium">Cupos disponibles:</span>{' '}
+                  <span className="text-primary font-medium">{selectedAvailability.availableSlots}</span>
+                </div>
+              </div>
+
+              {selectedAvailability.bookUntilDate && (
+                <div className="flex items-center">
+                  <Clock className="h-5 w-5 mr-2 text-gray-500" />
+                  <div>
+                    <span className="font-medium">Reservas hasta:</span>{' '}
+                    <span className="font-medium">{formatDate(selectedAvailability.bookUntilDate)}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {selectedAvailability && (
+          <Button
+            className="w-full mt-4 bg-[#E86C6E] hover:bg-red-600 text-white text-md font-medium py-3 rounded-lg shadow-sm transition-colors"
+            onPress={() => console.log('Iniciar reserva', selectedAvailability)}>
+            Iniciar reserva
+          </Button>
+        )}
+      </CardBody>
+    </Card>
   )
 }
 

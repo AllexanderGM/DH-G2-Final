@@ -158,15 +158,27 @@ export const SearchProvider = ({ children }) => {
 
               try {
                 const departureDate = new Date(avail.departureTime)
+
+                const departureDateNormalized = new Date(departureDate)
+                departureDateNormalized.setHours(0, 0, 0, 0)
+
+                const startDateNormalized = new Date(startDate)
+                startDateNormalized.setHours(0, 0, 0, 0)
+
+                const endDateNormalized = new Date(endDate)
+                endDateNormalized.setHours(23, 59, 59, 999)
+
                 console.log(
                   `Tour ${tour.name} - fecha salida:`,
                   departureDate.toISOString(),
+                  'Normalizada:',
+                  departureDateNormalized.toISOString(),
                   'Dentro del rango:',
-                  departureDate >= startDate && departureDate <= endDate
+                  departureDateNormalized >= startDateNormalized && departureDateNormalized <= endDateNormalized
                 )
 
                 // Una fecha está en el rango si: departureDate >= startDate Y departureDate <= endDate
-                return departureDate >= startDate && departureDate <= endDate
+                return departureDateNormalized >= startDateNormalized && departureDateNormalized <= endDateNormalized
               } catch (e) {
                 console.error('Error procesando fecha del tour:', e, avail)
                 return false

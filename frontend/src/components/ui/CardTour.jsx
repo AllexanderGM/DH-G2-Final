@@ -41,6 +41,16 @@ const CardTour = ({ data }) => {
     ))
   }
 
+  // Format date in a more readable way
+  const formatDate = dateString => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
+  }
+
   return (
     <Card className="card_tour">
       <CardHeader className="card_tour-header">
@@ -92,13 +102,23 @@ const CardTour = ({ data }) => {
 
         <Divider className="card_tour-divider" />
 
-        <p className="card_tour-description">{data.description}</p>
+        <p className="card_tour-description mb-6">{data.description}</p>
 
-        <p>
-          {data.availability.map((item, index) => (
-            <span key={index}>Fecha de disponibilidad: {item.availableDate}</span>
-          ))}
-        </p>
+        {data.availability && data.availability.length > 0 && (
+          <div className="card_tour-availability">
+            <div className="flex flex-row items-center card_tour-availability-header mb-1">
+              <span className="material-symbols-outlined icon">event_available</span>
+              <h4 className="text-sm">Fechas de salida</h4>
+            </div>
+            <div className="card_tour-availability-dates">
+              {data.availability.map((item, index) => (
+                <Chip key={index} color="success" variant="flat" className="card_tour-availability-chip mr-2">
+                  {formatDate(item.departureTime)}
+                </Chip>
+              ))}
+            </div>
+          </div>
+        )}
       </CardBody>
 
       <CardFooter className="card_tour-footer">
