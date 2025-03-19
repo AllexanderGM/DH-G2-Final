@@ -434,7 +434,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       availability: newAvailability
     })
 
-    setAvailabilityCount(newAvailability + 1)
+    setAvailabilityCount(availabilityCount + 1)
   }
 
   const handleRemoveAvailability = index => {
