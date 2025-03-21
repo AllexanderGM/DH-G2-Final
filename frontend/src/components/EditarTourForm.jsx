@@ -586,10 +586,10 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
 
   return (
     <Modal size="3xl" isOpen={isOpen} onClose={onClose}>
-      <ModalContent>
+      <ModalContent className="max-h-[90vh]">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           <ModalHeader className="flex flex-col gap-1">Editar tour</ModalHeader>
-          <ModalBody>
+          <ModalBody className="overflow-y-auto max-h-[70vh]">
             {error && <div className={errorStyle}>{error}</div>}
 
             <Tabs aria-label="Secciones del formulario">
