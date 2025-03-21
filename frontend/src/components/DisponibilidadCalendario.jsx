@@ -3,6 +3,7 @@ import { Calendar, Card, CardBody, Button } from '@heroui/react'
 import { Clock, Users } from 'lucide-react'
 import { today, getLocalTimeZone } from '@internationalized/date'
 import { Link } from 'react-router-dom'
+import { formatDateForDisplay, formatTimeForDisplay, normalizeAvailability, isDateInRange } from '@utils/dateUtils.js'
 
 const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
   // Estado para manejar las disponibilidades procesadas
@@ -13,7 +14,7 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
   // Procesamiento inicial de datos de disponibilidad
   useEffect(() => {
     if (tour?.availability) {
-      const availabilityArray = Array.isArray(tour.availability) ? tour.availability : [tour.availability].filter(Boolean)
+      const availabilityArray = normalizeAvailability(tour.availability)
 
       const processedAvailabilities = availabilityArray
         .map(avail => {
@@ -113,22 +114,6 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
     }
   }
 
-  // Formateadores de fecha y hora
-  const formatDate = date => {
-    return date.toLocaleDateString('es-ES', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
-  }
-
-  const formatTime = date => {
-    return date.toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
   return (
     <Card className="mb-4 overflow-hidden shadow-sm">
       <CardBody className="p-4">
@@ -184,8 +169,8 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
               <div className="flex items-center">
                 <span className="material-symbols-outlined mr-2 text-gray-500">event</span>
                 <div>
-                  <span className="font-medium">Salida:</span> {formatDate(selectedAvailability.departureTime)}{' '}
-                  <span className="text-primary font-medium">{formatTime(selectedAvailability.departureTime)}</span>
+                  <span className="font-medium">Salida:</span> {formatDateForDisplay(selectedAvailability.departureTime)}{' '}
+                  <span className="text-primary font-medium">{formatTimeForDisplay(selectedAvailability.departureTime)}</span>
                 </div>
               </div>
 
@@ -193,8 +178,8 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
               <div className="flex items-center">
                 <span className="material-symbols-outlined mr-2 text-gray-500">today</span>
                 <div>
-                  <span className="font-medium">Regreso:</span> {formatDate(selectedAvailability.returnTime)}{' '}
-                  <span className="text-primary font-medium">{formatTime(selectedAvailability.returnTime)}</span>
+                  <span className="font-medium">Regreso:</span> {formatDateForDisplay(selectedAvailability.returnTime)}{' '}
+                  <span className="text-primary font-medium">{formatTimeForDisplay(selectedAvailability.returnTime)}</span>
                 </div>
               </div>
 
@@ -213,7 +198,7 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
                   <Clock className="h-5 w-5 mr-2 text-gray-500" />
                   <div>
                     <span className="font-medium">Reservas hasta:</span>{' '}
-                    <span className="font-medium">{formatDate(selectedAvailability.bookUntilDate)}</span>
+                    <span className="font-medium">{formatDateForDisplay(selectedAvailability.bookUntilDate)}</span>
                   </div>
                 </div>
               )}

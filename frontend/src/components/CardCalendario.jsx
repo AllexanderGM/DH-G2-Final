@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardHeader, CardBody, CardFooter, Button, Spinner } from '@heroui/react'
-import DisponibilidadCalendario from './DisponibilidadCalendario'
+
+import { normalizeAvailability } from '@utils/dateUtils.js'
+
+import DisponibilidadCalendario from './DisponibilidadCalendario.jsx'
 
 const CardCalendario = ({ tour, tourToUse, onReservar }) => {
   const [loading, setLoading] = useState(false)
@@ -19,7 +22,7 @@ const CardCalendario = ({ tour, tourToUse, onReservar }) => {
       // Usar los datos de disponibilidad ya obtenidos en el tour
       if (tour.availability) {
         // Asegurarnos de que disponibilidad sea un array
-        const availabilityArray = Array.isArray(tour.availability) ? tour.availability : [tour.availability].filter(Boolean)
+        const availabilityArray = normalizeAvailability(tour.availability)
 
         console.log('Array de disponibilidad procesado en CardDetalle:', availabilityArray)
 

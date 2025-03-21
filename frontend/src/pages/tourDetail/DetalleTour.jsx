@@ -5,6 +5,7 @@ import ShareButtons from '@components/ShareButtons'
 import DetalleGallery from '@components/DetalleGallery'
 import BodyDetalle from '@components/BodyDetalle'
 import { Helmet } from 'react-helmet-async'
+import { normalizeAvailability } from '@utils/dateUtils.js'
 
 const DetalleTour = () => {
   const { id } = useParams()
@@ -32,17 +33,14 @@ const DetalleTour = () => {
         // Verificar específicamente los datos de disponibilidad
         console.log('Datos de disponibilidad en respuesta:', data.availability)
 
-        // Normalizar la estructura de availability si es necesario
-        let normalizedAvailability = data.availability
-        if (normalizedAvailability && !Array.isArray(normalizedAvailability)) {
-          normalizedAvailability = [normalizedAvailability]
-          console.log('Normalizada la disponibilidad a array:', normalizedAvailability)
-        }
+        // Normalizar la estructura de availability con la utilidad
+        const normalizedAvailability = normalizeAvailability(data.availability)
+        console.log('Disponibilidad normalizada:', normalizedAvailability)
 
         // Crear un objeto de tour normalizado con los datos
         const tourNormalizado = {
           ...data,
-          availability: normalizedAvailability || []
+          availability: normalizedAvailability
         }
 
         console.log('Tour normalizado para pasar a componentes hijos:', tourNormalizado)

@@ -183,7 +183,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
     availability: [
       {
         availableDate: getFutureDateTimeISO(30),
-        availableSlots: 10,
+        availableSlots: 1,
         departureTime: getFutureDateTimeISO(7),
         returnTime: getFutureDateTimeISO(14)
       }
@@ -250,7 +250,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       let availability = [
         {
           availableDate: getFutureDateTimeISO(30),
-          availableSlots: 10,
+          availableSlots: 1,
           departureTime: getFutureDateTimeISO(7),
           returnTime: getFutureDateTimeISO(14)
         }
@@ -805,7 +805,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
                 <div className="space-y-4 py-2">
                   <div className="flex justify-between items-center">
                     <p className="text-sm font-medium mb-3">Fechas de disponibilidad</p>
-                    <Button size="sm" color="primary" variant="flat" onClick={handleAddAvailability}>
+                    <Button size="sm" color="primary" variant="flat" onPress={handleAddAvailability}>
                       <span className="material-symbols-outlined mr-1">add</span>
                       Añadir fecha
                     </Button>
@@ -816,7 +816,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-md font-medium">Disponibilidad {index + 1}</h3>
                         {formData.availability.length > 1 && (
-                          <Button size="sm" color="danger" variant="light" onClick={() => handleRemoveAvailability(index)}>
+                          <Button size="sm" color="danger" variant="light" onPress={() => handleRemoveAvailability(index)}>
                             <span className="material-symbols-outlined">delete</span>
                           </Button>
                         )}

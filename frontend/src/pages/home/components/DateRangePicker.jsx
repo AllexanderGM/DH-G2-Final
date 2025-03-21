@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { DateRangePicker as HeroDateRangePicker } from '@heroui/react'
 import { useSearch } from '@context/SearchContext'
+import { toISOString } from '@utils/dateUtils.js'
 
 const DateRangePicker = () => {
   const { updateAdvancedSearchParams } = useSearch()
@@ -38,8 +39,8 @@ const DateRangePicker = () => {
 
     // Convertir fechas al formato que espera el backend (ISO)
     const formattedRange = {
-      startDate: convertToISOFormat(range.start || range.startDate),
-      endDate: convertToISOFormat(range.end || range.endDate),
+      startDate: toISOString(range.start || range.startDate),
+      endDate: toISOString(range.end || range.endDate),
       // Mantener también el formato original para compatibilidad
       start: range.start,
       end: range.end
