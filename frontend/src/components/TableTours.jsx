@@ -30,6 +30,10 @@ import { deleteTour } from '@services/tourService.js'
 import { EyeIcon, DeleteIcon, EditIcon, SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
 import CrearTourForm from './CrearTourForm.jsx'
 import EditarTourForm from './EditarTourForm.jsx'
+import TableControls from './TableControls'
+import TableCellRenderer from './TableCellRenderer'
+import DeleteTourModal from './DeleteTourModal'
+import TablePagination from './TablePagination'
 
 export const INITIAL_VISIBLE_COLUMNS = [
   { name: 'NOMBRE', uid: 'nombre' },
@@ -364,8 +368,9 @@ const TableTours = () => {
     }
   }, [page])
 
-  const onRowsPerPageChange = useCallback(e => {
-    setRowsPerPage(Number(e.target.value))
+  const onRowsPerPageChange = useCallback(newValue => {
+    console.log('TableTours - Setting rows per page to:', newValue)
+    setRowsPerPage(newValue)
     setPage(1)
   }, [])
 
@@ -405,137 +410,52 @@ const TableTours = () => {
 
   const bottomContent = useMemo(() => {
     return (
-      <div className="py-2 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-400">
-          {selectedKeys === 'all' ? 'All items selected' : `${selectedKeys.size} de ${filteredItems.length} seleccionados`}
-        </span>
-        <Pagination
-          initialPage={1}
-          isCompact
-          showControls
-          showShadow
-          color="primary"
-          page={page}
-          total={pages}
-          onChange={setPage}
-          classNames={{
-            item: 'bg-white hover:bg-white',
-            prev: 'bg-white hover:bg-purple-600',
-            next: 'bg-white hover:bg-purple-600'
-          }}
-        />
-        <div className="hidden sm:flex w-[30%] justify-end gap-2">
-          <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
-            Anterior
-          </Button>
-          <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
-            Siguiente
-          </Button>
-        </div>
-      </div>
+      <TablePagination
+        selectedKeys={selectedKeys}
+        filteredItemsLength={filteredItems.length}
+        page={page}
+        pages={pages}
+        onPreviousPage={onPreviousPage}
+        onNextPage={onNextPage}
+        onPageChange={setPage}
+      />
     )
   }, [selectedKeys, filteredItems.length, page, pages, onPreviousPage, onNextPage])
 
   const topContent = useMemo(() => {
     return (
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between gap-3 items-end">
-          <Input
-            isClearable
-            className="w-full sm:max-w-[44%]"
-            placeholder="Buscar por nombre..."
-            startContent={<SearchIcon />}
-            value={filterValue}
-            onClear={onClear}
-            onValueChange={onSearchChange}
-            variant="underlined"
-            classNames={{
-              inputWrapper: [
-                'data-[focus=true]:after:bg-[#E86C6E]',
-                'after:transition-all after:duration-200 after:ease-in-out',
-                'after:bg-[#E86C6E]'
-              ]
-            }}
-          />
-          <div className="flex gap-3">
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Categoría
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                shouldCloseOnItemClick={false}
-                onSelectionChange={setStatusFilter}>
-                {statusOptions.map(status => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Columnas
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                shouldCloseOnItemClick={false}
-                onSelectionChange={setVisibleColumns}>
-                {columns.map(column => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            {/* <Button variant="light" onPress={handleRefresh} isLoading={loading}> */}
-            {/*   Actualizar */}
-            {/* </Button> */}
-            <Button color="primary" endContent={<PlusIcon />} onPress={handleOpenCreateModal}>
-              Crear Tour
-            </Button>
-          </div>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">
-            {loading ? 'Cargando tours...' : error ? `Error: ${error}` : `${lugares.length} tours en total`}
-          </span>
-          <label className="flex items-center text-default-400 text-small">
-            Filas por página:
-            <select className="bg-transparent outline-none text-default-400 text-small" onChange={onRowsPerPageChange}>
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
-            </select>
-          </label>
-        </div>
-      </div>
+      <TableControls
+        filterValue={filterValue}
+        onClear={onClear}
+        onSearchChange={onSearchChange}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        statusOptions={statusOptions}
+        visibleColumns={visibleColumns}
+        setVisibleColumns={setVisibleColumns}
+        onCreateTour={handleOpenCreateModal}
+        loading={loading}
+        error={error}
+        totalItems={lugares.length}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={onRowsPerPageChange}
+      />
     )
   }, [
     filterValue,
-    statusFilter,
-    visibleColumns,
-    onRowsPerPageChange,
-    lugares.length,
-    onSearchChange,
     onClear,
-    handleRefresh,
+    onSearchChange,
+    statusFilter,
+    setStatusFilter,
+    statusOptions,
+    visibleColumns,
+    setVisibleColumns,
+    handleOpenCreateModal,
     loading,
     error,
-    statusOptions,
-    handleOpenCreateModal
+    lugares.length,
+    rowsPerPage,
+    onRowsPerPageChange
   ])
 
   return (
@@ -580,27 +500,14 @@ const TableTours = () => {
       {editingTour && (
         <EditarTourForm isOpen={isEditModalOpen} onClose={handleCloseEditModal} onSuccess={handleTourUpdated} tourData={editingTour} />
       )}
-      <Modal isOpen={isDeleteModalOpen} onClose={handleCloseDeleteModal} backdrop="blur" size="sm">
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">Confirmar eliminación</ModalHeader>
-          <ModalBody>
-            {deleteError && <p className="text-danger">{deleteError}</p>}
-            <p>
-              ¿Estás seguro que deseas eliminar el tour
-              <span className="font-bold"> {tourToDelete?.nombre}</span>?
-            </p>
-            <p className="text-small text-default-500">Esta acción no se puede deshacer.</p>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="flat" color="default" onPress={handleCloseDeleteModal}>
-              Cancelar
-            </Button>
-            <Button color="danger" onPress={handleConfirmDelete} isLoading={deleteLoading}>
-              Eliminar
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <DeleteTourModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        tourData={tourToDelete}
+        isLoading={deleteLoading}
+        error={deleteError}
+      />
     </>
   )
 }
