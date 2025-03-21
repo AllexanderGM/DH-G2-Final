@@ -30,9 +30,9 @@ const CardTour = ({ data }) => {
   ))
 
   const renderTags = tags => {
-    // Limitar a 3 etiquetas
+    // Limitar a 2 etiquetas visibles
     const visibleTags = tags.slice(0, 2)
-    const remainingTags = tags.length > 3 ? tags.length - 3 : 0
+    const remainingTags = tags.slice(2)
 
     return (
       <div className="card_tour-tags-container">
@@ -48,10 +48,32 @@ const CardTour = ({ data }) => {
           </Chip>
         ))}
 
-        {remainingTags > 0 && (
-          <Chip size="sm" variant="flat" color="default" className="card_tour-tag-more">
-            +{remainingTags}
-          </Chip>
+        {remainingTags.length > 0 && (
+          <Tooltip
+            content={
+              <div className="px-1 py-2">
+                <div className="flex flex-col gap-2">
+                  {remainingTags.map((tag, index) => (
+                    <Chip
+                      key={index}
+                      size="sm"
+                      variant="dot"
+                      color="primary"
+                      className="card_tour-tag"
+                      startContent={
+                        <span className="material-symbols-outlined text-primary text-base mr-1">bookmarks</span>
+                      }>
+                      {normalizeWords(tag)}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+            }
+            placement="bottom">
+            <Chip size="sm" variant="flat" color="default" className="card_tour-tag-more cursor-help">
+              +{remainingTags.length}
+            </Chip>
+          </Tooltip>
         )}
       </div>
     )
