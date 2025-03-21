@@ -44,17 +44,17 @@ export const INITIAL_VISIBLE_COLUMNS = [
 ]
 export const columns = [...INITIAL_VISIBLE_COLUMNS]
 
-// Mapa de colores para las categorías
-const statusColorMap = {
-  BEACH: 'primary',
-  VACATION: 'success',
-  ADVENTURE: 'warning',
-  ECOTOURISM: 'secondary',
-  LUXURY: 'success',
-  CITY: 'danger',
-  MOUNTAIN: 'warning',
-  CRUISE: 'primary',
-  ADRENALIN: 'danger'
+// Mapa de estilos para las categorías
+const categoryStyleMap = {
+  Playa: 'bg-sky-100 text-sky-700',
+  Vacaciones: 'bg-emerald-100 text-emerald-700',
+  Aventura: 'bg-amber-100 text-amber-700',
+  Ecoturismo: 'bg-lime-100 text-lime-700',
+  Lujo: 'bg-purple-100 text-purple-700',
+  Ciudad: 'bg-rose-100 text-rose-700',
+  Montaña: 'bg-teal-100 text-teal-700',
+  Crucero: 'bg-indigo-100 text-indigo-700',
+  Adrenalina: 'bg-orange-100 text-orange-700'
 }
 
 export function capitalize(s) {
@@ -311,10 +311,65 @@ const TableTours = () => {
             />
           )
         case 'categoria':
+          if (!Array.isArray(lugar.tags) || lugar.tags.length === 0) {
+            return (
+              <Chip className="capitalize bg-gray-100 text-gray-700" size="sm" variant="flat">
+                No definida
+              </Chip>
+            )
+          }
+
+          // Si hay solo una categoría, mostrarla
+          if (lugar.tags.length === 1) {
+            return (
+              <Chip 
+                className={`capitalize ${categoryStyleMap[normalizeWords(lugar.tags[0])] || 'bg-gray-100 text-gray-700'}`} 
+                size="sm" 
+                variant="flat"
+              >
+                {normalizeWords(lugar.tags[0])}
+              </Chip>
+            )
+          }
+
+          // Si hay múltiples categorías, mostrar la primera y un indicador
           return (
-            <Chip className="capitalize" color={statusColorMap[lugar.categoria] || 'default'} size="sm" variant="flat">
-              {normalizeWords(cellValue) || 'No definida'}
-            </Chip>
+            <div className="flex items-center gap-1">
+              <Chip 
+                className={`capitalize ${categoryStyleMap[normalizeWords(lugar.tags[0])] || 'bg-gray-100 text-gray-700'}`}
+                size="sm" 
+                variant="flat"
+              >
+                {normalizeWords(lugar.tags[0])}
+              </Chip>
+              <Tooltip 
+                content={
+                  <div className="px-1 py-2">
+                    <p className="font-bold text-small mb-2">Otras categorías:</p>
+                    <div className="flex flex-col gap-2">
+                      {lugar.tags.slice(1).map(tag => (
+                        <Chip 
+                          key={tag}
+                          className={`capitalize ${categoryStyleMap[normalizeWords(tag)] || 'bg-gray-100 text-gray-700'}`}
+                          size="sm" 
+                          variant="flat"
+                        >
+                          {normalizeWords(tag)}
+                        </Chip>
+                      ))}
+                    </div>
+                  </div>
+                }
+              >
+                <Chip 
+                  className="capitalize cursor-help bg-gray-100 text-gray-700" 
+                  size="sm" 
+                  variant="flat"
+                >
+                  +{lugar.tags.length - 1}
+                </Chip>
+              </Tooltip>
+            </div>
           )
         case 'precio':
           // Formateamos el precio con separadores de miles y 2 decimales
