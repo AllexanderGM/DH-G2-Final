@@ -5,16 +5,15 @@ import com.tours.domain.dto.tour.availability.AvailabilityResponseDTO;
 import com.tours.exception.BadRequestException;
 import com.tours.exception.NotFoundException;
 import com.tours.infrastructure.entities.booking.Availability;
-import com.tours.infrastructure.entities.booking.Reservation;
+import com.tours.infrastructure.entities.booking.Booking;
 import com.tours.infrastructure.entities.tour.Tour;
 import com.tours.infrastructure.repositories.booking.IAvailabilityRepository;
-import com.tours.infrastructure.repositories.booking.IReservationRepository;
+import com.tours.infrastructure.repositories.booking.IBookingRepository;
 import com.tours.infrastructure.repositories.tour.ITourRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +23,7 @@ public class AvailabilityService {
 
     private final IAvailabilityRepository availabilityRepository;
     private final ITourRepository tourRepository;
-    private final IReservationRepository reservationRepository;
+    private final IBookingRepository bookingRepository; // Cambiado: Ahora depende de IBookingRepository
 
     public List<AvailabilityResponseDTO> getAvailabilityByTourId(Long tourId) {
         Tour tour = tourRepository.findById(tourId)
@@ -33,8 +32,13 @@ public class AvailabilityService {
         List<Availability> availabilities = availabilityRepository.findByTour(tour);
         return availabilities.stream()
                 .map(availability -> {
-                    List<Reservation> reservations = reservationRepository.findByAvailability(availability);
-                    Boolean isReserved = !reservations.isEmpty();
+                    // Cambiado: Ahora se usa bookingRepository para verificar si hay reservas
+                    List<Booking> bookings = bookingRepository.findAll();
+                    Boolean isReserved = bookings.stream()
+                            .anyMatch(booking -> booking.getTour().equals(tour) &&
+                                    booking.getStartDate().isBefore(availability.getAvailableDate().plusDays(1)) &&
+                                    booking.getEndDate().isAfter(availability.getAvailableDate()));
+
                     return new AvailabilityResponseDTO(availability, isReserved);
                 })
                 .collect(Collectors.toList());
@@ -88,8 +92,13 @@ public class AvailabilityService {
         List<Availability> availabilities = availabilityRepository.findByDateRange(startDate, endDate);
         return availabilities.stream()
                 .map(availability -> {
-                    List<Reservation> reservations = reservationRepository.findByAvailability(availability);
-                    Boolean isReserved = !reservations.isEmpty();
+                    // Cambiado: Ahora se usa bookingRepository para verificar si hay reservas
+                    List<Booking> bookings = bookingRepository.findAll();
+                    Boolean isReserved = bookings.stream()
+                            .anyMatch(booking -> booking.getTour().equals(availability.getTour()) &&
+                                    booking.getStartDate().isBefore(availability.getAvailableDate().plusDays(1)) &&
+                                    booking.getEndDate().isAfter(availability.getAvailableDate()));
+
                     return new AvailabilityResponseDTO(availability, isReserved);
                 })
                 .collect(Collectors.toList());

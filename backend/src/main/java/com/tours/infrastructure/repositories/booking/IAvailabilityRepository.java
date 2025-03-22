@@ -16,4 +16,5 @@ public interface IAvailabilityRepository extends JpaRepository<Availability, Lon
 
     @Query("SELECT a FROM Availability a WHERE a.availableDate <= :endDate AND a.availableDate >= :startDate")
     List<Availability> findByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    Availability findByTourIdAndAvailableDate(Long tourId, LocalDateTime availableDate);
 }
