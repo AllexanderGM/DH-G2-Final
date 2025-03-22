@@ -17,7 +17,7 @@ public class Pay {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Float paymentAmount;
+    private Double paymentAmount;
     private LocalDateTime PaymentDate;
 
     @ManyToOne

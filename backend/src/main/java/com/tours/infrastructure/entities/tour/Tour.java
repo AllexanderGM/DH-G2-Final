@@ -2,6 +2,7 @@ package com.tours.infrastructure.entities.tour;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.tours.infrastructure.entities.booking.Availability;
+import com.tours.infrastructure.entities.booking.Booking;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -74,5 +75,8 @@ public class Tour {
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Availability> availabilities;
+
+    @OneToMany(mappedBy = "tour")
+    private List<Booking> bookings;
 
 }
