@@ -181,7 +181,7 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
     hotel: 4,
     availability: [
       {
-        availableDate: getFutureDateTimeISO(30), // Fecha disponible para reservar (30 días por defecto)
+        availableDate: getFutureDateTimeISO(5), // Fecha disponible para reservar (5 días por defecto)
         availableSlots: 10, // Número de cupos por defecto
         departureTime: getFutureDateTimeISO(7), // Hora de salida (7 días por defecto)
         returnTime: getFutureDateTimeISO(14) // Hora de regreso (14 días por defecto)
@@ -295,7 +295,7 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
     // Asegurarse de que el objeto existe en ese índice
     if (!newAvailability[index]) {
       newAvailability[index] = {
-        availableDate: getFutureDateTimeISO(30),
+        availableDate: getFutureDateTimeISO(5), // 5 días antes de la salida
         availableSlots: 10,
         departureTime: getFutureDateTimeISO(7),
         returnTime: getFutureDateTimeISO(14)
@@ -304,6 +304,14 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
 
     // Actualizar campo específico
     newAvailability[index][field] = value
+
+    // Si se está actualizando la fecha de salida, ajustar la fecha disponible
+    if (field === 'departureTime') {
+      const departureDate = new Date(value)
+      const availableDate = new Date(departureDate)
+      availableDate.setDate(availableDate.getDate() - 2) // 2 días antes de la salida
+      newAvailability[index].availableDate = availableDate.toISOString().slice(0, 16)
+    }
 
     setFormData({
       ...formData,
@@ -314,7 +322,7 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
   const handleAddAvailability = () => {
     const newAvailability = [...formData.availability]
     newAvailability.push({
-      availableDate: getFutureDateTimeISO(30 + availabilityCount * 7),
+      availableDate: getFutureDateTimeISO(5 + availabilityCount * 7), // 5 días antes de la salida
       availableSlots: 10,
       departureTime: getFutureDateTimeISO(7 + availabilityCount * 7),
       returnTime: getFutureDateTimeISO(14 + availabilityCount * 7)
@@ -373,25 +381,32 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
         throw new Error('Debes seleccionar al menos un servicio incluido')
       }
 
-      // Validaciones para disponibilidad
+      // Validar cada objeto de disponibilidad
       for (let i = 0; i < formData.availability.length; i++) {
         const avail = formData.availability[i]
+
         if (!avail.availableDate) {
-          throw new Error(`La fecha disponible para reserva ${i + 1} es obligatoria`)
+          throw new Error(`Fecha disponible para reserva ${i + 1} es obligatoria`)
         }
 
         if (!avail.departureTime) {
-          throw new Error(`La fecha y hora de salida ${i + 1} es obligatoria`)
+          throw new Error(`Fecha y hora de salida ${i + 1} es obligatoria`)
         }
 
         if (!avail.returnTime) {
-          throw new Error(`La fecha y hora de regreso ${i + 1} es obligatoria`)
+          throw new Error(`Fecha y hora de regreso ${i + 1} es obligatoria`)
         }
 
-        // Verificar que la fecha de regreso sea posterior a la de salida
+        // Verificar que la fecha límite de reserva sea anterior a la fecha de salida
+        const availableDate = new Date(avail.availableDate)
         const departureDate = new Date(avail.departureTime)
         const returnDate = new Date(avail.returnTime)
 
+        if (availableDate >= departureDate) {
+          throw new Error(`La fecha límite de reserva ${i + 1} debe ser anterior a la fecha de salida`)
+        }
+
+        // Verificar que la fecha de regreso sea posterior a la de salida
         if (returnDate <= departureDate) {
           throw new Error(`La fecha de regreso ${i + 1} debe ser posterior a la fecha de salida`)
         }
@@ -448,10 +463,10 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
         hotel: 4,
         availability: [
           {
-            availableDate: getFutureDateTimeISO(30),
-            availableSlots: 10,
-            departureTime: getFutureDateTimeISO(7),
-            returnTime: getFutureDateTimeISO(14)
+            availableDate: getFutureDateTimeISO(5), // Fecha disponible para reservar (5 días por defecto)
+            availableSlots: 10, // Número de cupos por defecto
+            departureTime: getFutureDateTimeISO(7), // Hora de salida (7 días por defecto)
+            returnTime: getFutureDateTimeISO(14) // Hora de regreso (14 días por defecto)
           }
         ]
       })
