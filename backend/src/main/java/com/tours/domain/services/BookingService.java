@@ -103,7 +103,9 @@ public class BookingService {
         //Se actualizan los cupos disponibles
         availability.setAvailableSlots(availability.getAvailableSlots() - totalRequested);
         availabilityRepository.save(availability);
-        return new BookingResponseDTO(booking);
+
+        BookingResponseDTO bookingResponseDTO = new BookingResponseDTO(booking);
+        return bookingResponseDTO;
     }
 
     public BookingResponseDTO getBooking(Long id) {
