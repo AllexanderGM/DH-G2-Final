@@ -15,8 +15,10 @@ export const useSearch = () => {
 export const SearchProvider = ({ children }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [searchResults, setSearchResults] = useState(null)
+  const [suggestions, setSuggestions] = useState([])
   const [loading, setLoading] = useState(false)
   const [allTours, setAllTours] = useState(null)
+  const [toursAvailability, setToursAvailability] = useState({})
   const [advancedSearchParams, setAdvancedSearchParams] = useState({
     dateRange: null
   })
@@ -213,11 +215,59 @@ export const SearchProvider = ({ children }) => {
     return () => clearTimeout(delay)
   }, [searchTerm, advancedSearchParams.dateRange, searchTours])
 
+  // Función para generar sugerencias basadas en el término de búsqueda
+  const generateSuggestions = useCallback((searchTerm) => {
+    if (!allTours?.data || !searchTerm.trim()) {
+      setSuggestions([])
+      return
+    }
+
+    const lowercaseSearchTerm = searchTerm.toLowerCase().trim()
+    const suggestionsSet = new Set()
+
+    allTours.data.forEach(tour => {
+      // Buscar en nombre
+      if (tour.name?.toLowerCase().includes(lowercaseSearchTerm)) {
+        suggestionsSet.add(tour.name)
+      }
+      // Buscar en país
+      if (tour.destination?.country?.toLowerCase().includes(lowercaseSearchTerm)) {
+        suggestionsSet.add(tour.destination.country)
+      }
+      // Buscar en ciudad
+      if (tour.destination?.city?.name?.toLowerCase().includes(lowercaseSearchTerm)) {
+        suggestionsSet.add(tour.destination.city.name)
+      }
+      // Buscar en región
+      if (tour.destination?.region?.toLowerCase().includes(lowercaseSearchTerm)) {
+        suggestionsSet.add(tour.destination.region)
+      }
+      // Buscar en tags
+      if (Array.isArray(tour.tags)) {
+        tour.tags.forEach(tag => {
+          if (typeof tag === 'string' && tag.toLowerCase().includes(lowercaseSearchTerm)) {
+            suggestionsSet.add(tag)
+          }
+        })
+      }
+    })
+
+    // Convertir el Set a Array y limitar a 5 sugerencias
+    setSuggestions(Array.from(suggestionsSet).slice(0, 5))
+  }, [allTours])
+
+  // Actualizar sugerencias cuando cambia el término de búsqueda
+  useEffect(() => {
+    generateSuggestions(searchTerm)
+  }, [searchTerm, generateSuggestions])
+
   const value = {
     searchTerm,
     searchResults,
     loading,
+    suggestions,
     advancedSearchParams,
+    toursAvailability,
     updateSearchTerm,
     updateAdvancedSearchParams,
     searchTours,

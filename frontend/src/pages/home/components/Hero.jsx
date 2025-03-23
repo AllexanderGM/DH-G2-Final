@@ -3,14 +3,16 @@ import { useState, useEffect } from 'react'
 import { useSearch } from '@context/SearchContext'
 import './hero.scss'
 import SearchIcon from '@components/SearchIcon.jsx'
+import SearchAutocomplete from '@components/SearchAutocomplete.jsx'
 import image from '@assets/Backgrounds/topography.svg'
 import pinIcon from '@assets/Icons/pin.png'
 
 import DateRangePicker from './DateRangePicker.jsx'
 
 const Hero = () => {
-  const { searchTerm, updateSearchTerm, loading } = useSearch()
+  const { searchTerm, updateSearchTerm, loading, suggestions } = useSearch()
   const [inputValue, setInputValue] = useState(searchTerm)
+  const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false)
 
   useEffect(() => {
     setInputValue(searchTerm)
@@ -19,17 +21,19 @@ const Hero = () => {
   const handleInputChange = e => {
     const newValue = e.target.value
     setInputValue(newValue)
-
+    setIsAutocompleteOpen(true)
     updateSearchTerm(newValue)
   }
 
   const handleClear = () => {
     setInputValue('')
+    setIsAutocompleteOpen(false)
     updateSearchTerm('')
   }
 
   const handleReset = () => {
     setInputValue('')
+    setIsAutocompleteOpen(false)
     updateSearchTerm('')
 
     // Reset date range in context (handled by SearchContext)
@@ -37,9 +41,29 @@ const Hero = () => {
     window.dispatchEvent(event)
   }
 
+  const handleSuggestionSelect = (suggestion) => {
+    setInputValue(suggestion)
+    setIsAutocompleteOpen(false)
+    updateSearchTerm(suggestion)
+  }
+
+  // Cerrar el autocompletado cuando se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.search-container')) {
+        setIsAutocompleteOpen(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [])
+
   return (
     <div
-      className="flex flex-col justify-center items-center h-auto py-12 text-center mb-6 hero_container"
+      className="flex flex-col justify-center items-center h-auto py-12 text-center mb-6 hero_container relative z-50"
       style={{ backgroundImage: `url("${image}")` }}>
       <div className="pattern_overlay"></div>
       <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 relative`}>
@@ -62,7 +86,7 @@ const Hero = () => {
         <div className="bg-white/90 backdrop-blur rounded-xl shadow-lg p-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* Destino input */}
-            <div className="md:col-span-5">
+            <div className="md:col-span-5 search-container relative">
               <label className="block text-sm font-medium text-gray-700 text-left mb-1">¿Dónde quieres ir?</label>
               <Input
                 isClearable
@@ -87,9 +111,14 @@ const Hero = () => {
                 radius="lg"
                 startContent={<SearchIcon className="text-black/50 mb-0.5 text-slate-500 pointer-events-none flex-shrink-0" />}
               />
+              <SearchAutocomplete
+                suggestions={suggestions}
+                onSelect={handleSuggestionSelect}
+                isOpen={isAutocompleteOpen}
+              />
             </div>
 
-            <div className="md:col-span-5 ">
+            <div className="md:col-span-5">
               <label className="block text-sm font-medium text-gray-700 text-left mb-1">¿Cuándo viajas?</label>
               <DateRangePicker />
             </div>
