@@ -14,7 +14,7 @@ public class PaymentMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String namePaymentMethod;
+    private String name;
     private String description;
 
 }

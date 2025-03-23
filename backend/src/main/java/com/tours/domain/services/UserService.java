@@ -102,6 +102,11 @@ public class UserService {
     }
 
 
+   // @Override
+   // public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+   //     return userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+  //  }
+
     public MessageResponseDTO grantAdminRole(String superAdminEmail, String userId) {
         if (this.superAdminEmail != null && this.superAdminEmail.equals(superAdminEmail)) {
             // Lógica para Super Admin

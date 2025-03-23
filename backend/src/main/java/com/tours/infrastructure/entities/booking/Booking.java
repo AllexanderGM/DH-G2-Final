@@ -30,10 +30,10 @@ public class Booking {
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private LocalDate creationDate;
+    private LocalDateTime creationDate;
 
     @ManyToOne
-    @JoinColumn(name = "id_accommodation", nullable = false)
+    @JoinColumn(name = "id_accommodation")
     private Accommodation accommodation;
 
     private Integer adults;
@@ -41,6 +41,6 @@ public class Booking {
     private Double price;
 
     @ManyToOne
-    @JoinColumn(name = "id_pago", nullable = false)
+    @JoinColumn(name = "id_pay")
     private Pay pay;
 }
