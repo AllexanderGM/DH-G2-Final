@@ -1,37 +1,47 @@
 package com.tours.domain.dto.booking;
 
-import com.tours.infrastructure.entities.booking.Accommodation;
-import com.tours.infrastructure.entities.booking.AccommodationBooking;
+import com.tours.domain.dto.tour.IncludeDTO;
 import com.tours.infrastructure.entities.booking.Booking;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
 public class BookingResponseDTO {
     private Long id;
-    private Long tourId;
     private Long userId;
+    private Long tourId;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private LocalDateTime creationDate;
+    private String accommodation;
     private Integer adults;
     private Integer children;
-    private AccommodationBooking accommodationBooking;
     private Double price;
-    private LocalDateTime creationDate;
+    private String paymentMethod;
+    private List<IncludeDTO> includes;
 
     public BookingResponseDTO(Booking booking) {
         this.id = booking.getId();
-        this.tourId = booking.getTour().getId();
         this.userId = booking.getUser().getId();
+        this.tourId = booking.getTour().getId();
         this.startDate = booking.getStartDate();
         this.endDate = booking.getEndDate();
+        this.creationDate = booking.getCreationDate();
         this.adults = booking.getAdults();
         this.children = booking.getChildren();
         this.price = booking.getPrice();
-        this.creationDate = booking.getCreationDate();
-        if (booking.getAccommodation() != null) {
-            this.accommodationBooking = booking.getAccommodation().getAccommodationBooking();
+        if(booking.getAccommodation() != null){
+            this.accommodation = booking.getAccommodation().getAccommodationBooking().toString();
         }
+        if(booking.getPay() != null){
+            this.paymentMethod = booking.getPay().getPaymentMethod().getName();
+        }
+        //Se mapean los includes del tour a una lista de IncludeDTO
+        this.includes = booking.getTour().getIncludeTours().stream().map(IncludeDTO::new).collect(Collectors.toList());
     }
 }
