@@ -15,6 +15,8 @@ public class BookingResponseDTO {
     private Long id;
     private Long userId;
     private Long tourId;
+    private String tourName;
+    private String tourDescription;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime creationDate;
@@ -29,6 +31,8 @@ public class BookingResponseDTO {
         this.id = booking.getId();
         this.userId = booking.getUser().getId();
         this.tourId = booking.getTour().getId();
+        this.tourName = booking.getTour().getName();
+        this.tourDescription = booking.getTour().getDescription();
         this.startDate = booking.getStartDate();
         this.endDate = booking.getEndDate();
         this.creationDate = booking.getCreationDate();
