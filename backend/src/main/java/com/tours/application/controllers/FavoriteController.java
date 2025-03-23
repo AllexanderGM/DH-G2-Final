@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -29,5 +30,11 @@ public class FavoriteController {
     public ResponseEntity<Map<String, String>> removeFavorite(@PathVariable Long tourId) {
         favoriteService.removeFavorite(tourId);
         return ResponseEntity.ok(Map.of("message", "Tour eliminado de favoritos"));
+    }
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping
+    public ResponseEntity<List<FavoriteResponseDTO>> getFavorites() {
+        List<FavoriteResponseDTO> favorites = favoriteService.getFavorites();
+        return ResponseEntity.ok(favorites);
     }
 }
