@@ -101,6 +101,7 @@ public class UserService {
         tokenBlacklist.clear();
     }
 
+
    // @Override
    // public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
    //     return userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
