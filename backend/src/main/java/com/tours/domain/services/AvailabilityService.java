@@ -23,7 +23,7 @@ public class AvailabilityService {
 
     private final IAvailabilityRepository availabilityRepository;
     private final ITourRepository tourRepository;
-    private final IBookingRepository bookingRepository; // Cambiado: Ahora depende de IBookingRepository
+    private final IBookingRepository bookingRepository;
 
     public List<AvailabilityResponseDTO> getAvailabilityByTourId(Long tourId) {
         Tour tour = tourRepository.findById(tourId)
@@ -32,7 +32,6 @@ public class AvailabilityService {
         List<Availability> availabilities = availabilityRepository.findByTour(tour);
         return availabilities.stream()
                 .map(availability -> {
-                    // Cambiado: Ahora se usa bookingRepository para verificar si hay reservas
                     List<Booking> bookings = bookingRepository.findAll();
                     Boolean isReserved = bookings.stream()
                             .anyMatch(booking -> booking.getTour().equals(tour) &&
@@ -61,6 +60,20 @@ public class AvailabilityService {
         // Validar que los cupos sean positivos
         if (availabilityDTO.availableSlots() <= 0) {
             throw new BadRequestException("Los cupos disponibles deben ser mayores a cero");
+        }
+
+        // Validar que departureTime y returnTime estén dentro del rango
+        LocalDateTime tourCreationDateTime = tour.getCreationDate().atStartOfDay();
+        LocalDateTime availableDateTime = availabilityDTO.availableDate();
+        LocalDateTime departureDateTime = LocalDateTime.of(availableDateTime.toLocalDate(), availabilityDTO.departureTime().toLocalTime());
+        LocalDateTime returnDateTime = LocalDateTime.of(availableDateTime.toLocalDate(), availabilityDTO.returnTime().toLocalTime());
+
+        if (departureDateTime.isBefore(tourCreationDateTime) || departureDateTime.isAfter(availableDateTime)) {
+            throw new BadRequestException("La hora de salida debe estar entre la fecha de creación del tour y la fecha de disponibilidad");
+        }
+
+        if (returnDateTime.isBefore(tourCreationDateTime) || returnDateTime.isAfter(availableDateTime)) {
+            throw new BadRequestException("La hora de regreso debe estar entre la fecha de creación del tour y la fecha de disponibilidad");
         }
 
         // Validar que no haya superposición con otras disponibilidades
@@ -92,7 +105,6 @@ public class AvailabilityService {
         List<Availability> availabilities = availabilityRepository.findByDateRange(startDate, endDate);
         return availabilities.stream()
                 .map(availability -> {
-                    // Cambiado: Ahora se usa bookingRepository para verificar si hay reservas
                     List<Booking> bookings = bookingRepository.findAll();
                     Boolean isReserved = bookings.stream()
                             .anyMatch(booking -> booking.getTour().equals(availability.getTour()) &&
@@ -105,10 +117,10 @@ public class AvailabilityService {
     }
 
     private boolean isOverlapping(AvailabilityRequestDTO newAvailability, Availability existingAvailability) {
-        LocalDateTime newStart = newAvailability.availableDate().withHour(newAvailability.departureTime().getHour()).withMinute(newAvailability.departureTime().getMinute());
-        LocalDateTime newEnd = newAvailability.availableDate().withHour(newAvailability.returnTime().getHour()).withMinute(newAvailability.returnTime().getMinute());
-        LocalDateTime existingStart = existingAvailability.getAvailableDate().withHour(existingAvailability.getDepartureTime().getHour()).withMinute(existingAvailability.getDepartureTime().getMinute());
-        LocalDateTime existingEnd = existingAvailability.getAvailableDate().withHour(existingAvailability.getReturnTime().getHour()).withMinute(existingAvailability.getReturnTime().getMinute());
+        LocalDateTime newStart = LocalDateTime.of(newAvailability.availableDate().toLocalDate(), newAvailability.departureTime().toLocalTime());
+        LocalDateTime newEnd = LocalDateTime.of(newAvailability.availableDate().toLocalDate(), newAvailability.returnTime().toLocalTime());
+        LocalDateTime existingStart = LocalDateTime.of(existingAvailability.getAvailableDate().toLocalDate(), existingAvailability.getDepartureTime().toLocalTime());
+        LocalDateTime existingEnd = LocalDateTime.of(existingAvailability.getAvailableDate().toLocalDate(), existingAvailability.getReturnTime().toLocalTime());
 
         return newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
     }
