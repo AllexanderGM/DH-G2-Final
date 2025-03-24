@@ -1,5 +1,5 @@
 .category-page {
-  @apply py-8 px-4;
+  @apply py-8 px-4 text-center flex flex-col items-center;
 
   &-header {
     @apply mb-10 flex flex-col items-center;
@@ -51,16 +51,11 @@
   }
 }
 
-// Reutilizamos los estilos de la página de tours
-.tours_body-grid {
-  @apply grid items-stretch grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5;
+// Reutilizar el estilo exacto del Home para el grid de tours
+.category-page .tours_body-content {
+  @apply w-full max-w-6xl mb-12;
 }
 
-// Animación para los items
-.card_tour {
-  @apply transition-all duration-300 ease-in-out;
-
-  &:hover {
-    @apply transform -translate-y-1;
-  }
+.category-page .tours_body-grid {
+  @apply grid items-stretch grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5;
 }

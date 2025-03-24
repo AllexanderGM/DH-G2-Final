@@ -4,6 +4,19 @@ import { Cookies } from 'react-cookie'
 const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
 const cookies = new Cookies()
 
+// Mapeo de categorías en inglés (backend) a español (frontend)
+const TAG_MAPPING = {
+  BEACH: 'Playa',
+  VACATION: 'Vacaciones',
+  ADVENTURE: 'Aventura',
+  ECOTOURISM: 'Ecoturismo',
+  LUXURY: 'Lujo',
+  CITY: 'Ciudad',
+  MOUNTAIN: 'Montaña',
+  CRUISE: 'Crucero',
+  ADRENALIN: 'Adrenalina'
+}
+
 const getToken = () => {
   const token = cookies.get('auth_token')
   return token && typeof token === 'string' ? token : null
@@ -32,33 +45,19 @@ export const getToursByCategory = async categoryTag => {
       throw new Error('Error al obtener tours')
     }
 
-    console.log(`Buscando tours con categoría: ${categoryTag}`)
-    console.log(
-      'Categorías disponibles en los tours:',
-      allTours.data.map(tour => tour.tags)
-    )
-
-    // Necesitamos filtrar considerando ambas posibilidades:
-    // 1. El tag está exactamente como lo enviamos (ej: "BEACH")
-    // 2. El tag está en español (ej: "Playa")
-    // 3. El tag podría estar en normalizado (primera letra mayúscula) (ej: "Beach")
+    // Nombres de categoría en español (para comparar con lo que vemos en la UI)
     const spanishTag = TAG_MAPPING[categoryTag] || ''
 
-    // Filtrar considerando todas las posibilidades
+    // Filtrar tours por el tag solicitado (tanto en inglés como en español)
     const filteredTours = allTours.data.filter(tour => {
-      // Verificar si el tour tiene la propiedad tags y es un array
-      if (!Array.isArray(tour.tags)) {
-        return false
-      }
+      if (!tour.tags || !Array.isArray(tour.tags)) return false
 
-      // Revisar en minúsculas para hacer la comparación insensible a mayúsculas/minúsculas
       return tour.tags.some(tag => {
-        const normalizedTag = String(tag).toLowerCase()
-        return normalizedTag === categoryTag.toLowerCase() || normalizedTag === spanishTag.toLowerCase()
+        if (!tag) return false
+        const tagLower = String(tag).toLowerCase()
+        return tagLower === categoryTag.toLowerCase() || tagLower === spanishTag.toLowerCase()
       })
     })
-
-    console.log(`Tours filtrados para ${categoryTag} (${spanishTag}):`, filteredTours.length)
 
     return {
       success: true,

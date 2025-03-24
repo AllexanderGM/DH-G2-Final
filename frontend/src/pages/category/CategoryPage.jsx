@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { SearchProvider } from '@context/SearchContext'
 import { Spinner, Button } from '@heroui/react'
+
 import CardTour from '@components/ui/CardTour'
 import { getToursByCategory } from '@services/tourService'
 import { normalizeWords } from '@utils/normalizeWords'
@@ -49,7 +50,7 @@ const CategoryPage = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' })
 
       setLoading(true)
-      setError(null) // Resetear errores previos
+      setError(null)
 
       try {
         // Obtener el tag en inglés desde el nombre de categoría en español
