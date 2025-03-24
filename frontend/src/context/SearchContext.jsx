@@ -228,32 +228,54 @@ export const SearchProvider = ({ children }) => {
     allTours.data.forEach(tour => {
       // Buscar en nombre
       if (tour.name?.toLowerCase().includes(lowercaseSearchTerm)) {
-        suggestionsSet.add(tour.name)
+        suggestionsSet.add(JSON.stringify({
+          text: tour.name,
+          type: 'title',
+          icon: 'travel_explore'
+        }))
       }
       // Buscar en país
       if (tour.destination?.country?.toLowerCase().includes(lowercaseSearchTerm)) {
-        suggestionsSet.add(tour.destination.country)
+        suggestionsSet.add(JSON.stringify({
+          text: tour.destination.country,
+          type: 'country',
+          icon: 'pin_drop '
+        }))
       }
       // Buscar en ciudad
       if (tour.destination?.city?.name?.toLowerCase().includes(lowercaseSearchTerm)) {
-        suggestionsSet.add(tour.destination.city.name)
+        suggestionsSet.add(JSON.stringify({
+          text: tour.destination.city.name,
+          type: 'city',
+          icon: 'globe_location_pin'
+        }))
       }
       // Buscar en región
       if (tour.destination?.region?.toLowerCase().includes(lowercaseSearchTerm)) {
-        suggestionsSet.add(tour.destination.region)
+        suggestionsSet.add(JSON.stringify({
+          text: tour.destination.region,
+          type: 'region',
+          icon: 'globe_location_pin'
+        }))
       }
       // Buscar en tags
       if (Array.isArray(tour.tags)) {
         tour.tags.forEach(tag => {
           if (typeof tag === 'string' && tag.toLowerCase().includes(lowercaseSearchTerm)) {
-            suggestionsSet.add(tag)
+            suggestionsSet.add(JSON.stringify({
+              text: tag,
+              type: 'tag',
+              icon: 'bookmarks'
+            }))
           }
         })
       }
     })
 
-    // Convertir el Set a Array y limitar a 5 sugerencias
-    setSuggestions(Array.from(suggestionsSet).slice(0, 5))
+    // Convertir el Set a Array, parsear los JSON strings y limitar a 5 sugerencias
+    setSuggestions(Array.from(suggestionsSet)
+      .map(item => JSON.parse(item))
+      .slice(0, 5))
   }, [allTours])
 
   // Actualizar sugerencias cuando cambia el término de búsqueda

@@ -1,5 +1,5 @@
 import { Input, Button, Image } from '@heroui/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearch } from '@context/SearchContext'
 import './hero.scss'
 import SearchIcon from '@components/SearchIcon.jsx'
@@ -13,6 +13,8 @@ const Hero = () => {
   const { searchTerm, updateSearchTerm, loading, suggestions } = useSearch()
   const [inputValue, setInputValue] = useState(searchTerm)
   const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false)
+  const searchContainerRef = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => {
     setInputValue(searchTerm)
@@ -41,7 +43,7 @@ const Hero = () => {
     window.dispatchEvent(event)
   }
 
-  const handleSuggestionSelect = (suggestion) => {
+  const handleSuggestionSelect = suggestion => {
     setInputValue(suggestion)
     setIsAutocompleteOpen(false)
     updateSearchTerm(suggestion)
@@ -49,8 +51,8 @@ const Hero = () => {
 
   // Cerrar el autocompletado cuando se hace clic fuera
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest('.search-container')) {
+    const handleClickOutside = event => {
+      if (!searchContainerRef.current?.contains(event.target)) {
         setIsAutocompleteOpen(false)
       }
     }
@@ -63,7 +65,7 @@ const Hero = () => {
 
   return (
     <div
-      className="flex flex-col justify-center items-center h-auto py-12 text-center mb-6 hero_container relative z-50"
+      className="flex flex-col justify-center items-center h-auto py-12 text-center mb-6 hero_container relative"
       style={{ backgroundImage: `url("${image}")` }}>
       <div className="pattern_overlay"></div>
       <h1 className={`text-4xl md:text-6xl font-bold tracking-tight p-6 relative`}>
@@ -86,14 +88,16 @@ const Hero = () => {
         <div className="bg-white/90 backdrop-blur rounded-xl shadow-lg p-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* Destino input */}
-            <div className="md:col-span-5 search-container relative">
+            <div ref={searchContainerRef} className="md:col-span-5 search-container relative">
               <label className="block text-sm font-medium text-gray-700 text-left mb-1">¿Dónde quieres ir?</label>
               <Input
+                ref={inputRef}
                 isClearable
                 value={inputValue}
                 onChange={handleInputChange}
                 onClear={handleClear}
                 isDisabled={loading}
+                onFocus={() => setIsAutocompleteOpen(true)}
                 classNames={{
                   input: ['bg-transparent', 'text-black/90', 'placeholder:text-default-900/50'],
                   innerWrapper: 'bg-transparent',
@@ -115,6 +119,7 @@ const Hero = () => {
                 suggestions={suggestions}
                 onSelect={handleSuggestionSelect}
                 isOpen={isAutocompleteOpen}
+                inputRef={inputRef}
               />
             </div>
 
