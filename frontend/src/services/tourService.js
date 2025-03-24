@@ -19,6 +19,63 @@ export const toursAllRandom = async filter => {
 }
 
 /**
+ * Obtiene tours por categoría
+ * @param {string} categoryTag - Tag de categoría (ej: "BEACH", "VACATION")
+ * @returns {Promise} - Promise con los datos de tours filtrados
+ */
+export const getToursByCategory = async categoryTag => {
+  try {
+    // Primero obtenemos todos los tours
+    const allTours = await toursAllRandom()
+
+    if (!allTours.success || !Array.isArray(allTours.data)) {
+      throw new Error('Error al obtener tours')
+    }
+
+    console.log(`Buscando tours con categoría: ${categoryTag}`)
+    console.log(
+      'Categorías disponibles en los tours:',
+      allTours.data.map(tour => tour.tags)
+    )
+
+    // Necesitamos filtrar considerando ambas posibilidades:
+    // 1. El tag está exactamente como lo enviamos (ej: "BEACH")
+    // 2. El tag está en español (ej: "Playa")
+    // 3. El tag podría estar en normalizado (primera letra mayúscula) (ej: "Beach")
+    const spanishTag = TAG_MAPPING[categoryTag] || ''
+
+    // Filtrar considerando todas las posibilidades
+    const filteredTours = allTours.data.filter(tour => {
+      // Verificar si el tour tiene la propiedad tags y es un array
+      if (!Array.isArray(tour.tags)) {
+        return false
+      }
+
+      // Revisar en minúsculas para hacer la comparación insensible a mayúsculas/minúsculas
+      return tour.tags.some(tag => {
+        const normalizedTag = String(tag).toLowerCase()
+        return normalizedTag === categoryTag.toLowerCase() || normalizedTag === spanishTag.toLowerCase()
+      })
+    })
+
+    console.log(`Tours filtrados para ${categoryTag} (${spanishTag}):`, filteredTours.length)
+
+    return {
+      success: true,
+      data: filteredTours,
+      total: filteredTours.length
+    }
+  } catch (error) {
+    console.error('Error obteniendo tours por categoría:', error)
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    }
+  }
+}
+
+/**
  * Búsqueda de tours con criterios específicos
  * @param {string} searchTerm - Text to search for
  * @param {Object} advancedParams - Additional search parameters like dates, price range, etc.
@@ -79,12 +136,6 @@ export const createTour = async tourData => {
       hotel: typeof tourData.hotel === 'number' ? tourData.hotel : typeof tourData.hotelStars === 'number' ? tourData.hotelStars : 4,
 
       // Añadimos la sección de disponibilidad
-      // availability: {
-      //   availableDate: tourData.availability?.availableDate || '',
-      //   availableSlots: parseInt(tourData.availability?.availableSlots || 10),
-      //   departureTime: tourData.availability?.departureTime || '',
-      //   returnTime: tourData.availability?.returnTime || ''
-      // }
       availability: Array.isArray(tourData.availability)
         ? tourData.availability
         : [
