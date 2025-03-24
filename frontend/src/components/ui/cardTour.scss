@@ -18,7 +18,11 @@
   }
 
   &-tag {
-    @apply mb-1;
+    @apply mb-1 transition-all duration-200 hover:shadow-sm;
+
+    &:hover {
+      @apply bg-primary-100 border-primary-300;
+    }
   }
 
   &-tag-more {

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Card, CardHeader, CardFooter, CardBody, Image, Chip, Divider, Button, Tooltip } from '@heroui/react'
 import { normalizeWords } from '@utils/normalizeWords.js'
 import { useFavorites } from '@context/FavoritesContext'
@@ -8,6 +8,7 @@ import './cardTour.scss'
 const CardTour = ({ data }) => {
   const { toggleFavorite, isFavorite, isAuthenticated } = useFavorites()
   const isCurrentlyFavorite = isFavorite(data.id)
+  const navigate = useNavigate()
 
   const URL = `/tour/${data.id}`
   const img = data.images[0]
@@ -15,6 +16,12 @@ const CardTour = ({ data }) => {
   const handleFavoriteClick = e => {
     e.preventDefault() // Prevent navigating to tour page when clicking the favorite button
     toggleFavorite(data)
+  }
+
+  const handleTagClick = (tag, e) => {
+    e.preventDefault() // Prevent navigation to tour detail page
+    e.stopPropagation() // Stop event propagation
+    navigate(`/categoria/${tag.toLowerCase()}`)
   }
 
   const includes = data.includes.slice(0, 3).map((element, index) => (
@@ -43,6 +50,8 @@ const CardTour = ({ data }) => {
             variant="dot"
             color="primary"
             className="card_tour-tag"
+            onClick={e => handleTagClick(tag, e)}
+            style={{ cursor: 'pointer' }}
             startContent={<span className="material-symbols-outlined icon">bookmarks</span>}>
             {normalizeWords(tag)}
           </Chip>
@@ -60,9 +69,9 @@ const CardTour = ({ data }) => {
                       variant="dot"
                       color="primary"
                       className="card_tour-tag"
-                      startContent={
-                        <span className="material-symbols-outlined text-primary text-base mr-1">bookmarks</span>
-                      }>
+                      onClick={e => handleTagClick(tag, e)}
+                      style={{ cursor: 'pointer' }}
+                      startContent={<span className="material-symbols-outlined text-primary text-base mr-1">bookmarks</span>}>
                       {normalizeWords(tag)}
                     </Chip>
                   ))}
