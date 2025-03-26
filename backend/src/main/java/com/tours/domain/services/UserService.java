@@ -5,18 +5,16 @@ import com.tours.domain.dto.user.UserModifyDTO;
 import com.tours.domain.dto.user.UserResponseDTO;
 import com.tours.exception.UnauthorizedException;
 import com.tours.infrastructure.entities.user.Role;
+import com.tours.infrastructure.entities.user.Token;
 import com.tours.infrastructure.entities.user.User;
 import com.tours.infrastructure.entities.user.UserRol;
 import com.tours.infrastructure.repositories.user.IRoleUserRepository;
+import com.tours.infrastructure.repositories.user.ITokenRepository;
 import com.tours.infrastructure.repositories.user.IUserRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +35,7 @@ public class UserService {
     private final IUserRepository userRepository;
     private final IRoleUserRepository rolRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final ITokenRepository tokenRepository;
 
     public UserResponseDTO get(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
@@ -91,6 +90,9 @@ public class UserService {
 
     public MessageResponseDTO delete(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
+        //Eliminar los tokens del usuario
+        List<Token> tokens = tokenRepository.findByUser(user);
+        tokenRepository.deleteAll(tokens);
         userRepository.delete(user);
         logger.info("Usuario eliminado correctamente {}", user.getEmail());
         return new MessageResponseDTO("Usuario eliminado correctamente");
@@ -100,11 +102,6 @@ public class UserService {
     public void cleanBlacklist() {
         tokenBlacklist.clear();
     }
-
-   // @Override
-   // public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-   //     return userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
-  //  }
 
     public MessageResponseDTO grantAdminRole(String superAdminEmail, String userId) {
         if (this.superAdminEmail != null && this.superAdminEmail.equals(superAdminEmail)) {
