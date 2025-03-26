@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
   const checkRole = requiredRole => {
     if (!user) return false
 
-    if (requiredRole === 'admin') {
+    if (requiredRole === 'admin' || requiredRole === 'ADMIN') {
       return isUserAdmin(user)
     }
 

@@ -1,3 +1,4 @@
+// Tours
 export const INITIAL_VISIBLE_COLUMNS = [
   { name: 'NOMBRE', uid: 'nombre' },
   { name: 'DESTINO', uid: 'destino' },
@@ -44,10 +45,43 @@ export const TOUR_STATUS_COLOR_MAP = {
   ADRENALIN: 'danger'
 }
 
+// Users
+export const USER_ROLES = {
+  ADMIN: 'ADMIN',
+  CLIENT: 'CLIENT'
+}
+
+export const USER_ROLE_COLORS = {
+  ADMIN: 'danger',
+  CLIENT: 'success'
+}
+
 export const USER_COLUMNS = [
   { name: 'ID', uid: 'id' },
   { name: 'NOMBRE', uid: 'username' },
   { name: 'EMAIL', uid: 'email' },
   { name: 'ROL', uid: 'role' },
   { name: 'ACCIONES', uid: 'actions' }
-] 
+]
+
+export const USER_FORM_VALIDATIONS = {
+  EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  PHONE_REGEX: /^\d{9}$/,
+  PASSWORD_MIN_LENGTH: 6
+}
+
+export const DEFAULT_USER_FORM_DATA = {
+  image: '',
+  name: '',
+  lastName: '',
+  document: '',
+  phone: '',
+  dateOfBirth: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  address: '',
+  city: '',
+  role: USER_ROLES.CLIENT
+}
+

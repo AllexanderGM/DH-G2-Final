@@ -1,38 +1,14 @@
-import { useState, useCallback, useEffect } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Select, SelectItem, Chip } from '@heroui/react'
-import { updateUser, assignAdminRole, revokeAdminRole, getUserByEmail } from '@services/userService'
-import { useAuth } from '@context/AuthContext'
+import { useState, useCallback } from 'react'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input } from '@heroui/react'
+import { createUser } from '@services/userService'
 
-import { USER_ROLES, USER_ROLE_COLORS, USER_FORM_VALIDATIONS, DEFAULT_USER_FORM_DATA } from '../constants/tableConstants'
+import { USER_FORM_VALIDATIONS, DEFAULT_USER_FORM_DATA } from '../constants/tableConstants.js'
 
-const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
-  const { user: currentUser } = useAuth()
+const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
   const [formData, setFormData] = useState(DEFAULT_USER_FORM_DATA)
-
-  const [originalRole, setOriginalRole] = useState('')
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [apiError, setApiError] = useState(null)
-
-  useEffect(() => {
-    if (userData) {
-      setFormData({
-        image: userData.image || '',
-        name: userData.name || '',
-        lastName: userData.lastName || '',
-        document: userData.document || '',
-        phone: userData.phone || '',
-        dateOfBirth: userData.dateOfBirth || '',
-        email: userData.email || '',
-        password: '',
-        confirmPassword: '',
-        address: userData.address || '',
-        city: userData.city || '',
-        role: userData.role || USER_ROLES.CLIENT
-      })
-      setOriginalRole(userData.role || USER_ROLES.CLIENT)
-    }
-  }, [userData])
 
   const validateForm = () => {
     const newErrors = {}
@@ -55,31 +31,16 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
       newErrors.phone = 'El teléfono debe tener 9 dígitos'
     }
 
-    // Validar contraseña solo si se está intentando cambiar
-    if (formData.password) {
-      if (formData.password.length < 6) {
-        newErrors.password = 'La contraseña debe tener al menos 6 caracteres'
-      }
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Las contraseñas no coinciden'
-      }
+    // Validar contraseña
+    if (!formData.password) {
+      newErrors.password = 'La contraseña es requerida'
+    } else if (formData.password.length < USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH) {
+      newErrors.password = `La contraseña debe tener al menos ${USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH} caracteres`
     }
 
-    // Validar cambio de rol
-    if (formData.role === USER_ROLES.ADMIN && originalRole !== USER_ROLES.ADMIN) {
-      if (!currentUser?.isSuperAdmin) {
-        newErrors.role = 'Solo el superadmin puede asignar rol de administrador'
-      }
-    }
-
-    if (formData.role !== originalRole) {
-      if (formData.role === USER_ROLES.ADMIN) {
-        // Verificar si es superadmin
-        if (!currentUser?.isSuperAdmin) {
-          newErrors.role = 'Solo el superadmin puede asignar rol de administrador'
-          console.log('Usuario actual no es SuperAdmin:', currentUser)
-        }
-      }
+    // Validar confirmación de contraseña
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden'
     }
 
     setErrors(newErrors)
@@ -97,23 +58,6 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
     [errors]
   )
 
-  const handleRoleChange = async newRole => {
-    try {
-      // Si no es superadmin y está intentando cambiar a ADMIN, mostrar error
-      if (newRole === USER_ROLES.ADMIN && !currentUser?.isSuperAdmin) {
-        setErrors(prev => ({
-          ...prev,
-          role: 'Solo el superadmin puede asignar rol de administrador'
-        }))
-        return
-      }
-
-      setFormData(prev => ({ ...prev, role: newRole }))
-    } catch (error) {
-      setApiError(error.message)
-    }
-  }
-
   const handleSubmit = async e => {
     e.preventDefault()
     setApiError(null)
@@ -124,38 +68,9 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
 
     try {
       setIsLoading(true)
-
-      // Si el rol ha cambiado y es superadmin, manejar el cambio de rol
-      //  && currentUser?.isSuperAdmin
-      if (formData.role !== originalRole) {
-        console.log('Cambiando rol de usuario:', userData.id, 'desde', originalRole, 'a', formData.role)
-        console.log('Changing role for user ID:', userData.id)
-        console.log('Current user (super admin):', currentUser.email)
-
-        if (formData.role === USER_ROLES.ADMIN) {
-          await assignAdminRole(userData.id, currentUser.email)
-          const updatedUser = await getUserByEmail(userData.email)
-          console.log('Updated user data:', updatedUser)
-        } else {
-          await revokeAdminRole(userData.id, currentUser.email)
-        }
-        // Esperar un momento para que el cambio de rol se procese completamente
-        await new Promise(resolve => setTimeout(resolve, 300))
-        console.log('Cambio de rol completado')
-      } else {
-        console.log('No se está cambiando el rol, solo actualizando datos')
-
-        // Excluir campos innecesarios para la actualización
-        const { confirmPassword, role, ...updateData } = formData
-
-        // Solo incluir password si se está cambiando
-        if (!updateData.password) {
-          delete updateData.password
-        }
-
-        await updateUser(userData.email, updateData)
-      }
-
+      // Excluir confirmPassword del envío
+      const { confirmPassword, ...userData } = formData
+      await createUser(userData)
       onSuccess?.()
       onClose()
     } catch (error) {
@@ -166,20 +81,7 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
   }
 
   const handleClose = () => {
-    setFormData({
-      image: '',
-      name: '',
-      lastName: '',
-      document: '',
-      phone: '',
-      dateOfBirth: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      address: '',
-      city: '',
-      role: ''
-    })
+    setFormData(DEFAULT_USER_FORM_DATA)
     setErrors({})
     setApiError(null)
     onClose()
@@ -196,7 +98,7 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
       }}>
       <ModalContent>
         <form onSubmit={handleSubmit}>
-          <ModalHeader>Editar Usuario</ModalHeader>
+          <ModalHeader>Crear Nuevo Usuario</ModalHeader>
           <ModalBody>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Datos básicos */}
@@ -263,13 +165,12 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
                 color={errors.email ? 'danger' : 'default'}
                 errorMessage={errors.email}
                 className="w-full"
-                isDisabled
               />
 
-              {/* Contraseñas (opcionales para edición) */}
+              {/* Contraseñas */}
               <Input
                 type="password"
-                label="Nueva Contraseña"
+                label="Contraseña *"
                 placeholder="Mínimo 6 caracteres"
                 value={formData.password}
                 onChange={e => handleInputChange('password', e.target.value)}
@@ -280,7 +181,7 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
 
               <Input
                 type="password"
-                label="Confirmar Nueva Contraseña"
+                label="Confirmar Contraseña *"
                 placeholder="Confirme la contraseña"
                 value={formData.confirmPassword}
                 onChange={e => handleInputChange('confirmPassword', e.target.value)}
@@ -316,29 +217,6 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
                 onChange={e => handleInputChange('city', e.target.value)}
                 className="w-full"
               />
-
-              {/* Selector de Rol */}
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Rol</label>
-                <div className="flex gap-2">
-                  <Chip
-                    color={formData.role === USER_ROLES.CLIENT ? 'success' : 'default'}
-                    variant={formData.role === USER_ROLES.CLIENT ? 'solid' : 'bordered'}
-                    className={`cursor-pointer ${!currentUser?.isSuperAdmin && 'opacity-50'}`}
-                    onClick={() => handleRoleChange(USER_ROLES.CLIENT)}>
-                    Cliente
-                  </Chip>
-                  <Chip
-                    color={formData.role === USER_ROLES.ADMIN ? 'danger' : 'default'}
-                    variant={formData.role === USER_ROLES.ADMIN ? 'solid' : 'bordered'}
-                    className={`cursor-pointer ${!currentUser?.isSuperAdmin && 'opacity-50'}`}
-                    onClick={() => (currentUser?.isSuperAdmin ? handleRoleChange(USER_ROLES.ADMIN) : null)}>
-                    Administrador
-                  </Chip>
-                </div>
-                {!currentUser?.isSuperAdmin && <span className="text-xs text-gray-500 mt-1">Solo el superadmin puede modificar roles</span>}
-                {errors.role && <span className="text-danger text-xs">{errors.role}</span>}
-              </div>
             </div>
 
             {apiError && <div className="mt-4 text-danger text-sm">{apiError}</div>}
@@ -348,7 +226,7 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
               Cancelar
             </Button>
             <Button color="primary" type="submit" disabled={isLoading} isLoading={isLoading}>
-              Guardar Cambios
+              Crear Usuario
             </Button>
           </ModalFooter>
         </form>
@@ -357,4 +235,4 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
   )
 }
 
-export default EditarUserForm
+export default CrearUserForm

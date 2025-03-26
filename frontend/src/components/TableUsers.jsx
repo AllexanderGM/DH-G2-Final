@@ -1,28 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip } from '@heroui/react'
-
 import { useAuth } from '@context/AuthContext.jsx'
-import { USER_COLUMNS } from '../constants/tableConstants'
-import GenericTableControls from './GenericTableControls'
-import TableActionCell from './TableActionCell'
-import TablePagination from './TablePagination'
+import { getAllUsers } from '@services/userService'
 
-// Nuevos imports
-import { getAllUsers, deleteUser } from '@services/userService'
-import CrearUserForm from './CrearUserForm'
-import EditarUserForm from './EditarUserForm'
-import DeleteUserModal from './DeleteUserModal'
-
-// Mapa de colores para los roles
-const roleColorMap = {
-  ADMIN: 'danger',
-  CLIENT: 'success',
-  GUEST: 'default'
-}
+import GenericTableControls from './GenericTableControls.jsx'
+import TableActionCell from './TableActionCell.jsx'
+import TablePagination from './TablePagination.jsx'
+import CrearUserForm from './CrearUserForm.jsx'
+import EditarUserForm from './EditarUserForm.jsx'
+import DeleteUserModal from './DeleteUserModal.jsx'
+import { USER_ROLES, USER_ROLE_COLORS, USER_COLUMNS, ROWS_PER_PAGE_OPTIONS } from '../constants/tableConstants.js'
 
 const TableUsers = () => {
   const [users, setUsers] = useState([])
-  const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
   const { user: currentUser } = useAuth()
 
   // Estados de la tabla
@@ -38,14 +28,11 @@ const TableUsers = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Nuevos estados para los modales
+  // Estados de los modales
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingUser, setEditingUser] = useState(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [userToDelete, setUserToDelete] = useState(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [deleteError, setDeleteError] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null)
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -61,7 +48,6 @@ const TableUsers = () => {
       filteredUsers = filteredUsers.filter(
         user =>
           (user.username?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
-          (user.name?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
           (user.email?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
           (user.role?.toLowerCase() || '').includes(filterValue.toLowerCase())
       )
@@ -91,52 +77,11 @@ const TableUsers = () => {
     try {
       setLoading(true)
       setError(null)
-
-      const result = await getAllUsers()
-
-      if (result.error) {
-        throw new Error(result.message || 'Error al cargar usuarios')
-      }
-
-      const data = result.data || []
-      console.log('Datos de usuarios recibidos:', data)
-
-      // Procesar los datos para asegurar la estructura correcta
-      const processedData = Array.isArray(data)
-        ? data.map(user => ({
-            id: user.id,
-            username: user.username || user.name || 'Sin nombre',
-            name: user.name || user.username || 'Sin nombre',
-            lastName: user.lastName || '',
-            email: user.email || 'Sin email',
-            role: user.role?.toUpperCase() || 'CLIENT',
-            avatar: user.image || null,
-            document: user.document || '',
-            phone: user.phone || '',
-            dateOfBirth: user.dateOfBirth || '',
-            address: user.address || '',
-            city: user.city || ''
-          }))
-        : []
-
-      setUsers(processedData)
+      const data = await getAllUsers()
+      setUsers(data)
     } catch (error) {
       console.error('Error al cargar usuarios:', error)
       setError(error.message)
-
-      // Si estamos en modo desarrollo y falla, intentar cargar datos de ejemplo
-      if (import.meta.env.DEV) {
-        try {
-          const response = await fetch('/data/mock-users.json')
-          if (response.ok) {
-            const mockData = await response.json()
-            setUsers(mockData)
-            setError('Usando datos de desarrollo (mock)')
-          }
-        } catch (mockError) {
-          console.error('Error cargando datos de ejemplo:', mockError)
-        }
-      }
     } finally {
       setLoading(false)
     }
@@ -146,84 +91,62 @@ const TableUsers = () => {
     fetchUsers()
   }, [fetchUsers])
 
-  // Funciones para manejar la creación, edición y eliminación de usuarios
   const handleOpenCreateModal = useCallback(() => {
     setIsCreateModalOpen(true)
   }, [])
 
-  const handleCloseCreateModal = useCallback(() => {
-    setIsCreateModalOpen(false)
-  }, [])
-
-  const handleUserCreated = useCallback(
-    newUser => {
-      console.log('Usuario creado:', newUser)
-      fetchUsers() // Refrescar la lista
-    },
-    [fetchUsers]
-  )
-
   const handleOpenEditModal = useCallback(user => {
-    setEditingUser(user)
+    setSelectedUser(user)
     setIsEditModalOpen(true)
   }, [])
 
-  const handleCloseEditModal = useCallback(() => {
-    setIsEditModalOpen(false)
-    setEditingUser(null)
-  }, [])
-
-  const handleUserUpdated = useCallback(
-    updatedUser => {
-      console.log('Usuario actualizado:', updatedUser)
-      fetchUsers() // Refrescar la lista
-    },
-    [fetchUsers]
-  )
+  // const handleOpenDeleteModal = useCallback(user => {
+  //   setSelectedUser(user)
+  //   setIsDeleteModalOpen(true)
+  // }, [])
 
   const handleOpenDeleteModal = useCallback(user => {
-    setUserToDelete(user)
-    setIsDeleteModalOpen(true)
-    setDeleteError(null)
-  }, [])
-
-  const handleCloseDeleteModal = useCallback(() => {
-    setIsDeleteModalOpen(false)
-    setUserToDelete(null)
-    setDeleteError(null)
-  }, [])
-
-  const handleConfirmDelete = useCallback(async () => {
-    if (!userToDelete) return
-
-    try {
-      setDeleteLoading(true)
-      setDeleteError(null)
-
-      // Usar preferentemente el ID, pero si no está disponible usar el email
-      const identifier = userToDelete.id || userToDelete.email
-
-      if (!identifier) {
-        throw new Error('No se pudo identificar al usuario para eliminarlo')
-      }
-
-      const success = await deleteUser(identifier)
-
-      if (success) {
-        // Actualizar la lista después de eliminar
-        fetchUsers()
-        setIsDeleteModalOpen(false)
-        setUserToDelete(null)
-      } else {
-        setDeleteError('No se pudo eliminar el usuario. Intenta nuevamente.')
-      }
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error)
-      setDeleteError(`Error: ${error.message || 'No se pudo eliminar el usuario'}`)
-    } finally {
-      setDeleteLoading(false)
+    // Asegurarnos de que tenemos la información correcta del usuario
+    if (!user || !user.email) {
+      console.error('Error: Datos de usuario incompletos', user)
+      return
     }
-  }, [userToDelete, fetchUsers])
+
+    console.log('Abriendo modal para eliminar usuario:', user.email)
+    setSelectedUser({
+      id: user.id,
+      email: user.email,
+      name: user.name || user.username,
+      lastName: user.lastName || '',
+      role: user.role
+    })
+    setIsDeleteModalOpen(true)
+  }, [])
+
+  const handleCloseModals = useCallback(() => {
+    setIsCreateModalOpen(false)
+    setIsEditModalOpen(false)
+    setIsDeleteModalOpen(false)
+    setSelectedUser(null)
+  }, [])
+
+  // const handleSuccess = useCallback(() => {
+  //   fetchUsers()
+  //   handleCloseModals()
+  // }, [fetchUsers, handleCloseModals])
+
+  const handleSuccess = useCallback(() => {
+    console.log('Operación exitosa, actualizando lista de usuarios')
+    // fetchUsers() // Refrescar la lista después de una operación exitosa
+    setTimeout(() => {
+      fetchUsers()
+      console.log('Lista de usuarios actualizada')
+    }, 1000)
+    setIsCreateModalOpen(false)
+    setIsEditModalOpen(false)
+    setIsDeleteModalOpen(false)
+    setSelectedUser(null)
+  }, [fetchUsers])
 
   const renderCell = useCallback(
     (user, columnKey) => {
@@ -236,32 +159,49 @@ const TableUsers = () => {
               avatarProps={{
                 radius: 'lg',
                 src: user.avatar || 'https://via.placeholder.com/150',
-                alt: user.username || user.name
+                alt: user.username
               }}
-              name={user.username || user.name}
-              description={user.email}
+              name={user.username}
             />
           )
         case 'role':
           return (
-            <Chip className="capitalize" color={roleColorMap[user.role] || 'default'} size="sm" variant="flat">
-              {user.role?.toLowerCase() || 'client'}
+            <Chip className="capitalize" color={USER_ROLE_COLORS[user.role] || 'default'} size="sm" variant="flat">
+              {user.role?.toLowerCase() || 'user'}
             </Chip>
           )
-        case 'actions':
+        // case 'actions':
+        //   const canEdit = currentUser?.isSuperAdmin || user.role !== 'ADMIN'
+        //   const canDelete = currentUser?.isSuperAdmin || (user.role !== 'ADMIN' && user.email !== currentUser?.email)
+        //
+        //   return (
+        //     <TableActionCell
+        //       item={user}
+        //       onEdit={canEdit ? () => handleOpenEditModal(user) : null}
+        //       onDelete={canDelete ? () => handleOpenDeleteModal(user) : null}
+        //       editTooltip={!canEdit ? 'No tienes permisos para editar administradores' : 'Editar'}
+        //       deleteTooltip={!canDelete ? 'No puedes eliminar este usuario' : 'Eliminar'}
+        //     />
+        //   )
+        case 'actions': {
+          const canEdit = currentUser?.isSuperAdmin || user.role !== USER_ROLES.ADMIN
+          const canDelete = currentUser?.isSuperAdmin || (user.role !== USER_ROLES.ADMIN && user.email !== currentUser?.email)
+
           return (
             <TableActionCell
               item={user}
-              onView={() => console.log('Ver usuario:', user)}
-              onEdit={() => handleOpenEditModal(user)}
-              onDelete={() => handleOpenDeleteModal(user)}
+              onEdit={canEdit ? () => handleOpenEditModal(user) : null}
+              onDelete={canDelete ? () => handleOpenDeleteModal(user) : null}
+              editTooltip={!canEdit ? 'No tienes permisos para editar administradores' : 'Editar'}
+              deleteTooltip={!canDelete ? 'No puedes eliminar este usuario' : 'Eliminar'}
             />
           )
+        }
         default:
           return cellValue || ''
       }
     },
-    [handleOpenEditModal, handleOpenDeleteModal]
+    [currentUser, handleOpenEditModal, handleOpenDeleteModal]
   )
 
   const onNextPage = useCallback(() => {
@@ -348,7 +288,7 @@ const TableUsers = () => {
     <>
       <Table
         isHeaderSticky
-        aria-label="Users Table"
+        aria-label="Tabla de Usuarios"
         className="w-full max-w-6xl mt-6"
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
@@ -371,27 +311,20 @@ const TableUsers = () => {
           emptyContent={loading ? 'Cargando...' : error ? 'Error al cargar usuarios' : 'No se encontraron usuarios'}
           loadingContent={<div>Cargando usuarios...</div>}
           loadingState={loading ? 'loading' : 'idle'}>
-          {item => <TableRow key={item.id || item.email}>{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}</TableRow>}
+          {item => <TableRow key={item.id}>{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}</TableRow>}
         </TableBody>
       </Table>
 
-      {/* Modal para crear nuevo usuario */}
-      <CrearUserForm isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} onSuccess={handleUserCreated} />
+      {/* Modales */}
+      <CrearUserForm isOpen={isCreateModalOpen} onClose={handleCloseModals} onSuccess={handleSuccess} />
 
-      {/* Modal para editar usuario */}
-      {editingUser && (
-        <EditarUserForm isOpen={isEditModalOpen} onClose={handleCloseEditModal} onSuccess={handleUserUpdated} userData={editingUser} />
+      {selectedUser && (
+        <EditarUserForm isOpen={isEditModalOpen} onClose={handleCloseModals} onSuccess={handleSuccess} userData={selectedUser} />
       )}
 
-      {/* Modal para confirmar eliminación */}
-      <DeleteUserModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        onConfirm={handleConfirmDelete}
-        userData={userToDelete}
-        isLoading={deleteLoading}
-        error={deleteError}
-      />
+      {selectedUser && (
+        <DeleteUserModal isOpen={isDeleteModalOpen} onClose={handleCloseModals} onSuccess={handleSuccess} userData={selectedUser} />
+      )}
     </>
   )
 }
