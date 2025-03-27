@@ -39,7 +39,8 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of("http://localhost:[*]"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+        // *******************************************
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Super-Admin-Email"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -69,7 +70,8 @@ public class SecurityConfiguration {
 
                             // 🔹 Rutas protegidas para cambiar roles (Solo ADMIN)
                             auth.requestMatchers(HttpMethod.POST, "/users/{id}/admin").permitAll();
-                            auth.requestMatchers(HttpMethod.DELETE, "/users/{id}/admin").permitAll();
+                            // ************************************
+                            auth.requestMatchers(HttpMethod.PUT, "/users/{id}/admin").permitAll();
                             //auth.requestMatchers(HttpMethod.POST, "/users/{id}/admin").hasRole("ADMIN");
                             //auth.requestMatchers(HttpMethod.DELETE, "/users/{id}/admin").hasRole("ADMIN");   //como estaba antes
 

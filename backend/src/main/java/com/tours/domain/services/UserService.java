@@ -59,13 +59,6 @@ public class UserService {
                 return new UnauthorizedException("Usuario no encontrado");
             });
 
-            Role role = rolRepository
-                    .findByUserRol(UserRol.lookup(userRequestDTO.role()))
-                    .orElseThrow(() -> {
-                        logger.error("Error: Rol {} no encontrado para el usuario", userRequestDTO.role());
-                        return new UnauthorizedException("Rol no encontrado");
-                    });
-
             user.setImage(userRequestDTO.image());
             user.setEmail(userRequestDTO.email());
             user.setName(userRequestDTO.name());
@@ -77,7 +70,6 @@ public class UserService {
             user.setPassword(bCryptPasswordEncoder.encode(userRequestDTO.password()));
             user.setAddress(userRequestDTO.address());
             user.setCity(userRequestDTO.city());
-            user.setRole(role);
 
             User userEdit = userRepository.save(user);
             logger.info("Usuario actualizado correctamente {}", user.getEmail());

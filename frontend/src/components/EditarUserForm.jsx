@@ -125,8 +125,6 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
     try {
       setIsLoading(true)
 
-      // Si el rol ha cambiado y es superadmin, manejar el cambio de rol
-      //  && currentUser?.isSuperAdmin
       if (formData.role !== originalRole) {
         console.log('Cambiando rol de usuario:', userData.id, 'desde', originalRole, 'a', formData.role)
         console.log('Changing role for user ID:', userData.id)
@@ -140,21 +138,21 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
           await revokeAdminRole(userData.id, currentUser.email)
         }
         // Esperar un momento para que el cambio de rol se procese completamente
-        await new Promise(resolve => setTimeout(resolve, 300))
         console.log('Cambio de rol completado')
       } else {
         console.log('No se está cambiando el rol, solo actualizando datos')
-
-        // Excluir campos innecesarios para la actualización
-        const { confirmPassword, role, ...updateData } = formData
-
-        // Solo incluir password si se está cambiando
-        if (!updateData.password) {
-          delete updateData.password
-        }
-
-        await updateUser(userData.email, updateData)
       }
+
+      // Excluir campos innecesarios para la actualización
+      const { confirmPassword, role, ...updateData } = formData
+      console.log(updateData)
+
+      // Solo incluir password si se está cambiando
+      if (!updateData.password) {
+        delete updateData.password
+      }
+
+      await updateUser(userData.email, updateData)
 
       onSuccess?.()
       onClose()

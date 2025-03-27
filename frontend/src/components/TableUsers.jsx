@@ -100,11 +100,6 @@ const TableUsers = () => {
     setIsEditModalOpen(true)
   }, [])
 
-  // const handleOpenDeleteModal = useCallback(user => {
-  //   setSelectedUser(user)
-  //   setIsDeleteModalOpen(true)
-  // }, [])
-
   const handleOpenDeleteModal = useCallback(user => {
     // Asegurarnos de que tenemos la información correcta del usuario
     if (!user || !user.email) {
@@ -130,18 +125,13 @@ const TableUsers = () => {
     setSelectedUser(null)
   }, [])
 
-  // const handleSuccess = useCallback(() => {
-  //   fetchUsers()
-  //   handleCloseModals()
-  // }, [fetchUsers, handleCloseModals])
-
   const handleSuccess = useCallback(() => {
     console.log('Operación exitosa, actualizando lista de usuarios')
-    // fetchUsers() // Refrescar la lista después de una operación exitosa
-    setTimeout(() => {
-      fetchUsers()
-      console.log('Lista de usuarios actualizada')
-    }, 1000)
+    fetchUsers() // Refrescar la lista después de una operación exitosa
+    // setTimeout(() => {
+    //   fetchUsers()
+    //   console.log('Lista de usuarios actualizada')
+    // }, 1000)
     setIsCreateModalOpen(false)
     setIsEditModalOpen(false)
     setIsDeleteModalOpen(false)
@@ -170,19 +160,6 @@ const TableUsers = () => {
               {user.role?.toLowerCase() || 'user'}
             </Chip>
           )
-        // case 'actions':
-        //   const canEdit = currentUser?.isSuperAdmin || user.role !== 'ADMIN'
-        //   const canDelete = currentUser?.isSuperAdmin || (user.role !== 'ADMIN' && user.email !== currentUser?.email)
-        //
-        //   return (
-        //     <TableActionCell
-        //       item={user}
-        //       onEdit={canEdit ? () => handleOpenEditModal(user) : null}
-        //       onDelete={canDelete ? () => handleOpenDeleteModal(user) : null}
-        //       editTooltip={!canEdit ? 'No tienes permisos para editar administradores' : 'Editar'}
-        //       deleteTooltip={!canDelete ? 'No puedes eliminar este usuario' : 'Eliminar'}
-        //     />
-        //   )
         case 'actions': {
           const canEdit = currentUser?.isSuperAdmin || user.role !== USER_ROLES.ADMIN
           const canDelete = currentUser?.isSuperAdmin || (user.role !== USER_ROLES.ADMIN && user.email !== currentUser?.email)
