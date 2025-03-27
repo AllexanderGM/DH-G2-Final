@@ -84,3 +84,18 @@ variable "docker_image_backend" {
   description = "Imagen de Docker para el backend"
   type        = string
 }
+
+variable "key_name" {
+  description = "Nombre del key pair para la instancia EC2"
+  type        = string
+}
+
+resource "tls_private_key" "ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "generated" {
+  key_name   = "${var.prefix}-ec2-key"
+  public_key = tls_private_key.ssh_key.public_key_openssh
+}
