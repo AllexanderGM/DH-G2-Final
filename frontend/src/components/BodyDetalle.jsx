@@ -1,8 +1,18 @@
-import { Card } from '@heroui/react'
+import { Card, Chip } from '@heroui/react'
+import { normalizeWords } from '@utils/normalizeWords.js'
+import { useNavigate } from 'react-router-dom'
 
 import CardDetalle from './CardDetalle.jsx'
 
 const BodyDetalle = ({ tour }) => {
+  const navigate = useNavigate()
+
+  const handleTagClick = (tag, e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    navigate(`/categoria/${tag.toLowerCase()}`)
+  }
+
   // Verificar si tour tiene datos de servicios incluidos
   const hasIncludes = tour && tour.includes && Array.isArray(tour.includes) && tour.includes.length > 0
 
@@ -164,6 +174,26 @@ const BodyDetalle = ({ tour }) => {
                     ))}
                   </div>
                 </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Card Categorías */}
+          {tour?.tags && tour.tags.length > 0 && (
+            <Card className="rounded-lg border border-gray-300 mb-8 p-4 text-md">
+              <div className="flex flex-wrap gap-2">
+                {tour.tags.map((tag, index) => (
+                  <Chip
+                    key={index}
+                    size="sm"
+                    variant="dot"
+                    color="primary"
+                    className="card_tour-tag hover:bg-primary-100 transition-colors border border-neutral-200 cursor-pointer"
+                    onClick={e => handleTagClick(tag, e)}
+                    startContent={<span className="material-symbols-outlined text-primary text-base mr-1">bookmarks</span>}>
+                    {normalizeWords(tag)}
+                  </Chip>
+                ))}
               </div>
             </Card>
           )}
