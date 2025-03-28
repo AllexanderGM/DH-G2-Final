@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Tabs, Tab } from '@heroui/react'
 import { updateTour } from '@services/tourService.js'
 
+import ImageInput from './ImageInput.jsx'
+
 // Constantes compartidas para categorías, servicios y regiones
 const CATEGORIAS = [
   { value: 'BEACH', label: 'Playa' },
@@ -169,7 +171,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
     description: '',
     adultPrice: '',
     childPrice: '',
-    images: ['', ''],
+    images: [''],
     status: 'Disponible',
     tags: [],
     includes: [],
@@ -200,9 +202,13 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       console.log('Cargando datos del tour para editar:', tourData)
 
       // Preparar imágenes (asegurar que siempre hay al menos dos slots para imágenes)
-      const images = Array.isArray(tourData.imagenes) ? [...tourData.imagenes] : []
-      while (images.length < 2) {
-        images.push('')
+      let images = []
+      if (Array.isArray(tourData.imagenes) && tourData.imagenes.length > 0) {
+        images = [...tourData.imagenes]
+      } else if (Array.isArray(tourData.images) && tourData.images.length > 0) {
+        images = [...tourData.images]
+      } else {
+        images = [''] // Al menos un campo vacío
       }
 
       // Convertir precio a string para input
@@ -335,9 +341,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
     }
   }
 
-  const handleImageChange = (index, value) => {
-    const newImages = [...formData.images]
-    newImages[index] = value
+  const handleImagesChange = newImages => {
     setFormData({
       ...formData,
       images: newImages
@@ -488,6 +492,11 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
 
       if (formData.includes.length === 0) {
         throw new Error('Debes seleccionar al menos un servicio incluido')
+      }
+
+      const validImages = formData.images.filter(img => img.trim() !== '')
+      if (validImages.length === 0) {
+        throw new Error('Debes proporcionar al menos una URL de imagen')
       }
 
       // Validar cada objeto de disponibilidad
@@ -647,21 +656,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Imágenes (URLs)</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Input
-                        placeholder="URL de la imagen 1"
-                        value={formData.images[0]}
-                        onChange={e => handleImageChange(0, e.target.value)}
-                      />
-                      <Input
-                        placeholder="URL de la imagen 2"
-                        value={formData.images[1]}
-                        onChange={e => handleImageChange(1, e.target.value)}
-                      />
-                    </div>
-                  </div>
+                  <ImageInput images={formData.images} onChange={handleImagesChange} maxImages={5} />
                 </div>
               </Tab>
 

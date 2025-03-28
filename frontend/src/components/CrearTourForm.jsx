@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Tabs, Tab } from '@heroui/react'
 import { createTour } from '@services/tourService.js'
 
-import { TourFormImprovements } from './TourFormImprovements.jsx'
+import ImageInput from './ImageInput.jsx' // Importamos el nuevo componente
 
 const CATEGORIAS = [
   { value: 'BEACH', label: 'Playa' },
@@ -176,7 +176,7 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
     description: '',
     adultPrice: '',
     childPrice: '',
-    images: ['', ''],
+    images: [''],
     status: 'Disponible',
     tags: [],
     includes: [],
@@ -230,9 +230,8 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
     }
   }
 
-  const handleImageChange = (index, value) => {
-    const newImages = [...formData.images]
-    newImages[index] = value
+  // Reemplazamos la función handleImageChange por una que maneja el array completo
+  const handleImagesChange = newImages => {
     setFormData({
       ...formData,
       images: newImages
@@ -389,6 +388,12 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
         throw new Error('Debes seleccionar al menos un servicio incluido')
       }
 
+      // Validar que haya al menos una imagen con URL
+      const validImages = formData.images.filter(img => img.trim() !== '')
+      if (validImages.length === 0) {
+        throw new Error('Debes proporcionar al menos una URL de imagen')
+      }
+
       // Validar cada objeto de disponibilidad
       for (let i = 0; i < formData.availability.length; i++) {
         const avail = formData.availability[i]
@@ -458,7 +463,7 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
         description: '',
         adultPrice: '',
         childPrice: '',
-        images: ['', ''],
+        images: [''],
         status: 'Disponible',
         tags: [],
         includes: [],
@@ -549,21 +554,8 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Imágenes (URLs)</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Input
-                        placeholder="URL de la imagen 1"
-                        value={formData.images[0]}
-                        onChange={e => handleImageChange(0, e.target.value)}
-                      />
-                      <Input
-                        placeholder="URL de la imagen 2"
-                        value={formData.images[1]}
-                        onChange={e => handleImageChange(1, e.target.value)}
-                      />
-                    </div>
-                  </div>
+                  {/* Reemplazamos los inputs de imágenes con nuestro nuevo componente */}
+                  <ImageInput images={formData.images} onChange={handleImagesChange} maxImages={5} />
                 </div>
               </Tab>
 
