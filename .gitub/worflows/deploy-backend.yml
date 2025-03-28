@@ -1,0 +1,59 @@
+name: DH-G2Final Deploy Backend EC2 AWS Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Login a GHCR | GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Construir imagen Docker
+        run: |
+          docker compose build --no-cache --pull
+          docker tag backend ghcr.io/${{ github.actor }}/${{ github.repository }}:latest
+
+      - name: Subir imagen a GHCR
+        run: docker push ghcr.io/${{ github.repository }}/backend:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aplicar Terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Conectar a EC2 y actualizar Backend
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker login ghcr.io -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
+            docker pull ghcr.io/${{ github.actor }}/backend:latest
+            docker stop backend || true
+            docker rm backend || true
+            docker run -d -p 3000:3000 --env-file /home/ubuntu/.env ghcr.io/${{ github.actor }}/backend:latest

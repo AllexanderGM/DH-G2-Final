@@ -37,7 +37,7 @@ create_frontend_env() {
     cat <<EOL >"$FRONTEND_ENV_PATH"
 # Variables de entorno Generales
 VITE_NAME=$NAME
-VITE_NODE_ENV=$ENV
+VITE_ENV=$ENV
 
 # Variables de archivos estáticos
 VITE_STATIC_FILE_PATH=$STATIC_FILE_PATH
@@ -65,7 +65,7 @@ create_backend_env() {
     cat <<EOL >"$BACKEND_ENV_PATH"
 # Variables de entorno Generales
 NAME=$NAME
-NODE_ENV=$ENV
+ENV=$ENV
 
 # Configuración de URLs
 PORT_FRONT=$PORT_FRONT
@@ -80,6 +80,57 @@ DB_USER=$DB_USER
 DB_PASSWORD=$DB_PASSWORD
 DB_ROOT_PASSWORD=$DB_ROOT_PASSWORD
 DB_NAME=$DB_NAME
+
+# Configuración de almacenamiento (MinIO)
+MINIO_PORT=$MINIO_PORT
+MINIO_PORT_WEB=$MINIO_PORT_WEB
+MINIO_WEB=$MINIO_HOST:$MINIO_PORT_WEB
+MINIO_ENDPOINT=$MINIO_HOST:$MINIO_PORT
+MINIO_ROOT_USER=$MINIO_ROOT_USER
+MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD
+MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY
+MINIO_SECRET_KEY=$MINIO_SECRET_KEY
+MINIO_BUCKET=$MINIO_BUCKET
+
+# Variables de encriptación
+ALGORITHM=$ALGORITHM
+KEY=$KEY
+IV=$IV
+
+# Configuración de sesión y autenticación
+SESSION_SECRET=$SESSION_SECRET
+JWT_SECRET=$JWT_SECRET
+JWT_EXPIRATION=$JWT_EXPIRATION
+ADMIN_USERNAME=$ADMIN_USERNAME
+ADMIN_PASSWORD=$ADMIN_PASSWORD
+EOL
+}
+
+
+# Función para crear el terraform.tfvars del Terraform - AWS
+create_terraform_env() {
+    # Definir DB_HOST para el perfil "front"
+    [[ "$PROFILE" == "front" ]] && DB_HOST="localhost"
+
+    echo "📂 Creando archivo terraform.tfvars para la infraestructura en $INFRA_ENV_PATH..."
+    cat <<EOL >"$INFRA_ENV_PATH"
+# Variables de entorno Generales
+name=$NAME
+env=$ENV
+
+# Configuración de URLs
+port_front=$PORT_FRONT
+port_back=$PORT_BACK
+url_front=$URL_FRONT
+url_back=$URL_BACK
+
+# Configuración de Base de Datos
+db_port=$DB_PORT
+db_host=$DB_HOST
+db_user=$DB_USER
+db_password=$DB_PASSWORD
+db_root_password=$DB_ROOT_PASSWORD
+db_name=$DB_NAME
 
 # Configuración de almacenamiento (MinIO)
 MINIO_PORT=$MINIO_PORT

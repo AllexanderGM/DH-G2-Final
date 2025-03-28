@@ -51,7 +51,7 @@ create_frontend_env() {
   cat <<EOL >"$FRONTEND_ENV_PATH"
 # Variables de entorno Generales
 VITE_NAME=$NAME
-VITE_NODE_ENV=$ENV
+VITE_ENV=$ENV
 
 # Variables de archivos estáticos
 VITE_STATIC_FILE_PATH=$STATIC_FILE_PATH
@@ -79,7 +79,7 @@ create_backend_env() {
   cat <<EOL >"$BACKEND_ENV_PATH"
 # Variables de entorno Generales
 NAME=$NAME
-NODE_ENV=$ENV
+ENV=$ENV
 
 # Configuración de URLs
 PORT_FRONT=$PORT_FRONT
