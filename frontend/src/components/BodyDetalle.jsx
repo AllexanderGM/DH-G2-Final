@@ -3,6 +3,10 @@ import { Card, CardBody, CardHeader, CardFooter, Chip } from '@heroui/react'
 import CardDetalle from './CardDetalle.jsx'
 
 const BodyDetalle = ({ tour }) => {
+  // Verificar si tour tiene datos de servicios incluidos
+  const hasIncludes = tour && tour.includes && Array.isArray(tour.includes) && tour.includes.length > 0
+
+  // Mapa de iconos estáticos para usar de fallback o respaldo
   const incluye = [
     { icon: 'villa', tag: 'Alojamiento' },
     { icon: 'directions_bus', tag: 'Transporte' },
@@ -23,63 +27,150 @@ const BodyDetalle = ({ tour }) => {
     { icon: 'accessibility_new', tag: 'Asistencia' }
   ]
 
+  // Función para obtener el icono adecuado de material symbols
+  const getIconSymbol = serviceType => {
+    // Mapeo de servicios a iconos de Material Symbols más completo
+    const iconMap = {
+      Alojamiento: 'hotel',
+      Transporte: 'directions_car',
+      Boletos: 'local_activity',
+      Snacks: 'cookie',
+      Bebidas: 'wine_bar',
+      Desayuno: 'egg_alt',
+      Almuerzo: 'dinner_dining',
+      Cena: 'restaurant',
+      'Guía turístico': 'tour',
+      'Seguro de viaje': 'health_and_safety',
+      Actividades: 'theater_comedy',
+      Fotografías: 'photo_camera',
+      Souvenirs: 'redeem',
+      Equipamiento: 'hiking',
+      Wifi: 'wifi',
+      Propinas: 'paid',
+      'Asistencia 24/7': 'support_agent'
+    }
+
+    return iconMap[serviceType] || 'check_circle'
+  }
+
+  // Procesamiento de los servicios incluidos
+  const processedIncludes = hasIncludes
+    ? tour.includes
+        .map(service => {
+          // Si el servicio ya viene como objeto con propiedades completas
+          if (typeof service === 'object' && service !== null) {
+            return {
+              type: service.type,
+              icon: getIconSymbol(service.type),
+              details: service.details || '',
+              description: service.description || ''
+            }
+          }
+
+          // Si el servicio viene como string
+          if (typeof service === 'string') {
+            return {
+              type: service,
+              icon: getIconSymbol(service),
+              details: '',
+              description: ''
+            }
+          }
+
+          return null
+        })
+        .filter(Boolean)
+    : []
+
+  // Si no hay servicios incluidos dinámicos, mostrar algunos estáticos como respaldo
+  const servicesToDisplay =
+    processedIncludes.length > 0
+      ? processedIncludes.slice(0, 6) // Mostrar hasta 6 servicios dinámicos
+      : incluye.slice(0, 6) // Mostrar 6 servicios estáticos por defecto
+
   return (
     <div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5 lg:gap-10">
         <div className="lg:col-span-3 pr-0 pl-0">
-          <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
-            <h2 className="text-2xl text-gray-800 font-bold mb-4">Incluye</h2>
-            <CardBody className="grid grid-cols-3 ">
-              <div className="flex justify-start items-center ">
-                <div className="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                  <span className="material-symbols-outlined">{incluye[0].icon}</span>
-                </div>
-                <p>{incluye[0].tag}</p>
-              </div>
-              <div className="flex justify-start items-center pb-2 ">
-                <div className="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                  <span className="material-symbols-outlined">{incluye[5].icon}</span>
-                </div>
-                <p>{incluye[5].tag}</p>
-              </div>
-              <div className="flex justify-start items-center pb-2 ">
-                <div className="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                  <span className="material-symbols-outlined">{incluye[3].icon}</span>
-                </div>
-                <p>{incluye[3].tag}</p>
-              </div>
-              <div className="flex justify-start items-center pb-2 ">
-                <div className="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                  <span className="material-symbols-outlined">{incluye[6].icon}</span>
-                </div>
-                <p>{incluye[6].tag}</p>
-              </div>
-              <div className="flex justify-start items-center pb-2 ">
-                <div className="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                  <span className="material-symbols-outlined">{incluye[12].icon}</span>
-                </div>
-                <p>{incluye[12].tag}</p>
-              </div>
-              <div className="flex justify-start items-center pb-2 ">
-                <div className="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                  <span className="material-symbols-outlined">{incluye[8].icon}</span>
-                </div>
-                <p>{incluye[8].tag}</p>
-              </div>
-            </CardBody>
-          </Card>
+          {/* Card Descripción */}
           <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
             <div>
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">Descripción del lugar</h2>
+              <h2 className="text-2xl font-bold mb-6">Descripción</h2>
             </div>
-            <p className="text-slate-700">
-              El Valle del Aconcagua es una cuenca de origen cordillerano, ubicada en la Región de Valparaíso a unos 90 km al norte de
-              Santiago y unos 105 km al oriente de la Ciudad de Valparaíso. Lo atraviesa el río Aconcagua que alimenta los fértiles campos
-              que lo circundan.
-            </p>
+            <p className="text-gray-800">{tour.description || 'No hay descripción disponible para este tour.'}</p>
           </Card>
+
+          {/* Card Incluye - Con nuevo estilo */}
+          <Card className="rounded-lg border border-gray-300 mb-8 p-6 text-md">
+            <h2 className="text-2xl font-bold mb-5">Incluye</h2>
+            <CardBody className="p-0">
+              {processedIncludes.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {processedIncludes.map((service, index) => (
+                    <div key={index} className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <span className="material-symbols-outlined text-red-500">{service.icon}</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-800">{service.type}</p>
+                        {service.details && <p className="text-sm text-gray-500">{service.details}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">No hay servicios incluidos disponibles para este tour.</p>
+              )}
+            </CardBody>
+          </Card>
+
+          {/* Card Estado */}
           <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Detalles</h2>
+            <h2 className="text-2xl font-bold mb-4">Estado del tour</h2>
+            <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0">
+              <div className="flex items-center space-x-2">
+                <span className="material-symbols-outlined text-green-500">check_circle</span>
+                <span className="text-gray-700">Estado: {tour?.status?.status || 'Disponible'}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="material-symbols-outlined text-blue-500">date_range</span>
+                <span className="text-gray-700">
+                  Creado:{' '}
+                  {tour?.creationDate
+                    ? new Date(tour.creationDate[0], tour.creationDate[1] - 1, tour.creationDate[2]).toLocaleDateString()
+                    : 'Fecha no disponible'}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="material-symbols-outlined text-orange-500">stars</span>
+                <span className="text-gray-700">Hotel: {tour?.hotel?.stars ? `${tour.hotel.stars} estrellas` : 'No especificado'}</span>
+              </div>
+            </div>
+          </Card>
+
+          {/* Card Hotel */}
+          {tour?.hotel?.name && (
+            <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
+              <h2 className="text-2xl font-bold mb-4">Hotel</h2>
+              <div className="flex items-center space-x-3">
+                <span className="material-symbols-outlined text-2xl text-red-500">hotel</span>
+                <div>
+                  <p className="font-medium text-gray-800">{tour.hotel.name}</p>
+                  <div className="flex text-amber-400">
+                    {[...Array(tour.hotel.stars || 0)].map((_, i) => (
+                      <span key={i} className="material-symbols-outlined">
+                        star
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Card Detalles - Se conserva como en original */}
+          <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
+            <h2 className="text-2xl font-bold mb-4">Detalles</h2>
             <div className="grid grid-cols-2 gap-4">
               <Chip size="sm" variant="flat" color="primary" className="flex items-center justify-start px-3">
                 <span className="material-symbols-outlined icon text-base mr-2 flex-shrink-0">face</span>
@@ -99,8 +190,10 @@ const BodyDetalle = ({ tour }) => {
               </Chip>
             </div>
           </Card>
+
+          {/* Card Itinerario - Se conserva como en original */}
           <Card className="rounded-lg border border-gray-300 mb-8 p-8 pb-10 text-md">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Itinerario</h2>
+            <h2 className="text-2xl font-bold mb-4">Itinerario</h2>
             <div className="relative pl-6">
               <div className="absolute left-[0.35rem] top-0 bottom-0 w-0.5 bg-gray-300"></div>
               <ul className="text-slate-700 list-none space-y-4">
@@ -124,6 +217,8 @@ const BodyDetalle = ({ tour }) => {
             </div>
           </Card>
         </div>
+
+        {/* Columna derecha con CardDetalle y fecha */}
         <CardDetalle tour={tour} />
       </div>
     </div>

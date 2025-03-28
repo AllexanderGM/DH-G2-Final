@@ -33,7 +33,6 @@ const DetalleTour = () => {
         // Verificar específicamente los datos de disponibilidad
         console.log('Datos de disponibilidad en respuesta:', data.availability)
 
-        // Normalizar la estructura de availability con la utilidad
         const normalizedAvailability = normalizeAvailability(data.availability)
         console.log('Disponibilidad normalizada:', normalizedAvailability)
 

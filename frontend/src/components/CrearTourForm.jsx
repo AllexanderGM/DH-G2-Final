@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Tabs, Tab } from '@heroui/react'
 import { createTour } from '@services/tourService.js'
 
+import { TourFormImprovements } from './TourFormImprovements.jsx'
+
 const CATEGORIAS = [
   { value: 'BEACH', label: 'Playa' },
   { value: 'VACATION', label: 'Vacaciones' },
@@ -145,12 +147,18 @@ const REGIONES = [
   { value: 'Oceania', label: 'Oceanía' }
 ]
 
-// Función para obtener fecha y hora actual en formato ISO para los inputs datetime-local
-const getCurrentDateTimeISO = () => {
-  const now = new Date()
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
-  return now.toISOString().slice(0, 16)
-}
+const PREDEFINED_HOTELS = [
+  { id: 1, name: 'Grand Oasis Cancun', stars: 5 },
+  { id: 2, name: 'Hotel Caribe', stars: 4 },
+  { id: 3, name: 'Ritz Paris', stars: 5 },
+  { id: 4, name: 'Hotel Hassler Roma', stars: 5 },
+  { id: 5, name: 'Four Seasons Bali', stars: 5 },
+  { id: 6, name: 'Plaza Hotel NYC', stars: 5 },
+  { id: 7, name: 'Belmond Sanctuary', stars: 5 },
+  { id: 8, name: 'Copacabana Palace', stars: 5 },
+  { id: 9, name: 'Burj Al Arab', stars: 7 },
+  { id: 10, name: 'W Barcelona', stars: 5 }
+]
 
 // Función para obtener fecha futura (en días) en formato ISO
 const getFutureDateTimeISO = days => {
@@ -279,15 +287,15 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
     })
   }
 
-  const handleIncludeDetailChange = (service, field, value) => {
-    setIncludesDetails({
-      ...includesDetails,
-      [service]: {
-        ...includesDetails[service],
-        [field]: value
-      }
-    })
-  }
+  // const handleIncludeDetailChange = (service, field, value) => {
+  //   setIncludesDetails({
+  //     ...includesDetails,
+  //     [service]: {
+  //       ...includesDetails[service],
+  //       [field]: value
+  //     }
+  //   })
+  // }
 
   const handleAvailabilityChange = (index, field, value) => {
     const newAvailability = [...formData.availability]
@@ -561,6 +569,7 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
 
               <Tab key="destino" title="Destino y Hotel">
                 <div className="space-y-4 py-2">
+                  {/* Región (mantiene el componente existente) */}
                   <div className="mb-4">
                     <label htmlFor="region" className={labelStyle}>
                       Región
@@ -597,30 +606,21 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="Nombre del hotel"
-                      placeholder="Ej: Gran Hotel Resort & Spa"
-                      value={formData.hotelName}
-                      onChange={e => handleInputChange('hotelName', e.target.value)}
-                    />
-
-                    <div className="mb-4">
-                      <label htmlFor="hotel" className={labelStyle}>
-                        Estrellas del hotel
-                      </label>
-                      <select
-                        id="hotel"
-                        className={selectStyle}
-                        value={formData.hotel}
-                        onChange={e => handleInputChange('hotel', parseInt(e.target.value))}>
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <option key={star} value={star}>
-                            {star} {star === 1 ? 'Estrella' : 'Estrellas'}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  {/* Hotel */}
+                  <div className="mb-4">
+                    <label className="text-sm font-medium text-gray-700">Hotel</label>
+                    <select
+                      className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E86C6E] focus:border-[#E86C6E]"
+                      value={formData.hotel}
+                      onChange={e => handleInputChange('hotel', parseInt(e.target.value))}
+                      required>
+                      <option value="">Seleccione un hotel</option>
+                      {PREDEFINED_HOTELS.map(hotel => (
+                        <option key={hotel.id} value={hotel.id}>
+                          {hotel.name} ({hotel.stars} ⭐)
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </Tab>
@@ -676,32 +676,28 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
                     <div className="mt-4 border p-4 rounded-lg">
                       <p className="text-sm font-medium mb-3">Detalles de los servicios incluidos</p>
                       <div className="space-y-4">
-                        {formData.includes.map(service => {
-                          const serviceInfo = SERVICIOS.find(s => s.value === service)
-                          const details = includesDetails[service] || {
-                            details: serviceInfo?.defaultDetails || '',
-                            description: serviceInfo?.description || ''
-                          }
+                        {formData.includes.length > 0 && (
+                          <div className="mt-4 border p-4 rounded-lg">
+                            <p className="text-sm font-medium mb-3">Detalles de los servicios incluidos</p>
+                            <div className="space-y-4">
+                              {formData.includes.map(service => {
+                                const serviceInfo = SERVICIOS.find(s => s.value === service)
+                                return (
+                                  <div key={service} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex items-center gap-2">
+                                      <span className="material-symbols-outlined">{serviceInfo?.icon || 'check'}</span>
+                                      <span className="font-medium">{service}</span>
+                                    </div>
 
-                          return (
-                            <div key={service} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined">{serviceInfo?.icon || 'check'}</span>
-                                <span className="font-medium">{service}</span>
-                              </div>
-
-                              <div className="space-y-2">
-                                <Input
-                                  size="sm"
-                                  label="Detalles"
-                                  placeholder="Ej: 2 Alcobas, Ilimitado, etc."
-                                  value={details.details}
-                                  onChange={e => handleIncludeDetailChange(service, 'details', e.target.value)}
-                                />
-                              </div>
+                                    <div className="space-y-2">
+                                      <Input size="sm" label="Detalles" value={serviceInfo?.defaultDetails} disabled readOnly />
+                                    </div>
+                                  </div>
+                                )
+                              })}
                             </div>
-                          )
-                        })}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
