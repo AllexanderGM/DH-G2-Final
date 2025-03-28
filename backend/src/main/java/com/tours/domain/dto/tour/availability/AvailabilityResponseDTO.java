@@ -1,17 +1,21 @@
 package com.tours.domain.dto.tour.availability;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tours.infrastructure.entities.booking.Availability;
 
 import java.time.LocalDateTime;
 
 public record AvailabilityResponseDTO(
         Long id,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime availableDate, // Cambio aquí
         Integer availableSlots,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime departureTime,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime returnTime,
         Long tourId,
-        Boolean isReserved // New field
+        Boolean isReserved
 ) {
     public AvailabilityResponseDTO(Availability availability, Boolean isReserved) {
         this(
