@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Calendar, Card, CardBody, Button } from '@heroui/react'
 import { Clock, Users } from 'lucide-react'
-import { today, getLocalTimeZone } from '@internationalized/date'
+import { today, getLocalTimeZone, CalendarDate } from '@internationalized/date'
 import { useNavigate } from 'react-router-dom'
-import { formatDateForDisplay, formatTimeForDisplay, normalizeAvailability, isDateInRange } from '@utils/dateUtils.js'
+import { formatDateForDisplay, formatTimeForDisplay, normalizeAvailability } from '@utils/dateUtils.js'
 import { useAuth } from '@context/AuthContext.jsx'
 
 const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
@@ -14,6 +14,7 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
   const [availabilities, setAvailabilities] = useState([])
   const [selectedDateRange, setSelectedDateRange] = useState(null)
   const [selectedAvailability, setSelectedAvailability] = useState(null)
+  const [focusedDate, setFocusedDate] = useState(null)
 
   // Procesamiento inicial de datos de disponibilidad
   useEffect(() => {
@@ -57,6 +58,29 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
         .filter(Boolean)
 
       setAvailabilities(processedAvailabilities)
+
+      // Encontrar la primera fecha disponible después de hoy
+      if (processedAvailabilities.length > 0) {
+        const todayDate = new Date()
+        const todayDateUtc = new Date(Date.UTC(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()))
+
+        // Filtrar fechas futuras y ordenar cronológicamente
+        const futureDates = processedAvailabilities
+          .filter(avail => avail.departureDate >= todayDateUtc)
+          .sort((a, b) => a.departureDate.getTime() - b.departureDate.getTime())
+
+        if (futureDates.length > 0) {
+          const firstDate = futureDates[0].departureDate
+
+          // Establecer el mes enfocado como el mes de la primera fecha disponible
+          const calendarDate = new CalendarDate(
+            firstDate.getFullYear(),
+            firstDate.getMonth() + 1, // Los meses en CalendarDate son 1-indexed
+            1 // Primer día del mes
+          )
+          setFocusedDate(calendarDate)
+        }
+      }
     }
   }, [tour])
 
@@ -148,19 +172,23 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
     }
   }
 
+  // Valor por defecto para el calendario en caso de que no haya fechas disponibles
+  const defaultCalendarValue = today(getLocalTimeZone())
+
   return (
     <Card className="mb-4 overflow-hidden shadow-sm">
       <CardBody className="p-4">
-        {/* Calendario */}
+        {/* Calendario con foco en el primer mes con disponibilidad */}
         <div className="mb-4 flex justify-center">
           <Calendar
             aria-label="Calendario de disponibilidad"
             isDateUnavailable={isDateUnavailable}
             onChange={handleDateSelect}
-            defaultFocusedValue={today(getLocalTimeZone())}
+            focusedValue={focusedDate || defaultCalendarValue}
+            onFocusChange={setFocusedDate}
             calendarWidth={340}
             visibleMonths={1}
-            renderCell={(date, cellState) => {
+            renderCell={date => {
               const isAvailable = !isDateUnavailable(date)
               const availability = isAvailable ? getAvailabilityForDate(date) : null
 
