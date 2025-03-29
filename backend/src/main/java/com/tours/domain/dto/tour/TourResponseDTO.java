@@ -1,5 +1,6 @@
 package com.tours.domain.dto.tour;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tours.domain.dto.tour.availability.AvailabilityResponseDTO;
 import com.tours.infrastructure.entities.booking.Availability;
 import com.tours.infrastructure.entities.tour.Tour;
@@ -16,6 +17,7 @@ public record TourResponseDTO(
         String description,
         BigDecimal adultPrice,
         BigDecimal childPrice,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         LocalDate creationDate,
         List<String> images,
         StatusDTO status,
@@ -47,7 +49,7 @@ public record TourResponseDTO(
                 new DestinationResponseDTO(tour.getDestinationTour()),
                 tour.getHotelTour() != null ? new HotelDTO(tour.getHotelTour()) : null,
                 tour.getAvailabilities().stream()
-                        .map(avail -> new AvailabilityResponseDTO(avail, true))
+                        .map(avail -> new AvailabilityResponseDTO(avail, false))
                         .toList()
         );
         if (tour.getHotelTour() == null) {

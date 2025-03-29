@@ -1,5 +1,6 @@
 package com.tours.domain.dto.booking;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tours.domain.dto.tour.IncludeDTO;
 import com.tours.infrastructure.entities.booking.Booking;
 import lombok.Getter;
@@ -17,8 +18,11 @@ public class BookingResponseDTO {
     private Long tourId;
     private String tourName;
     private String tourDescription;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime creationDate;
     private String accommodation;
     private Integer adults;
