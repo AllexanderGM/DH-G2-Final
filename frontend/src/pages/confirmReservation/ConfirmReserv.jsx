@@ -1,22 +1,32 @@
-import React, { useState, useEffect } from 'react'
-import { Card, CardBody, CardHeader } from '@heroui/react'
-import { Button } from '@heroui/react'
-import { Input } from '@heroui/react'
-import { Select, SelectItem } from '@heroui/react'
-import { DatePicker } from '@heroui/react'
+import { useState, useEffect } from 'react'
+import { Card, CardBody, CardHeader, Button, Input, Select, SelectItem, DatePicker } from '@heroui/react'
 import { getLocalTimeZone } from '@internationalized/date'
 import { useLocation, useParams, useNavigate } from 'react-router-dom'
 import { useDateFormatter } from '@react-aria/i18n'
+import { useAuth } from '@context/AuthContext.jsx'
 
 export default function ConfirmReserv() {
   const location = useLocation()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { tour, availability } = location.state || {}
+  const { user } = useAuth()
+  const { tour } = location.state || {}
 
   // State for loading and error handling
   const [loading, setLoading] = useState(!tour && !!id)
   const [error, setError] = useState(null)
+
+  // Validación de autenticación
+  useEffect(() => {
+    if (!user) {
+      navigate('/login', {
+        state: {
+          from: `/tour/${id}/confirm`,
+          message: 'Debes iniciar sesión para completar tu reserva'
+        }
+      })
+    }
+  }, [user, navigate, id])
 
   // Fetch tour data if not available in location state
   useEffect(() => {

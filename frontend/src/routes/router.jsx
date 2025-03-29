@@ -37,7 +37,14 @@ const router = createBrowserRouter([
           { path: 'login', element: <IniciarSesion /> },
           { path: 'register', element: <RegistrarUsuario /> },
           { path: 'users', element: <Users /> },
-          { path: 'tour/:id/confirm', element: <ConfirmReserv /> },
+          {
+            path: 'tour/:id/confirm',
+            element: (
+              <RequireAuth>
+                <ConfirmReserv />
+              </RequireAuth>
+            )
+          },
 
           // Nueva ruta para categorías
           { path: 'categoria/:categoryName', element: <CategoryPage /> },

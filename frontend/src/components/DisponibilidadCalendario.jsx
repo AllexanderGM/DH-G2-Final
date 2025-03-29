@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react'
 import { Calendar, Card, CardBody, Button } from '@heroui/react'
 import { Clock, Users } from 'lucide-react'
 import { today, getLocalTimeZone } from '@internationalized/date'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { formatDateForDisplay, formatTimeForDisplay, normalizeAvailability, isDateInRange } from '@utils/dateUtils.js'
+import { useAuth } from '@context/AuthContext.jsx'
 
 const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
+  const { user } = useAuth()
+  const navigate = useNavigate()
+
   // Estado para manejar las disponibilidades procesadas
   const [availabilities, setAvailabilities] = useState([])
   const [selectedDateRange, setSelectedDateRange] = useState(null)
@@ -114,6 +118,36 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
     }
   }
 
+  // Nueva función para manejar el clic en el botón de reserva
+  const handleReserveClick = () => {
+    if (!user) {
+      // Si no hay usuario autenticado, redirigir a la página de login
+      // con state para regresar a esta página después del login
+      navigate('/login', {
+        state: {
+          from: `/tour/${tour.id}`,
+          message: 'Debes iniciar sesión para reservar este tour'
+        }
+      })
+    } else {
+      // Si el usuario está autenticado, continuar con el proceso normal
+      if (onSelectDate) {
+        onSelectDate({
+          availability: selectedAvailability,
+          selectedDate: new Date(),
+          range: selectedDateRange
+        })
+      }
+      // Navegación a la página de confirmación de reserva
+      navigate(`/tour/${tour.id}/confirm`, {
+        state: {
+          tour: tour,
+          availability: selectedAvailability
+        }
+      })
+    }
+  }
+
   return (
     <Card className="mb-4 overflow-hidden shadow-sm">
       <CardBody className="p-4">
@@ -204,12 +238,12 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
               )}
             </div>
 
-            {/* Botón de reserva */}
-            <Link to={`/tour/${tour.id}/confirm`} state={{ tour: tour, availability: selectedAvailability }}>
-              <Button className="w-full mt-4 bg-[#E86C6E] hover:bg-red-600 text-white text-md font-medium py-3 rounded-lg shadow-sm transition-colors">
-                Iniciar reserva
-              </Button>
-            </Link>
+            {/* Botón de reserva modificado */}
+            <Button
+              className="w-full mt-4 bg-[#E86C6E] hover:bg-red-600 text-white text-md font-medium py-3 rounded-lg shadow-sm transition-colors"
+              onPress={handleReserveClick}>
+              {user ? 'Iniciar reserva' : 'Iniciar sesión para reservar'}
+            </Button>
           </div>
         )}
       </CardBody>
