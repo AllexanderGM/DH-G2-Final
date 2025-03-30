@@ -76,7 +76,7 @@ public class Tour {
     @JsonManagedReference
     private List<Availability> availabilities;
 
-    @OneToMany(mappedBy = "tour")
+    @OneToMany(mappedBy = "tour",  cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings;
 
 }
