@@ -126,6 +126,10 @@ public class BookingService {
         return bookingRepository.findByTourId(tourId).stream().map(BookingResponseDTO::new).collect(Collectors.toList());
     }
 
+    public List<BookingResponseDTO> getBookingsByUser(Long userId) {
+        return bookingRepository.findByUserId(userId).stream().map(BookingResponseDTO::new).collect(Collectors.toList());
+    }
+
     public void deleteBooking(Long id) {
         bookingRepository.deleteById(id);
     }

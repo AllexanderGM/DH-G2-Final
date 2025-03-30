@@ -3,6 +3,8 @@ package com.tours.application.controllers;
 import com.tours.domain.dto.booking.BookingRequestDTO;
 import com.tours.domain.dto.booking.BookingResponseDTO;
 import com.tours.domain.services.BookingService;
+import com.tours.domain.services.UserService;
+import com.tours.infrastructure.entities.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,7 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
-
+    private final UserService userService;
     @PostMapping
     @PreAuthorize("isAuthenticated()") // Cualquier usuario autenticado puede acceder
     public ResponseEntity<BookingResponseDTO> createBooking(@RequestBody BookingRequestDTO bookingRequestDTO) {
@@ -56,5 +58,14 @@ public class BookingController {
     public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
         bookingService.deleteBooking(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    @GetMapping("/historic")
+    @PreAuthorize("isAuthenticated()")
+    public  ResponseEntity<List<BookingResponseDTO>> historicBooking() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Long userId = userService.get(email).id();
+        List<BookingResponseDTO> bookingResponseDTOList = bookingService.getBookingsByUser(userId);
+        return new ResponseEntity<>(bookingResponseDTOList, HttpStatus.OK);
     }
 }
