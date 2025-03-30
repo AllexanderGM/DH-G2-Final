@@ -30,7 +30,7 @@ public class BookingService {
     private final IAccommodationRepository accommodationRepository;
     private final IPaymentMethodRepository paymentMethodRepository;
     private final IAvailabilityRepository availabilityRepository;
-
+    private final EmailService emailService;
     @Transactional
     public BookingResponseDTO createBooking(BookingRequestDTO bookingRequestDTO, String userEmail) {
         //Obtener el tour
@@ -105,6 +105,11 @@ public class BookingService {
         availabilityRepository.save(availability);
 
         BookingResponseDTO bookingResponseDTO = new BookingResponseDTO(booking);
+        try {
+            emailService.sendMailBooking(user.getEmail(), user.getName(), bookingResponseDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return bookingResponseDTO;
     }
 
