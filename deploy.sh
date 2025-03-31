@@ -79,7 +79,6 @@ create_terraform_vars() {
 # AWS Credentials
 aws_access_key = "$AWS_ACCESS_KEY"
 aws_secret_key = "$AWS_SECRET_KEY"
-region         = "$AWS_REGION"
 
 # Prefijo para recursos
 prefix         = "$NAME"
@@ -105,7 +104,6 @@ deploy_with_terraform() {
     # Exportar variables de AWS para Terraform
     export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY
     export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY
-    export AWS_DEFAULT_REGION=$AWS_REGION
     
     # Cambiar al directorio de Terraform
     cd $TERRAFORM_DIR
@@ -207,7 +205,6 @@ DB_NAME=$DB_NAME
 # Configuración de AWS S3
 AWS_ACCESS_KEY=$AWS_ACCESS_KEY
 AWS_SECRET_KEY=$AWS_SECRET_KEY
-AWS_REGION=$AWS_REGION
 S3_BUCKET=$IMAGES_BUCKET
 
 # Variables de encriptación
