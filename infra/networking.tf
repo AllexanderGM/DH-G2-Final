@@ -6,8 +6,16 @@ module "vpc" {
   azs                = var.availability_zone
   public_subnets     = var.public_subnet_cidrs
   private_subnets    = var.private_subnet_cidrs
-  enable_nat_gateway = true
-  single_nat_gateway = true # Un solo NAT Gateway para ahorrar costos
+  enable_nat_gateway = false # Mantenemos NAT Gateway desactivado
+
+  # Configuración adicional para permitir que instancias en subredes públicas accedan a internet
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  # Tags para las subredes públicas para auto-asignar IPs públicas
+  public_subnet_tags = {
+    Name = "${replace(lower(var.prefix), "_", "-")}-public-subnet"
+  }
 
   tags = {
     Name         = replace(lower("${var.prefix}-vpc"), "_", "-")
@@ -27,19 +35,33 @@ module "security_groups" {
   tags = {
     Name         = replace(lower("${var.prefix}-sg"), "_", "-")
     Project      = replace(lower(var.prefix), "_", "-")
-    Environment  = "Producción"
+    Environment  = "Production"
     ManagedBy    = "Terraform"
     ResourceType = "Security Group"
   }
 
-  # Agregar reglas de ingreso y egreso si es necesario
+  # Reglas de ingreso más seguras
   ingress_with_cidr_blocks = [
     {
       from_port   = 8080
       to_port     = 8080
       protocol    = "tcp"
       description = "Backend port"
-      cidr_blocks = "0.0.0.0/0"
+      cidr_blocks = "0.0.0.0/0" # Acceso público a la API
+    },
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      description = "SSH access"
+      cidr_blocks = "0.0.0.0/0" # Considera restringir esto a tu IP en producción
+    },
+    {
+      from_port   = 3306
+      to_port     = 3306
+      protocol    = "tcp"
+      description = "MySQL access from backend"
+      cidr_blocks = join(",", concat(var.public_subnet_cidrs, var.private_subnet_cidrs)) # Permitir acceso desde subredes públicas y privadas
     }
   ]
 
@@ -52,4 +74,42 @@ module "security_groups" {
       cidr_blocks = "0.0.0.0/0"
     }
   ]
+}
+
+# Security group para la instancia EC2
+resource "aws_security_group" "ec2_sg" {
+  name        = "${replace(lower(var.prefix), "_", "-")}-ec2-sg"
+  description = "Security group for EC2 instance"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "SSH access"
+  }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Backend port"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = {
+    Name        = "${replace(lower(var.prefix), "_", "-")}-ec2-sg"
+    Project     = replace(lower(var.prefix), "_", "-")
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+  }
 }

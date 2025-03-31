@@ -256,5 +256,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 .ec2-key.pem
+ec2-setup.sh
 
 # End of https://www.toptal.com/developers/gitignore/api/terraform
