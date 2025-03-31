@@ -15,23 +15,6 @@ const DateRangePicker = () => {
   // Referencia al componente para métodos imperativos
   const pickerRef = useRef(null)
 
-  // Función para convertir formato de fecha HeroUI a formato ISO
-  const convertToISOFormat = dateObject => {
-    if (!dateObject) return null
-
-    if (dateObject.day && dateObject.month && dateObject.year) {
-      // Crear fecha en formato ISO (año-mes-día)
-      const isoDate = new Date(
-        dateObject.year,
-        dateObject.month - 1, // Mes en JavaScript es 0-indexed
-        dateObject.day
-      )
-      return isoDate.toISOString()
-    }
-
-    return dateObject
-  }
-
   const handleDateChange = range => {
     console.log('DateRangePicker - Fecha seleccionada:', range)
 
@@ -77,6 +60,8 @@ const DateRangePicker = () => {
 
   // Obtener la fecha actual y añadir un año
   const today = new Date()
+  today.setHours(12, 0, 0, 0) // Establecer al mediodía para evitar problemas con zonas horarias
+
   const maxDate = new Date(today)
   maxDate.setFullYear(today.getFullYear() + 1)
 
@@ -90,6 +75,8 @@ const DateRangePicker = () => {
       minDate={today}
       maxDate={maxDate}
       size="lg"
+      locale="es-ES" // Configurar la localización española
+      firstDayOfWeek="mon" // Establecer lunes como primer día de la semana
       classNames={{
         trigger: [
           'bg-default-100',

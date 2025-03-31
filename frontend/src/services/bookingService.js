@@ -164,7 +164,7 @@ export const getUserBookings = async () => {
   }
 
   try {
-    return await fetchData(`${URL}/bookings`, {
+    return await fetchData(`${URL}/bookings/historic`, {
       headers: {
         Authorization: `Bearer ${token}`
       }

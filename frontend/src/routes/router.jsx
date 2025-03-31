@@ -10,6 +10,7 @@ import CrearTour from '@pages/tourCreate/CrearTour.jsx'
 import ProfilePage from '@pages/user/ProfilePage.jsx'
 import EditUserProfile from '@pages/userEdit/EditUserProfile.jsx'
 import FavoritesPage from '@pages/favorites/FavoritesPage.jsx'
+import BookingHistoryPage from '@pages/bookingHistory/BookingHistoryPage.jsx'
 import Users from '@components/Users.jsx'
 import ConfirmReserv from '@pages/confirmReservation/ConfirmReserv.jsx'
 import CategoryPage from '@pages/category/CategoryPage.jsx'
@@ -71,6 +72,14 @@ const router = createBrowserRouter([
             element: (
               <RequireAuth>
                 <EditUserProfile />
+              </RequireAuth>
+            )
+          },
+          {
+            path: 'mis-reservas',
+            element: (
+              <RequireAuth>
+                <BookingHistoryPage />
               </RequireAuth>
             )
           },

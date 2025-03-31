@@ -180,6 +180,8 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
             onFocusChange={setFocusedDate}
             calendarWidth={340}
             visibleMonths={1}
+            locale="es-ES"
+            firstDayOfWeek="mon"
             renderCell={date => {
               const isAvailable = !isDateUnavailable(date)
               const availability = isAvailable ? getAvailabilityForDate(date) : null

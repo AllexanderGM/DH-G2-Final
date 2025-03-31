@@ -9,7 +9,7 @@ import './body.scss'
 const Body = () => {
   const { searchResults, loading, searchTerm } = useSearch()
   const { success, data = [] } = searchResults || {}
-  const ITEMS_PER_PAGE = 3 // Definimos una constante para la cantidad de elementos por página
+  const ITEMS_PER_PAGE = 3 // constante para la cantidad de elementos por página
   const [currentPage, setCurrentPage] = useState(1)
   const [showScrollTop, setShowScrollTop] = useState(false)
 
@@ -72,12 +72,7 @@ const Body = () => {
             </div>
             {hasMoreItems && (
               <div className="flex justify-center mt-8">
-                <Button 
-                  color="primary" 
-                  variant="flat"
-                  onPress={handleLoadMore}
-                  className="px-8"
-                >
+                <Button color="primary" variant="flat" onPress={handleLoadMore} className="px-8">
                   <span className="material-symbols-outlined mr-2">add</span>
                   Cargar más tours
                 </Button>
@@ -100,8 +95,7 @@ const Body = () => {
         className={`fixed right-[4vw] bottom-24 z-50 rounded-full shadow-lg transition-all duration-300 ${
           showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'
         }`}
-        aria-label="Volver arriba"
-      >
+        aria-label="Volver arriba">
         <span className="material-symbols-outlined text-2xl">arrow_upward</span>
       </Button>
     </div>

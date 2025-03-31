@@ -3,7 +3,7 @@
  */
 
 /**
- * Convierte una fecha a formato ISO string
+ * Convierte una fecha a formato ISO string manteniendo la zona horaria local
  * @param {Object|Date|String} date - Fecha en cualquier formato soportado
  * @returns {String|null} - Fecha en formato ISO o null si es inválida
  */
@@ -11,23 +11,31 @@ export const toISOString = date => {
   if (!date) return null
 
   try {
+    let jsDate
+
     // Si es un objeto con propiedades day, month, year (formato de HeroUI)
     if (date.day && date.month && date.year) {
-      const jsDate = new Date(
-        date.year,
-        date.month - 1, // Mes en JavaScript es 0-indexed
-        date.day
-      )
-      return jsDate.toISOString()
+      // Crear la fecha en la zona horaria local
+      jsDate = new Date(date.year, date.month - 1, date.day, 12, 0, 0)
     }
-
     // Si ya es un objeto Date
-    if (date instanceof Date) {
-      return date.toISOString()
+    else if (date instanceof Date) {
+      jsDate = date
+    }
+    // Si es un string, intentar convertir a Date
+    else {
+      jsDate = new Date(date)
     }
 
-    // Si es un string, intentar convertir a Date
-    return new Date(date).toISOString()
+    // Verificar que la fecha sea válida
+    if (isNaN(jsDate.getTime())) {
+      throw new Error('Fecha inválida')
+    }
+
+    // Ajustar la fecha para mantener el día correcto en la zona horaria local
+    const offset = jsDate.getTimezoneOffset()
+    jsDate = new Date(jsDate.getTime() - offset * 60 * 1000)
+    return jsDate.toISOString()
   } catch (e) {
     console.error('Error convirtiendo fecha a ISO:', e)
     return null
@@ -134,4 +142,28 @@ export const isDateInRange = (date, startDate, endDate) => {
   }
 
   return date >= startDate && date <= endDate
+}
+
+/**
+ * Crea una fecha en la zona horaria local
+ * @param {number} year - Año
+ * @param {number} month - Mes (1-12)
+ * @param {number} day - Día del mes
+ * @returns {Date} - Objeto Date en la zona horaria local
+ */
+export const createLocalDate = (year, month, day) => {
+  // Crear la fecha al mediodía para evitar problemas con cambios de hora
+  return new Date(year, month - 1, day, 12, 0, 0)
+}
+
+/**
+ * Normaliza una fecha para comparaciones, estableciendo la hora a medianoche en la zona horaria local
+ * @param {Date} date - Fecha a normalizar
+ * @returns {Date} - Fecha normalizada
+ */
+export const normalizeDate = date => {
+  if (!date) return null
+  const normalized = new Date(date)
+  normalized.setHours(0, 0, 0, 0)
+  return normalized
 }
