@@ -388,7 +388,11 @@ function ConfirmReserv() {
         navigate('/', {
           state: {
             success: true,
-            message: `Reserva creada para ${tourInfo.name}`
+            message: {
+              prefix: '¡Genial! Tu próxima aventura:  ',
+              highlight: tourInfo.name,
+              suffix: ', ha sido confirmada'
+            }
           }
         })
       } else {
