@@ -3,7 +3,7 @@ import axios from 'axios'
 
 const Users = () => {
   const [users, setUsers] = useState(null)
-  const URL = 'http://localhost:8000/users'
+  const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
 
   useEffect(() => {
     axios.get(URL).then(res => {

@@ -5,6 +5,23 @@ resource "local_file" "private_key" {
   file_permission = "0600"
 }
 
+# 🔹 Elastic IP para instancia EC2 (dirección IP estática)
+resource "aws_eip" "backend_eip" {
+  instance = module.ec2.id
+  domain   = "vpc"
+
+  tags = {
+    Name         = replace(lower("${var.prefix}-backend-eip"), "_", "-")
+    Project      = replace(lower(var.prefix), "_", "-")
+    Environment  = "Production"
+    ManagedBy    = "Terraform"
+    ResourceType = "Elastic IP"
+  }
+
+  # Importante: solo aplica la asignación cuando la instancia esté lista
+  depends_on = [module.ec2]
+}
+
 # 🔹 EC2 para backend
 module "ec2" {
   source                      = "terraform-aws-modules/ec2-instance/aws"
@@ -50,7 +67,7 @@ module "ec2" {
 # Actualizar sistema (Amazon Linux 2 usa yum, no apt)
 sudo yum update -y
 sudo amazon-linux-extras install docker -y
-sudo yum install -y curl jq unzip
+sudo yum install -y curl jq unzip mysql
 
 # Habilitar y iniciar Docker
 sudo systemctl enable docker

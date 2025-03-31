@@ -6,6 +6,7 @@ import { getCurrentUser, isAuthenticated, logout } from '../services/authService
 
 const AuthContext = createContext()
 const cookies = new Cookies()
+const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
@@ -35,7 +36,7 @@ export const AuthProvider = ({ children }) => {
   const handleLogout = () => {
     const token = cookies.get('auth_token')
 
-    fetch('http://localhost:8080/auth/logout', {
+    fetch(`${URL}/auth/logout`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -65,7 +66,7 @@ export const AuthProvider = ({ children }) => {
   const checkRole = requiredRole => {
     if (!user) return false
 
-    if (requiredRole === 'admin') {
+    if (requiredRole === 'admin' || requiredRole === 'ADMIN') {
       return isUserAdmin(user)
     }
 

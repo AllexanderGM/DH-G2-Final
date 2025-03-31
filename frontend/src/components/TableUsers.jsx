@@ -1,87 +1,44 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Input,
-  Pagination,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
-  User,
-  Chip,
-  Tooltip,
-  Button
-} from '@heroui/react'
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip } from '@heroui/react'
+import { useAuth } from '@context/AuthContext.jsx'
+import { getAllUsers } from '@services/userService'
 
-import { EyeIcon, DeleteIcon, EditIcon, SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
-
-export const INITIAL_VISIBLE_COLUMNS = [
-  { name: 'ID', uid: 'id' },
-  { name: 'NOMBRE', uid: 'nombre' },
-  { name: 'APELLIDO', uid: 'apellido' },
-  { name: 'ESTADO', uid: 'estado' },
-  { name: 'PAIS', uid: 'pais' },
-  { name: 'ROL', uid: 'role' },
-  { name: 'ACCIONES', uid: 'actions' }
-]
-
-export const columns = [...INITIAL_VISIBLE_COLUMNS]
-
-const statusColorMap = {
-  activo: 'success',
-  inactivo: 'warning',
-  sospechoso: 'danger'
-}
-
-const roleColorMap = {
-  admin: 'danger',
-  user: 'primary',
-  undefined: 'default'
-}
-
-export const statusOptions = [
-  { name: 'Activo', uid: 'activo' },
-  { name: 'Inactivo', uid: 'inactivo' }
-]
-
-export const roleOptions = [
-  { name: 'Admin', uid: 'admin' },
-  { name: 'User', uid: 'user' }
-]
-
-export function capitalize(s) {
-  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''
-}
+import GenericTableControls from './GenericTableControls.jsx'
+import TableActionCell from './TableActionCell.jsx'
+import TablePagination from './TablePagination.jsx'
+import CrearUserForm from './CrearUserForm.jsx'
+import EditarUserForm from './EditarUserForm.jsx'
+import DeleteUserModal from './DeleteUserModal.jsx'
+import { USER_ROLES, USER_ROLE_COLORS, USER_COLUMNS, ROWS_PER_PAGE_OPTIONS } from '../constants/tableConstants.js'
 
 const TableUsers = () => {
   const [users, setUsers] = useState([])
-  const URL = 'http://localhost:8000/users'
+  const { user: currentUser } = useAuth()
 
+  // Estados de la tabla
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
-  const [visibleColumns, setVisibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS.map(col => col.uid)))
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [roleFilter, setRoleFilter] = useState('all')
+  const [visibleColumns, setVisibleColumns] = useState(new Set(USER_COLUMNS.map(col => col.uid)))
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [sortDescriptor, setSortDescriptor] = useState({
-    column: 'nombre',
+    column: 'username',
     direction: 'ascending'
   })
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // Estados de los modales
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+
   const hasSearchFilter = Boolean(filterValue)
 
   const headerColumns = useMemo(() => {
-    if (visibleColumns === 'all') return columns
-
-    return columns.filter(column => Array.from(visibleColumns).includes(column.uid))
+    if (visibleColumns === 'all') return USER_COLUMNS
+    return USER_COLUMNS.filter(column => Array.from(visibleColumns).includes(column.uid))
   }, [visibleColumns])
 
   const filteredItems = useMemo(() => {
@@ -90,43 +47,28 @@ const TableUsers = () => {
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter(
         user =>
-          user.nombre?.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.apellido?.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.email?.toLowerCase().includes(filterValue.toLowerCase())
+          (user.username?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
+          (user.email?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
+          (user.role?.toLowerCase() || '').includes(filterValue.toLowerCase())
       )
-    }
-    if (statusFilter !== 'all' && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredUsers = filteredUsers.filter(user => Array.from(statusFilter).includes(user.estado))
-    }
-
-    if (roleFilter !== 'all' && Array.from(roleFilter).length !== roleOptions.length) {
-      filteredUsers = filteredUsers.filter(user => {
-        // Handle cases where role is undefined
-        if (!user.role && Array.from(roleFilter).includes('undefined')) {
-          return true
-        }
-        return Array.from(roleFilter).includes(user.role)
-      })
     }
 
     return filteredUsers
-  }, [users, filterValue, statusFilter, roleFilter, hasSearchFilter])
+  }, [users, filterValue, hasSearchFilter])
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage)
 
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage
     const end = start + rowsPerPage
-
     return filteredItems.slice(start, end)
   }, [page, filteredItems, rowsPerPage])
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
-      const first = a[sortDescriptor.column]
-      const second = b[sortDescriptor.column]
+      const first = a[sortDescriptor.column] || ''
+      const second = b[sortDescriptor.column] || ''
       const cmp = first < second ? -1 : first > second ? 1 : 0
-
       return sortDescriptor.direction === 'descending' ? -cmp : cmp
     })
   }, [sortDescriptor, items])
@@ -135,13 +77,7 @@ const TableUsers = () => {
     try {
       setLoading(true)
       setError(null)
-
-      const response = await fetch(URL)
-      if (!response.ok) {
-        throw new Error(`Error al cargar los datos: ${response.status}`)
-      }
-      const data = await response.json()
-      console.log('Usuarios recibidos:', data)
+      const data = await getAllUsers()
       setUsers(data)
     } catch (error) {
       console.error('Error al cargar usuarios:', error)
@@ -149,54 +85,101 @@ const TableUsers = () => {
     } finally {
       setLoading(false)
     }
-  }, [URL])
+  }, [])
 
   useEffect(() => {
     fetchUsers()
   }, [fetchUsers])
 
-  const renderCell = useCallback((user, columnKey) => {
-    const cellValue = user[columnKey]
-
-    switch (columnKey) {
-      case 'nombre':
-        return <User avatarProps={{ radius: 'lg', src: user.avatar || '' }} description={user.email} name={cellValue} />
-      case 'estado':
-        return (
-          <Chip className="capitalize" color={statusColorMap[user.estado] || 'default'} size="sm" variant="flat">
-            {cellValue || 'No definido'}
-          </Chip>
-        )
-      case 'role':
-        return (
-          <Chip className="capitalize" color={roleColorMap[user.role] || 'default'} size="sm" variant="flat">
-            {cellValue || 'No definido'}
-          </Chip>
-        )
-      case 'actions':
-        return (
-          <div className="relative flex items-center justify-center gap-2">
-            <Tooltip content="Detalles">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <EyeIcon />
-              </span>
-            </Tooltip>
-            <Tooltip content="Editar">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <EditIcon />
-              </span>
-            </Tooltip>
-            <Tooltip color="danger" content="Eliminar">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                <DeleteIcon />
-              </span>
-            </Tooltip>
-          </div>
-        )
-      default:
-        return cellValue
-    }
+  const handleOpenCreateModal = useCallback(() => {
+    setIsCreateModalOpen(true)
   }, [])
+
+  const handleOpenEditModal = useCallback(user => {
+    setSelectedUser(user)
+    setIsEditModalOpen(true)
+  }, [])
+
+  const handleOpenDeleteModal = useCallback(user => {
+    // Asegurarnos de que tenemos la información correcta del usuario
+    if (!user || !user.email) {
+      console.error('Error: Datos de usuario incompletos', user)
+      return
+    }
+
+    console.log('Abriendo modal para eliminar usuario:', user.email)
+    setSelectedUser({
+      id: user.id,
+      email: user.email,
+      name: user.name || user.username,
+      lastName: user.lastName || '',
+      role: user.role
+    })
+    setIsDeleteModalOpen(true)
+  }, [])
+
+  const handleCloseModals = useCallback(() => {
+    setIsCreateModalOpen(false)
+    setIsEditModalOpen(false)
+    setIsDeleteModalOpen(false)
+    setSelectedUser(null)
+  }, [])
+
+  const handleSuccess = useCallback(() => {
+    console.log('Operación exitosa, actualizando lista de usuarios')
+    fetchUsers() // Refrescar la lista después de una operación exitosa
+    // setTimeout(() => {
+    //   fetchUsers()
+    //   console.log('Lista de usuarios actualizada')
+    // }, 1000)
+    setIsCreateModalOpen(false)
+    setIsEditModalOpen(false)
+    setIsDeleteModalOpen(false)
+    setSelectedUser(null)
+  }, [fetchUsers])
+
+  const renderCell = useCallback(
+    (user, columnKey) => {
+      const cellValue = user[columnKey]
+
+      switch (columnKey) {
+        case 'username':
+          return (
+            <User
+              avatarProps={{
+                radius: 'lg',
+                src: user.avatar || 'https://via.placeholder.com/150',
+                alt: user.username
+              }}
+              name={user.username}
+            />
+          )
+        case 'role':
+          return (
+            <Chip className="capitalize" color={USER_ROLE_COLORS[user.role] || 'default'} size="sm" variant="flat">
+              {user.role?.toLowerCase() || 'user'}
+            </Chip>
+          )
+        case 'actions': {
+          const canEdit = currentUser?.isSuperAdmin || user.role !== USER_ROLES.ADMIN
+          const canDelete = currentUser?.isSuperAdmin || (user.role !== USER_ROLES.ADMIN && user.email !== currentUser?.email)
+
+          return (
+            <TableActionCell
+              item={user}
+              onEdit={canEdit ? () => handleOpenEditModal(user) : null}
+              onDelete={canDelete ? () => handleOpenDeleteModal(user) : null}
+              editTooltip={!canEdit ? 'No tienes permisos para editar administradores' : 'Editar'}
+              deleteTooltip={!canDelete ? 'No puedes eliminar este usuario' : 'Eliminar'}
+            />
+          )
+        }
+        default:
+          return cellValue || ''
+      }
+    },
+    [currentUser, handleOpenEditModal, handleOpenDeleteModal]
+  )
 
   const onNextPage = useCallback(() => {
     if (page < pages) {
@@ -210,8 +193,8 @@ const TableUsers = () => {
     }
   }, [page])
 
-  const onRowsPerPageChange = useCallback(e => {
-    setRowsPerPage(Number(e.target.value))
+  const onRowsPerPageChange = useCallback(newValue => {
+    setRowsPerPage(newValue)
     setPage(1)
   }, [])
 
@@ -229,177 +212,97 @@ const TableUsers = () => {
     setPage(1)
   }, [])
 
-  const handleRefresh = useCallback(() => {
-    fetchUsers()
-  }, [fetchUsers])
+  const topContent = useMemo(
+    () => (
+      <GenericTableControls
+        filterValue={filterValue}
+        onClear={onClear}
+        onSearchChange={onSearchChange}
+        filterPlaceholder="Buscar por nombre o email..."
+        columns={USER_COLUMNS}
+        visibleColumns={visibleColumns}
+        setVisibleColumns={setVisibleColumns}
+        onCreateItem={handleOpenCreateModal}
+        createButtonLabel="Crear Usuario"
+        loading={loading}
+        error={error}
+        totalItems={users.length}
+        itemsLabel="usuarios"
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={onRowsPerPageChange}
+      />
+    ),
+    [
+      filterValue,
+      onClear,
+      onSearchChange,
+      visibleColumns,
+      handleOpenCreateModal,
+      loading,
+      error,
+      users.length,
+      rowsPerPage,
+      onRowsPerPageChange
+    ]
+  )
 
-  const bottomContent = useMemo(() => {
-    return (
-      <div className="py-2 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-400">
-          {selectedKeys === 'all' ? 'All items selected' : `${selectedKeys.size} de ${filteredItems.length} seleccionados`}
-        </span>
-        <Pagination isCompact showControls showShadow color="primary" page={page} total={pages} onChange={setPage} />
-        <div className="hidden sm:flex w-[30%] justify-end gap-2">
-          <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
-            Anterior
-          </Button>
-          <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
-            Siguiente
-          </Button>
-        </div>
-      </div>
-    )
-  }, [selectedKeys, filteredItems.length, page, pages, onPreviousPage, onNextPage])
-
-  const topContent = useMemo(() => {
-    return (
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between gap-3 items-end">
-          <Input
-            isClearable
-            className="w-full sm:max-w-[44%]"
-            placeholder="Buscar por nombre, apellido o email..."
-            startContent={<SearchIcon />}
-            value={filterValue}
-            onClear={onClear}
-            onValueChange={onSearchChange}
-            variant="underlined"
-            classNames={{
-              inputWrapper: [
-                'data-[focus=true]:after:bg-[#E86C6E]',
-                'after:transition-all after:duration-200 after:ease-in-out',
-                'after:bg-[#E86C6E]'
-              ]
-            }}
-          />
-          <div className="flex gap-3">
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Estado
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Status Filter"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}>
-                {statusOptions.map(status => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Rol
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Role Filter"
-                closeOnSelect={false}
-                selectedKeys={roleFilter}
-                selectionMode="multiple"
-                onSelectionChange={setRoleFilter}>
-                {roleOptions.map(role => (
-                  <DropdownItem key={role.uid} className="capitalize">
-                    {capitalize(role.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Columnas
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                onSelectionChange={setVisibleColumns}>
-                {columns.map(column => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Button variant="light" onPress={handleRefresh} isLoading={loading}>
-              Actualizar
-            </Button>
-            <Button color="primary" endContent={<PlusIcon />}>
-              Crear Usuario
-            </Button>
-          </div>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">
-            {loading ? 'Cargando usuarios...' : error ? `Error: ${error}` : `${users.length} usuarios en total`}
-          </span>
-          <label className="flex items-center text-default-400 text-small">
-            Filas por página:
-            <select className="bg-transparent outline-none text-default-400 text-small" onChange={onRowsPerPageChange}>
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
-            </select>
-          </label>
-        </div>
-      </div>
-    )
-  }, [
-    filterValue,
-    statusFilter,
-    roleFilter,
-    visibleColumns,
-    onRowsPerPageChange,
-    users.length,
-    onSearchChange,
-    onClear,
-    loading,
-    error,
-    handleRefresh
-  ])
+  const bottomContent = useMemo(
+    () => (
+      <TablePagination
+        selectedKeys={selectedKeys}
+        filteredItemsLength={filteredItems.length}
+        page={page}
+        pages={pages}
+        onPreviousPage={onPreviousPage}
+        onNextPage={onNextPage}
+        onPageChange={setPage}
+      />
+    ),
+    [selectedKeys, filteredItems.length, page, pages, onPreviousPage, onNextPage]
+  )
 
   return (
-    <Table
-      isHeaderSticky
-      aria-label="Users Table"
-      className="w-full max-w-6xl mt-6"
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      selectedKeys={selectedKeys}
-      selectionMode="multiple"
-      sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys}
-      onSortChange={setSortDescriptor}>
-      <TableHeader columns={headerColumns}>
-        {column => (
-          <TableColumn key={column.uid} align={column.uid === 'actions' ? 'center' : 'start'}>
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody
-        items={sortedItems}
-        emptyContent={loading ? 'Cargando...' : error ? 'Error al cargar usuarios' : 'No se encontraron usuarios'}
-        loadingContent={<div>Cargando usuarios...</div>}
-        loadingState={loading ? 'loading' : 'idle'}>
-        {item => <TableRow key={item.id}>{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}</TableRow>}
-      </TableBody>
-    </Table>
+    <>
+      <Table
+        isHeaderSticky
+        aria-label="Tabla de Usuarios"
+        className="w-full max-w-6xl mt-6"
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}>
+        <TableHeader columns={headerColumns}>
+          {column => (
+            <TableColumn key={column.uid} align={column.uid === 'actions' ? 'center' : 'start'} allowsSorting={column.uid !== 'actions'}>
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={sortedItems}
+          emptyContent={loading ? 'Cargando...' : error ? 'Error al cargar usuarios' : 'No se encontraron usuarios'}
+          loadingContent={<div>Cargando usuarios...</div>}
+          loadingState={loading ? 'loading' : 'idle'}>
+          {item => <TableRow key={item.id}>{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}</TableRow>}
+        </TableBody>
+      </Table>
+
+      {/* Modales */}
+      <CrearUserForm isOpen={isCreateModalOpen} onClose={handleCloseModals} onSuccess={handleSuccess} />
+
+      {selectedUser && (
+        <EditarUserForm isOpen={isEditModalOpen} onClose={handleCloseModals} onSuccess={handleSuccess} userData={selectedUser} />
+      )}
+
+      {selectedUser && (
+        <DeleteUserModal isOpen={isDeleteModalOpen} onClose={handleCloseModals} onSuccess={handleSuccess} userData={selectedUser} />
+      )}
+    </>
   )
 }
 

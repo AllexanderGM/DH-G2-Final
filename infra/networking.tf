@@ -113,3 +113,33 @@ resource "aws_security_group" "ec2_sg" {
     ManagedBy   = "Terraform"
   }
 }
+
+# Security group para MySQL
+resource "aws_security_group" "rds_sg" {
+  name        = "${replace(lower(var.prefix), "_", "-")}-rds-sg"
+  description = "Security group for RDS instance"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = var.public_subnet_cidrs # Permite tráfico desde tus subredes públicas
+    description = "MySQL access from backend"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = {
+    Name        = "${replace(lower(var.prefix), "_", "-")}-rds-sg"
+    Project     = replace(lower(var.prefix), "_", "-")
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+  }
+}

@@ -1,7 +1,7 @@
-# 🔹 Output para ip de backend
+# 🔹 Output para ip de backend (usando IP elástica)
 output "backend_instance_ip" {
   description = "IP pública de la instancia EC2"
-  value       = module.ec2.public_ip
+  value       = aws_eip.backend_eip.public_ip
 }
 
 # 🔹 Output para obtener la URL de la base de datos

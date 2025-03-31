@@ -1,5 +1,6 @@
 package com.tours.domain.dto.tour;
 
+import com.tours.domain.dto.tour.availability.AvailabilityRequestDTO;
 import com.tours.infrastructure.entities.tour.StatusTourOptions;
 import com.tours.infrastructure.entities.tour.TagTourOptions;
 import jakarta.validation.Valid;
@@ -42,6 +43,9 @@ public record TourRequestDTO(
         @Valid DestinationRequestDTO destination,
 
         @PositiveOrZero(message = "El ID del hotel debe ser un número positivo o cero")
-        Long hotel
-) {
+        Long hotel,
+
+        @NotNull(message = "Ingresa la disponibilidad")
+        @Valid List<AvailabilityRequestDTO> availability
+        ) {
 }

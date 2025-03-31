@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -30,10 +29,10 @@ public class Booking {
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private LocalDate creationDate;
+    private LocalDateTime creationDate;
 
     @ManyToOne
-    @JoinColumn(name = "id_accommodation", nullable = false)
+    @JoinColumn(name = "id_accommodation")
     private Accommodation accommodation;
 
     private Integer adults;
@@ -41,6 +40,10 @@ public class Booking {
     private Double price;
 
     @ManyToOne
-    @JoinColumn(name = "id_pago", nullable = false)
+    @JoinColumn(name = "id_pay")
     private Pay pay;
+
+    @ManyToOne
+    @JoinColumn(name = "availability_id")
+    private Availability availability;
 }

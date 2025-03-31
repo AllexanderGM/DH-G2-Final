@@ -1,5 +1,8 @@
 package com.tours.domain.dto.tour;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tours.domain.dto.tour.availability.AvailabilityResponseDTO;
+import com.tours.infrastructure.entities.booking.Availability;
 import com.tours.infrastructure.entities.tour.Tour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +17,15 @@ public record TourResponseDTO(
         String description,
         BigDecimal adultPrice,
         BigDecimal childPrice,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         LocalDate creationDate,
         List<String> images,
         StatusDTO status,
         List<String> tags,
         List<IncludeDTO> includes,
         DestinationResponseDTO destination,
-        HotelDTO hotel
+        HotelDTO hotel,
+        List<AvailabilityResponseDTO> availability
 ) {
     private static final Logger logger = LoggerFactory.getLogger(TourResponseDTO.class);
     public TourResponseDTO(Tour tour) {
@@ -42,7 +47,10 @@ public record TourResponseDTO(
                 tour.getIncludeTours() != null ? tour.getIncludeTours().stream().map(IncludeDTO::new).toList() : List.of(),
 
                 new DestinationResponseDTO(tour.getDestinationTour()),
-                tour.getHotelTour() != null ? new HotelDTO(tour.getHotelTour()) : null
+                tour.getHotelTour() != null ? new HotelDTO(tour.getHotelTour()) : null,
+                tour.getAvailabilities().stream()
+                        .map(avail -> new AvailabilityResponseDTO(avail, false))
+                        .toList()
         );
         if (tour.getHotelTour() == null) {
             logger.warn("El tour '{}' no tiene un hotel asociado", tour.getName());

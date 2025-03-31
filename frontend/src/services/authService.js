@@ -1,12 +1,9 @@
-import axios from 'axios'
 import { Cookies } from 'react-cookie'
 
 const cookies = new Cookies()
+const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
 
 // Simula generación de JWT
-const generateToken = user => {
-  return `simulated-jwt-token-${user.id}-${user.role}-${Date.now()}`
-}
 
 export const login = async (email, password) => {
   const configFetch = {
@@ -20,7 +17,7 @@ export const login = async (email, password) => {
     })
   }
 
-  const response = await fetch('http://localhost:8080/auth/login', configFetch)
+  const response = await fetch(`${URL}/auth/login`, configFetch)
 
   if (!response.ok) {
     console.warn('API error:', response.status, 'Crear usuario de prueba para desarrollo')
@@ -37,7 +34,8 @@ export const login = async (email, password) => {
     lastName: result.lastName,
     avatar: result.image,
     role: result.role || 'user',
-    isAdmin: result.role === 'ADMIN'
+    isAdmin: result.role === 'ADMIN',
+    isSuperAdmin: result.email === 'admin@admin.com'
   }
 
   const token = result.token
@@ -99,7 +97,7 @@ export const register = async userData => {
     city: 'Bogotá'
   }
 
-  const response = await fetch('http://localhost:8080/auth/register', {
+  const response = await fetch(`${URL}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -115,4 +113,10 @@ export const register = async userData => {
   const result = await response.json()
 
   return result.message
+}
+
+export const getAuthToken = () => {
+  const token = cookies.get('auth_token')
+  console.log('Auth token from cookies:', token) // Debugging log
+  return token
 }

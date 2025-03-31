@@ -1,5 +1,6 @@
 package com.tours.infrastructure.entities.tour;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class TagTour {
     private TagTourOptions tagTourOptions;
 
     @ManyToMany(mappedBy = "tags")
+    @JsonBackReference
     private List<Tour> tours = new ArrayList<>();
     public TagTour(TagTourOptions tagTourOptions) {
         this.tagTourOptions = tagTourOptions;

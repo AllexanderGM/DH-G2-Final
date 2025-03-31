@@ -221,6 +221,10 @@ JWT_SECRET=$JWT_SECRET
 JWT_EXPIRATION=$JWT_EXPIRATION
 ADMIN_USERNAME=$ADMIN_USERNAME
 ADMIN_PASSWORD=$ADMIN_PASSWORD
+
+# Variables de correo electrónico
+MAIL=$MAIL
+MAILPASS=$MAILPASS
 EOL
 
     echo -e "${GREEN}✅ Archivos .env creados exitosamente con valores reales${NC}"
@@ -409,11 +413,16 @@ verify_deployment() {
     else
         echo -e "${YELLOW}⚠️ Backend no responde con código 200 (recibido: $BACKEND_STATUS)${NC}"
         echo -e "${YELLOW}⚠️ Esto puede ser normal si la aplicación necesita tiempo para iniciar${NC}"
+        echo -e "${YELLOW}⚠️ Intenta acceder manualmente a: ${BACKEND_URL}/health${NC}"
     fi
     
     # Verificar frontend (solo mostramos info, no podemos verificar HTTPS fácilmente)
     echo -e "${BLUE}ℹ️ Frontend desplegado en: ${YELLOW}$FRONTEND_URL${NC}"
     echo -e "${BLUE}ℹ️ Por favor, verifica manualmente que el frontend funcione correctamente${NC}"
+    
+    # Informar sobre la IP elástica
+    echo -e "${BLUE}ℹ️ Estás usando una IP elástica para el backend: ${YELLOW}$BACKEND_IP${NC}"
+    echo -e "${BLUE}ℹ️ Esta IP permanecerá constante incluso si destruyes y recreas la infraestructura${NC}"
     
     echo -e "${GREEN}✅ Verificación básica completada${NC}"
 }
