@@ -37,7 +37,8 @@ const NavbarClientPortion = ({ avatar, name, lastName, email }) => {
             <DropdownItem
               key="bookings"
               href="/mis-reservas"
-              startContent={<span className="material-symbols-outlined">confirmation_number</span>}>
+              // startContent={<span className="material-symbols-outlined">confirmation_number</span>}
+            >
               Mis reservas
             </DropdownItem>
             <DropdownItem key="logout" color="danger" onPress={logout}>
