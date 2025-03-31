@@ -1,9 +1,11 @@
 import { getAuthToken } from '@services/authService.js'
 
+const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
+
 export const getTourAvailabilities = async tourId => {
   try {
     const token = getAuthToken()
-    const endpoint = `http://localhost:8080/api/availabilities/tour/${tourId}`
+    const endpoint = `${URL}/api/availabilities/tour/${tourId}`
     console.log(`Consultando endpoint: ${endpoint}`)
 
     const response = await fetch(endpoint, {

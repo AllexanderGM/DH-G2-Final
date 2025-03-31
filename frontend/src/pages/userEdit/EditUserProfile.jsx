@@ -4,6 +4,8 @@ import { Form, Input, Button, Card, CardBody, CardHeader, Select, SelectItem, Di
 
 import { useAuth } from '../../context/AuthContext.jsx'
 
+const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
+
 const EditUserProfile = () => {
   const { user, setUser } = useAuth()
   const navigate = useNavigate()
@@ -59,7 +61,7 @@ const EditUserProfile = () => {
       const userId = user.id.toString()
 
       // First, try PATCH
-      let response = await fetch(`http://localhost:8000/users/${userId}`, {
+      let response = await fetch(`${URL}/users/${userId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -70,7 +72,7 @@ const EditUserProfile = () => {
       // If PATCH fails, try PUT instead
       if (!response.ok) {
         console.log('PATCH failed, trying PUT instead')
-        response = await fetch(`http://localhost:8000/users/${userId}`, {
+        response = await fetch(`${URL}/users/${userId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'

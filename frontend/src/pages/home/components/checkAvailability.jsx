@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
-// This component simply checks and displays the availability data for tour 1
-// Add it anywhere in your component tree to see the data
+const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
+
 const CheckAvailability = () => {
   const [availabilityData, setAvailabilityData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -11,7 +11,7 @@ const CheckAvailability = () => {
     async function fetchAvailability() {
       try {
         setLoading(true)
-        const response = await fetch('http://localhost:8080/availability/tour/1')
+        const response = await fetch(`${URL}/availability/tour/1`)
 
         if (!response.ok) {
           throw new Error(`HTTP error ${response.status}`)

@@ -1,7 +1,7 @@
-import axios from 'axios'
 import { Cookies } from 'react-cookie'
 
 const cookies = new Cookies()
+const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
 
 // Simula generación de JWT
 
@@ -17,7 +17,7 @@ export const login = async (email, password) => {
     })
   }
 
-  const response = await fetch('http://localhost:8080/auth/login', configFetch)
+  const response = await fetch(`${URL}/auth/login`, configFetch)
 
   if (!response.ok) {
     console.warn('API error:', response.status, 'Crear usuario de prueba para desarrollo')
@@ -97,7 +97,7 @@ export const register = async userData => {
     city: 'Bogotá'
   }
 
-  const response = await fetch('http://localhost:8080/auth/register', {
+  const response = await fetch(`${URL}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
