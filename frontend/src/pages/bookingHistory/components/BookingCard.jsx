@@ -175,13 +175,9 @@ const BookingCard = ({ booking, isPast }) => {
                 </p>
               )}
             </div>
-            <Chip
-              className="absolute top-3 right-3 shadow-md"
-              color={statusInfo.color}
-              variant="flat"
-              startContent={<span className="material-symbols-outlined text-sm">{statusInfo.icon}</span>}>
-              {statusInfo.label}
-            </Chip>
+            <span className="absolute top-3 right-3 shadow-md material-symbols-outlined text-md text-green-600 bg-gray-50 opacity-90 rounded-full p-0 w-4 h-4 flex items-center justify-center">
+              {statusInfo.icon}
+            </span>
             {isPast && status !== 'CANCELLED' && (
               <Chip className="absolute top-3 left-3 shadow-md" color="secondary" variant="flat">
                 Completado

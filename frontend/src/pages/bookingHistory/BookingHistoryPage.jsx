@@ -71,7 +71,7 @@ const BookingHistoryPage = () => {
   const displayBookings = activeTab === 'upcoming' ? upcomingBookings : pastBookings
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-6 min-h-screen bg-gray-50">
+    <div className="max-w-6xl mx-auto p-4 md:p-6 min-h-screen mb-10">
       <Helmet>
         <title>Historial de Reservas | Glocal Tours</title>
         <meta name="description" content="Revisa el historial de tus reservas y viajes" />
@@ -80,7 +80,7 @@ const BookingHistoryPage = () => {
       <Card className="w-full mb-8">
         <CardHeader className="flex flex-col gap-2">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Mis Reservas</h1>
-          <p className="text-gray-600">Visualiza todas tus reservas, tanto las próximas como las pasadas.</p>
+          <p className="text-gray-600">Visualiza tus aventuras; pasadas y futuras.</p>
         </CardHeader>
       </Card>
 
@@ -99,7 +99,7 @@ const BookingHistoryPage = () => {
           title={
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined">travel_explore</span>
-              <span>Próximas Reservas</span>
+              <span>Próximas Aventuras</span>
               {upcomingBookings.length > 0 && (
                 <Chip color="primary" size="sm" variant="flat">
                   {upcomingBookings.length}
