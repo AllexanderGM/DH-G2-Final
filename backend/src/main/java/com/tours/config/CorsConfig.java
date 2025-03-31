@@ -12,7 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Aplica la configuración a todas las rutas
-                .allowedOrigins("*") // Origen permitido
+                .allowedOrigins("http://localhost:5173", "http://dh-g2-final-frontend.s3-website-us-east-1.amazonaws.com") // Origen permitido
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos permitidos
                 .allowedHeaders("*") // Headers permitidos
                 .exposedHeaders("Super-Admin-Email")
