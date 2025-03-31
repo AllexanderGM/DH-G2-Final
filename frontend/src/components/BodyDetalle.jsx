@@ -142,14 +142,20 @@ const BodyDetalle = ({ tour }) => {
                 {tour?.availability?.some(avail => avail.availableSlots > 0) ? (
                   <>
                     <span className="material-symbols-outlined text-green-500">check_circle</span>
-                    <span className="text-gray-700">Estado: Disponible</span>
+                    <span className="text-gray-700">Disponible</span>
                   </>
                 ) : (
                   <>
                     <span className="material-symbols-outlined text-red-500">cancel</span>
-                    <span className="text-gray-700">Estado: No disponible</span>
+                    <span className="text-gray-700">No disponible</span>
                   </>
                 )}
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="material-symbols-outlined text-blue-500">date_range</span>
+                <span className="text-gray-700">
+                  Creado: {tour?.creationDate ? new Date(tour.creationDate).toLocaleDateString('es-ES') : 'Fecha no disponible'}
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="material-symbols-outlined text-orange-500">event_available</span>
