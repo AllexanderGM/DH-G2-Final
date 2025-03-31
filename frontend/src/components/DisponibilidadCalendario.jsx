@@ -59,8 +59,8 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
 
       setAvailabilities(processedAvailabilities)
 
-      // Encontrar la primera fecha disponible después de hoy
-      if (processedAvailabilities.length > 0) {
+      // Solo establecer el focusedDate inicial si no hay uno ya establecido
+      if (!focusedDate && processedAvailabilities.length > 0) {
         const todayDate = new Date()
         const todayDateUtc = new Date(Date.UTC(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()))
 
@@ -82,7 +82,7 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
         }
       }
     }
-  }, [tour])
+  }, [tour, focusedDate])
 
   // Funciones auxiliares para el manejo de fechas
   const isDateInAvailabilityRange = dateObj => {
