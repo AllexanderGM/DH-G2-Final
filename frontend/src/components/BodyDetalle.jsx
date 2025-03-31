@@ -139,17 +139,17 @@ const BodyDetalle = ({ tour }) => {
             <h2 className="text-2xl font-bold mb-4">Estado del tour</h2>
             <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0">
               <div className="flex items-center space-x-2">
-                <span className="material-symbols-outlined text-green-500">check_circle</span>
-                <span className="text-gray-700">Estado: {tour?.status?.status || 'Disponible'}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="material-symbols-outlined text-blue-500">date_range</span>
-                <span className="text-gray-700">
-                  Creado:{' '}
-                  {tour?.creationDate
-                    ? new Date(tour.creationDate[0], tour.creationDate[1] - 1, tour.creationDate[2]).toLocaleDateString()
-                    : 'Fecha no disponible'}
-                </span>
+                {tour?.availability?.some(avail => avail.availableSlots > 0) ? (
+                  <>
+                    <span className="material-symbols-outlined text-green-500">check_circle</span>
+                    <span className="text-gray-700">Estado: Disponible</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-red-500">cancel</span>
+                    <span className="text-gray-700">Estado: No disponible</span>
+                  </>
+                )}
               </div>
               <div className="flex items-center space-x-2">
                 <span className="material-symbols-outlined text-orange-500">event_available</span>
