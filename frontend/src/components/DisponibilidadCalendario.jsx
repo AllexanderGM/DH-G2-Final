@@ -10,13 +10,11 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  // Estado para manejar las disponibilidades procesadas
   const [availabilities, setAvailabilities] = useState([])
   const [selectedDateRange, setSelectedDateRange] = useState(null)
   const [selectedAvailability, setSelectedAvailability] = useState(null)
   const [focusedDate, setFocusedDate] = useState(null)
 
-  // Procesamiento inicial de datos de disponibilidad
   useEffect(() => {
     if (tour?.availability) {
       const availabilityArray = normalizeAvailability(tour.availability)
@@ -64,7 +62,6 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
         const todayDate = new Date()
         const todayDateUtc = new Date(Date.UTC(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()))
 
-        // Filtrar fechas futuras y ordenar cronológicamente
         const futureDates = processedAvailabilities
           .filter(avail => avail.departureDate >= todayDateUtc)
           .sort((a, b) => a.departureDate.getTime() - b.departureDate.getTime())
@@ -96,14 +93,12 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
   }
 
   const getAvailabilityForDate = dateObj => {
-    // Crear fecha UTC para comparación consistente
     const date = new Date(Date.UTC(dateObj.year, dateObj.month - 1, dateObj.day))
 
     return availabilities.find(avail => date >= avail.departureDate && date <= avail.returnDate)
   }
 
   const isDateUnavailable = dateObj => {
-    // Crear fecha UTC para comparación consistente
     const date = new Date(Date.UTC(dateObj.year, dateObj.month - 1, dateObj.day))
 
     // Normalizar fecha actual a UTC sin hora para comparación justa
@@ -119,7 +114,6 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
     return !isDateInAvailabilityRange(dateObj)
   }
 
-  // Manejador de selección de fecha
   const handleDateSelect = dateObj => {
     const availability = getAvailabilityForDate(dateObj)
 
@@ -142,11 +136,9 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
     }
   }
 
-  // Nueva función para manejar el clic en el botón de reserva
   const handleReserveClick = () => {
     if (!user) {
       // Si no hay usuario autenticado, redirigir a la página de login
-      // con state para regresar a esta página después del login
       navigate('/login', {
         state: {
           from: `/tour/${tour.id}`,
@@ -191,13 +183,10 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
             renderCell={date => {
               const isAvailable = !isDateUnavailable(date)
               const availability = isAvailable ? getAvailabilityForDate(date) : null
-
-              // Crear objeto Date UTC para comparaciones precisas
               const cellDate = new Date(Date.UTC(date.year, date.month - 1, date.day))
 
               // Verificar inicio y fin comparando fechas completas con getTime()
               const isStart = availability && cellDate.getTime() === availability.departureDate.getTime()
-
               const isEnd = availability && cellDate.getTime() === availability.returnDate.getTime()
 
               // Destacar fechas de inicio y fin con colores diferentes

@@ -153,7 +153,9 @@ const BodyDetalle = ({ tour }) => {
               </div>
               <div className="flex items-center space-x-2">
                 <span className="material-symbols-outlined text-orange-500">event_available</span>
-                <span className="text-gray-700">Tours disponibles: {tour?.availability?.length || 0}</span>
+                <span className="text-gray-700">
+                  Tours disponibles: {tour?.availability?.filter(avail => avail.availableSlots > 0).length || 0}
+                </span>
               </div>
             </div>
           </Card>
