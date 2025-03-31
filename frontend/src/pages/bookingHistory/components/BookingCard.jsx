@@ -19,13 +19,38 @@ import {
 import { Link } from 'react-router-dom'
 import { cancelBooking } from '@services/bookingService.js'
 import { getAvailabilityForBooking } from '@services/availabilityService.js'
+import { getTourById } from '@services/tourService.js'
 
 const BookingCard = ({ booking, isPast }) => {
   const [cancelLoading, setCancelLoading] = useState(false)
   const [cancelError, setCancelError] = useState(null)
   const [availability, setAvailability] = useState(null)
   const [loadingAvailability, setLoadingAvailability] = useState(false)
+  const [tourData, setTourData] = useState(null)
+  const [loadingTour, setLoadingTour] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
+
+  // Cargar los datos completos del tour
+  useEffect(() => {
+    const fetchTourData = async () => {
+      if (!booking.tourId) return
+
+      setLoadingTour(true)
+      try {
+        const response = await getTourById(booking.tourId)
+        if (!response.error && response.data) {
+          setTourData(response.data)
+          console.log('Tour data obtenido:', response.data)
+        }
+      } catch (error) {
+        console.error('Error obteniendo datos del tour:', error)
+      } finally {
+        setLoadingTour(false)
+      }
+    }
+
+    fetchTourData()
+  }, [booking.tourId])
 
   // Cargar la disponibilidad del tour para obtener las fechas correctas
   useEffect(() => {
@@ -79,8 +104,9 @@ const BookingCard = ({ booking, isPast }) => {
   // Datos de precio total
   const totalPrice = booking.price || 0
 
-  // Primera imagen del tour (por ahora usamos un placeholder)
-  const tourImage = 'https://via.placeholder.com/300x200?text=Tour'
+  // Primera imagen del tour (usar de tourData si está disponible, placeholder si no)
+  const tourImage =
+    tourData && tourData.images && tourData.images.length > 0 ? tourData.images[0] : 'https://via.placeholder.com/300x200?text=Tour'
 
   // Status de la reserva (por ahora asumimos que todas están confirmadas)
   const status = 'CONFIRMED'
@@ -127,10 +153,27 @@ const BookingCard = ({ booking, isPast }) => {
       <Card className="hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-col items-start p-0 overflow-hidden">
           <Link to={`/tour/${tourId}`} className="relative w-full h-56 cursor-pointer block">
-            <img src={tourImage} alt={tourName} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
+            {loadingTour ? (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <Spinner size="lg" color="primary" />
+              </div>
+            ) : (
+              <img
+                src={tourImage}
+                alt={tourName}
+                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
             <div className="absolute bottom-0 left-0 right-0 p-4">
               <h3 className="text-white font-bold text-xl line-clamp-2 mb-1">{tourName}</h3>
+              {tourData?.destination?.country && (
+                <p className="text-white/90 text-sm flex items-center gap-1">
+                  <span className="material-symbols-outlined text-sm">location_on</span>
+                  {tourData.destination.city?.name && `${tourData.destination.city.name}, `}
+                  {tourData.destination.country}
+                </p>
+              )}
             </div>
             <Chip
               className="absolute top-3 right-3 shadow-md"
