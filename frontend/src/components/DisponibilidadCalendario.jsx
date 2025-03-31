@@ -81,17 +81,6 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
     }
   }, [tour, focusedDate])
 
-  // Funciones auxiliares para el manejo de fechas
-  const isDateInAvailabilityRange = dateObj => {
-    // Crear fecha UTC para comparación consistente con las fechas de disponibilidad
-    const date = new Date(Date.UTC(dateObj.year, dateObj.month - 1, dateObj.day))
-
-    return availabilities.some(avail => {
-      const isInRange = date >= avail.departureDate && date <= avail.returnDate
-      return isInRange
-    })
-  }
-
   const getAvailabilityForDate = dateObj => {
     const date = new Date(Date.UTC(dateObj.year, dateObj.month - 1, dateObj.day))
 
@@ -110,8 +99,18 @@ const DisponibilidadCalendario = ({ tour, onSelectDate }) => {
       return true
     }
 
-    // Si no está en ningún rango de disponibilidad, también está no disponible
-    return !isDateInAvailabilityRange(dateObj)
+    // Buscar la disponibilidad para esta fecha
+    const availability = availabilities.find(avail => {
+      const isInRange = date >= avail.departureDate && date <= avail.returnDate
+      return isInRange
+    })
+
+    // Si no hay disponibilidad o los cupos son 0, la fecha no está disponible
+    if (!availability || availability.availableSlots <= 0) {
+      return true
+    }
+
+    return false
   }
 
   const handleDateSelect = dateObj => {
