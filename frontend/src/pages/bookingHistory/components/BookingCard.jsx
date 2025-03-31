@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Card,
   CardHeader,
@@ -13,21 +13,48 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  useDisclosure
+  useDisclosure,
+  Spinner
 } from '@heroui/react'
 import { Link } from 'react-router-dom'
 import { cancelBooking } from '@services/bookingService.js'
+import { getAvailabilityForBooking } from '@services/availabilityService.js'
 
 const BookingCard = ({ booking, isPast }) => {
   const [cancelLoading, setCancelLoading] = useState(false)
   const [cancelError, setCancelError] = useState(null)
+  const [availability, setAvailability] = useState(null)
+  const [loadingAvailability, setLoadingAvailability] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
+
+  // Cargar la disponibilidad del tour para obtener las fechas correctas
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      if (!booking.tourId || !booking.startDate) return
+
+      setLoadingAvailability(true)
+      try {
+        const availabilityData = await getAvailabilityForBooking(booking.tourId, booking.startDate)
+        setAvailability(availabilityData)
+        console.log('Disponibilidad obtenida:', availabilityData)
+      } catch (error) {
+        console.error('Error obteniendo disponibilidad:', error)
+      } finally {
+        setLoadingAvailability(false)
+      }
+    }
+
+    fetchAvailability()
+  }, [booking.tourId, booking.startDate])
 
   // Datos de la reserva
   const tourId = booking.tourId
   const tourName = booking.tourName
-  const departureDate = new Date(booking.startDate)
-  const returnDate = new Date(booking.endDate)
+
+  // Usar departureTime si está disponible, sino usar startDate como fallback
+  const departureDate = availability?.departureTime ? new Date(availability.departureTime) : new Date(booking.startDate)
+
+  const returnDate = availability?.returnTime ? new Date(availability.returnTime) : new Date(booking.endDate)
 
   const formattedDepartureDate = departureDate.toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -127,7 +154,16 @@ const BookingCard = ({ booking, isPast }) => {
               </div>
               <div>
                 <div className="text-xs text-gray-500">Fecha de salida</div>
-                <div className="font-medium">{formattedDepartureDate}</div>
+                <div className="font-medium">
+                  {loadingAvailability ? (
+                    <span className="flex items-center gap-2">
+                      <Spinner size="sm" color="primary" />
+                      <span className="text-gray-400">Cargando fecha...</span>
+                    </span>
+                  ) : (
+                    formattedDepartureDate
+                  )}
+                </div>
               </div>
             </div>
 
@@ -138,7 +174,16 @@ const BookingCard = ({ booking, isPast }) => {
               <div>
                 <div className="text-xs text-gray-500">Hora y duración</div>
                 <div className="font-medium">
-                  {formattedDepartureTime} · {durationDays} {durationDays === 1 ? 'día' : 'días'}
+                  {loadingAvailability ? (
+                    <span className="flex items-center gap-2">
+                      <Spinner size="sm" color="primary" />
+                      <span className="text-gray-400">Cargando hora...</span>
+                    </span>
+                  ) : (
+                    <>
+                      {formattedDepartureTime} · {durationDays} {durationDays === 1 ? 'día' : 'días'}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
