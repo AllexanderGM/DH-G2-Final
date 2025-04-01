@@ -9,7 +9,7 @@ import TablePagination from './TablePagination.jsx'
 import CrearUserForm from './CrearUserForm.jsx'
 import EditarUserForm from './EditarUserForm.jsx'
 import DeleteUserModal from './DeleteUserModal.jsx'
-import { USER_ROLES, USER_ROLE_COLORS, USER_COLUMNS, ROWS_PER_PAGE_OPTIONS } from '../constants/tableConstants.js'
+import { USER_ROLES, USER_ROLE_COLORS, USER_COLUMNS } from '../constants/tableConstants.js'
 
 const TableUsers = () => {
   const [users, setUsers] = useState([])
@@ -42,8 +42,22 @@ const TableUsers = () => {
   }, [visibleColumns])
 
   const filteredItems = useMemo(() => {
-    let filteredUsers = [...users]
+    let filteredUsers = users.filter(user => {
+      // El usuario actual nunca debe verse a sí mismo
+      if (user.email === currentUser?.email) return false
 
+      // Si es superadmin, ve a todos excepto a sí mismo
+      if (currentUser?.isSuperAdmin) return true
+
+      // Si es admin regular: Solo ve a clientes regulares
+      if (currentUser?.isAdmin) {
+        return user.role !== USER_ROLES.ADMIN && user.email !== 'admin@admin.com'
+      }
+
+      return false
+    })
+
+    // Luego aplicamos el filtro de búsqueda si existe
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter(
         user =>
@@ -54,7 +68,7 @@ const TableUsers = () => {
     }
 
     return filteredUsers
-  }, [users, filterValue, hasSearchFilter])
+  }, [users, filterValue, hasSearchFilter, currentUser])
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage)
 
