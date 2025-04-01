@@ -27,22 +27,21 @@ variable "region" {
 }
 
 variable "availability_zone" {
-  description = "Zona de disponibilidad de AWS"
+  description = "Zones de disponibilidad de AWS"
   type        = list(string)
-  default     = ["us-east-1a"]
+  default     = ["us-east-1a", "us-east-1b"] # Ahora con dos zonas de disponibilidad
 }
 
-# 🔹 Variables para las subredes
 variable "public_subnet_cidrs" {
   description = "CIDR Blocks para las subredes públicas"
   type        = list(string)
-  default     = ["10.0.1.0/24"]
+  default     = ["10.0.1.0/24", "10.0.3.0/24"] # Subredes públicas en dos zonas
 }
 
 variable "private_subnet_cidrs" {
   description = "CIDR Blocks para las subredes privadas"
   type        = list(string)
-  default     = ["10.0.2.0/24"]
+  default     = ["10.0.2.0/24", "10.0.4.0/24"] # Subredes privadas en dos zonas
 }
 
 # 🔹 Variables para la base de datos
@@ -68,23 +67,7 @@ variable "db_port" {
   default     = 3306
 }
 
-# 🔹 Variables para el registro de Docker
-variable "docker_registry_user" {
-  description = "Usuario para el registro de Docker"
-  type        = string
-}
-
-variable "docker_registry_password" {
-  description = "Contraseña segura para el registro de Docker"
-  type        = string
-  sensitive   = true
-}
-
-variable "docker_image_backend" {
-  description = "Imagen de Docker para el backend"
-  type        = string
-}
-
+# 🔹 Variables para las llaves privadas y publicas
 variable "key_name" {
   description = "Nombre del key pair para la instancia EC2"
   type        = string
