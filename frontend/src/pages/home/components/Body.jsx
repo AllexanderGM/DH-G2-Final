@@ -9,7 +9,7 @@ import './body.scss'
 const Body = () => {
   const { searchResults, loading, searchTerm } = useSearch()
   const { success, data = [] } = searchResults || {}
-  const ITEMS_PER_PAGE = 3 // constante para la cantidad de elementos por página
+  const ITEMS_PER_PAGE = 9 // constante para la cantidad de elementos por página
   const [currentPage, setCurrentPage] = useState(1)
   const [showScrollTop, setShowScrollTop] = useState(false)
 
