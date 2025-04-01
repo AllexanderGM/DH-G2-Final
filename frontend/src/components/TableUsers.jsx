@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip } from '@heroui/react'
 import { useAuth } from '@context/AuthContext.jsx'
-import { getAllUsers } from '@services/userService'
+import { getAllUsers, getUserByEmail } from '@services/userService'
 
 import GenericTableControls from './GenericTableControls.jsx'
 import TableActionCell from './TableActionCell.jsx'
@@ -95,9 +95,38 @@ const TableUsers = () => {
     setIsCreateModalOpen(true)
   }, [])
 
-  const handleOpenEditModal = useCallback(user => {
-    setSelectedUser(user)
-    setIsEditModalOpen(true)
+  const handleOpenEditModal = useCallback(async user => {
+    try {
+      // Obtener datos completos del usuario
+      const fullUserData = await getUserByEmail(user.email)
+      console.log('Datos completos del usuario:', fullUserData)
+
+      // Mapear los datos recibidos al formato esperado por el formulario
+      const mappedUserData = {
+        id: fullUserData.id,
+        image: fullUserData.image || '',
+        name: fullUserData.username?.split(' ')[0] || '', // El username viene como "nombre apellido"
+        lastName: fullUserData.username?.split(' ')[1] || '',
+        document: user.document || '',
+        phone: user.phone || '',
+        dateOfBirth: user.dateOfBirth || '',
+        email: fullUserData.email,
+        password: '',
+        confirmPassword: '',
+        address: user.address || '',
+        city: user.city || '',
+        role: fullUserData.role
+      }
+
+      console.log('Datos mapeados del usuario:', mappedUserData)
+      setSelectedUser(mappedUserData)
+      setIsEditModalOpen(true)
+    } catch (error) {
+      console.error('Error al obtener datos completos del usuario:', error)
+      // Fallback a datos básicos si falla la llamada
+      setSelectedUser(user)
+      setIsEditModalOpen(true)
+    }
   }, [])
 
   const handleOpenDeleteModal = useCallback(user => {
@@ -127,11 +156,7 @@ const TableUsers = () => {
 
   const handleSuccess = useCallback(() => {
     console.log('Operación exitosa, actualizando lista de usuarios')
-    fetchUsers() // Refrescar la lista después de una operación exitosa
-    // setTimeout(() => {
-    //   fetchUsers()
-    //   console.log('Lista de usuarios actualizada')
-    // }, 1000)
+    fetchUsers()
     setIsCreateModalOpen(false)
     setIsEditModalOpen(false)
     setIsDeleteModalOpen(false)
