@@ -187,6 +187,7 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
     },
     hotelName: '',
     hotel: 4,
+    //hotelNumber: '',
     availability: [
       {
         availableDate: getFutureDateTimeISO(5), // Fecha disponible para reservar (5 días por defecto)
@@ -553,6 +554,14 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
                       onChange={e => handleInputChange('childPrice', e.target.value)}
                     />
                   </div>
+
+                  {/* <Input
+                    label="Numero de contacto"
+                    placeholder="Ej: Codigo del Pais+Numero Telefonico"
+                    value={formData.hotelNumber}
+                    onChange={e => handleInputChange('hotelNumber', e.target.value)}
+                    required
+                  /> */}
 
                   {/* Reemplazamos los inputs de imágenes con nuestro nuevo componente */}
                   <ImageInput images={formData.images} onChange={handleImagesChange} maxImages={5} />

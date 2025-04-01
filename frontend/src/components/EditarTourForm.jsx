@@ -182,6 +182,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
     },
     hotelName: '',
     hotel: 4,
+    //hotelNumber: '',
     availability: [
       {
         availableDate: getFutureDateTimeISO(5),
@@ -214,6 +215,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       // Convertir precio a string para input
       const adultPrice = tourData.precio ? tourData.precio.toString() : ''
       const childPrice = tourData.childPrice ? tourData.childPrice.toString() : ''
+     // const hotelNumber = tourData.hotelNumber ? tourData.hotelNumber.toString() : ''
 
       // Extraer ciudad y país del destino
       const country = tourData.destination?.country || ''
@@ -310,6 +312,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
         },
         hotelName: tourData.hotel?.name || '',
         hotel: typeof tourData.hotel === 'object' ? tourData.hotel.stars : tourData.hotel || 4,
+        //hotelNumber: tourData.hotelNumber || '' ,
         availability
       })
     }
@@ -655,6 +658,14 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
                       onChange={e => handleInputChange('childPrice', e.target.value)}
                     />
                   </div>
+
+                  {/* <Input
+                    label="Numero de contacto"
+                    placeholder="Ej: Codigo del Pais+Numero Telefonico"
+                    value={formData.hotelNumber}
+                    onChange={e => handleInputChange('hotelNumber', e.target.value)}
+                    required
+                  /> */}
 
                   <ImageInput images={formData.images} onChange={handleImagesChange} maxImages={5} />
                 </div>

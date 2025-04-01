@@ -109,7 +109,7 @@ const DetalleTour = () => {
               <div className="w-12 flex justify-end">
                 <div className="flex items-center space-x-1">
 
-                <WhatsAppButton phoneNumber="PhoneNumberHereMan" message="Buenas! Quisiera mas información sobre el tour!" />
+                <WhatsAppButton phoneNumber="573053328285" message="Buenas! Quisiera mas información sobre el tour!" />
 
                   <Button
                     color="primary"

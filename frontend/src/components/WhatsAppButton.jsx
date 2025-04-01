@@ -3,7 +3,7 @@ import { Button } from '@heroui/react'
 
 const WhatsAppButton = ({ phoneNumber, message }) => {
   const encodedMessage = encodeURIComponent(message);
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;;
 
   return (
     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
