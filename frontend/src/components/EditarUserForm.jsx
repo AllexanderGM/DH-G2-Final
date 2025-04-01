@@ -55,12 +55,16 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
       newErrors.dateOfBirth = 'Debe ser mayor de 18 años'
     }
 
-    // Validar contraseña solo si se está intentando cambiar
-    if (formData.password || formData.confirmPassword) {
-      if (formData.password.length < 6) {
-        newErrors.password = 'La contraseña debe tener al menos 6 caracteres'
+    // Validar contraseña solo si se intenta cambiar
+    if (formData.password) {
+      if (formData.password.length < USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH) {
+        newErrors.password = `La contraseña debe tener al menos ${USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH} caracteres`
       }
-      if (formData.password !== formData.confirmPassword) {
+
+      // Validar confirmación de contraseña
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = 'Por favor confirma la contraseña'
+      } else if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'Las contraseñas no coinciden'
       }
     }
@@ -116,29 +120,62 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
         }
       }
 
-      // Solo incluir los campos que han sido modificados o que son obligatorios
+      // Crear objeto de actualización solo con los campos necesarios
       const updateData = {
-        ...userData, // Mantener los datos originales
+        id: userData.id,
         name: formData.name.trim(),
         lastName: formData.lastName.trim(),
         document: formData.document,
         phone: formData.phone,
         dateOfBirth: formData.dateOfBirth,
-        email: formData.email.trim(),
+        email: formData.email,
+        role: formData.role,
         image: formData.image?.trim() || userData.image || ''
       }
 
-      // Solo incluir password si se está cambiando
-      if (formData.password) {
-        updateData.password = formData.password
+      // Solo incluir password si ambos campos están llenos y coinciden
+      if (
+        formData.password &&
+        formData.confirmPassword &&
+        formData.password.trim() === formData.confirmPassword.trim() &&
+        formData.password.trim().length >= USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH
+      ) {
+        updateData.password = formData.password.trim()
+        console.log('Actualizando contraseña del usuario')
+      } else if (!formData.password && !formData.confirmPassword) {
+        console.log('No se modifica la contraseña')
+      } else {
+        console.log('Campos de contraseña incompletos o no válidos - no se actualiza la contraseña')
       }
+
+      console.log('Datos a actualizar:', {
+        ...updateData,
+        password: updateData.password ? '[CONTRASEÑA NUEVA]' : '[NO SE MODIFICA]'
+      })
 
       await updateUser(userData.email, updateData)
       onSuccess?.()
       onClose()
     } catch (error) {
       console.error('Error al actualizar usuario:', error)
-      setApiError(error.message)
+      let errorMessage = 'Error al actualizar el usuario. '
+
+      // Personalizar mensaje según el tipo de error
+      if (error.message.includes('400')) {
+        errorMessage = 'Por favor, completa todos los campos obligatorios marcados con *'
+      } else if (error.message.includes('401')) {
+        errorMessage = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+      } else if (error.message.includes('403')) {
+        errorMessage = 'No tienes permisos para realizar esta acción.'
+      } else if (error.message.includes('404')) {
+        errorMessage = 'No se encontró el usuario a actualizar.'
+      } else if (error.message.includes('409')) {
+        errorMessage = 'Ya existe un usuario con ese correo electrónico.'
+      } else {
+        errorMessage = 'Hubo un problema al actualizar el usuario. Por favor, inténtalo de nuevo.'
+      }
+
+      setApiError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -260,14 +297,14 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
                 {errors.role && <span className="text-danger text-xs">{errors.role}</span>}
               </div>
 
-              {/* Contraseñas (opcionales para edición) */}
+              {/* Contraseñas */}
               <div className="col-span-2">
-                <div className="mb-2 text-sm text-gray-500">Cambio de Contraseña (opcional)</div>
+                <div className="mb-2 text-sm text-gray-500">Ingresa contraseña actual o una nueva</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     type="password"
-                    label="Nueva Contraseña"
-                    placeholder="********"
+                    label="Contraseña *"
+                    placeholder="Mínimo 6 caracteres"
                     value={formData.password}
                     onChange={e => handleInputChange('password', e.target.value)}
                     color={errors.password ? 'danger' : 'default'}
@@ -277,20 +314,19 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
 
                   <Input
                     type="password"
-                    label="Confirmar Nueva Contraseña"
-                    placeholder="********"
+                    label="Confirmar Contraseña *"
+                    placeholder="Repite la contraseña"
                     value={formData.confirmPassword}
                     onChange={e => handleInputChange('confirmPassword', e.target.value)}
                     color={errors.confirmPassword ? 'danger' : 'default'}
                     errorMessage={errors.confirmPassword}
                     className="w-full"
-                    isDisabled={!formData.password}
                   />
                 </div>
               </div>
-            </div>
 
-            {apiError && <div className="mt-4 text-danger text-sm">{apiError}</div>}
+              {apiError && <div className="col-span-2 bg-danger-50 text-danger-600 p-3 rounded-lg text-sm">{apiError}</div>}
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button color="danger" variant="light" onPress={onClose} disabled={isLoading}>

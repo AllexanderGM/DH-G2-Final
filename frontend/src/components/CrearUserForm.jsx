@@ -45,14 +45,14 @@ const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
 
     // Validar contraseña
     if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida'
+      newErrors.password = 'Por favor ingresa una contraseña'
     } else if (formData.password.length < USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH) {
       newErrors.password = `La contraseña debe tener al menos ${USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH} caracteres`
     }
 
     // Validar confirmación de contraseña
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Debe confirmar la contraseña'
+      newErrors.confirmPassword = 'Por favor confirma la contraseña'
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden'
     }
@@ -211,7 +211,7 @@ const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
               <Input
                 type="password"
                 label="Confirmar Contraseña *"
-                placeholder="Confirme la contraseña"
+                placeholder="Repite la contraseña"
                 value={formData.confirmPassword}
                 onChange={e => handleInputChange('confirmPassword', e.target.value)}
                 color={errors.confirmPassword ? 'danger' : 'default'}
