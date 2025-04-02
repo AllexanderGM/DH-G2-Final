@@ -58,7 +58,7 @@ export const USER_ROLE_COLORS = {
 
 export const USER_COLUMNS = [
   { name: 'ID', uid: 'id' },
-  { name: 'NOMBRE', uid: 'username' },
+  { name: 'NOMBRE', uid: 'name' },
   { name: 'EMAIL', uid: 'email' },
   { name: 'ROL', uid: 'role' },
   { name: 'ACCIONES', uid: 'actions' }

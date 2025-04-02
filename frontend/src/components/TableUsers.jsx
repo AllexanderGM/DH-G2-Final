@@ -21,7 +21,7 @@ const TableUsers = () => {
   const [visibleColumns, setVisibleColumns] = useState(new Set(USER_COLUMNS.map(col => col.uid)))
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [sortDescriptor, setSortDescriptor] = useState({
-    column: 'username',
+    column: 'name',
     direction: 'ascending'
   })
   const [page, setPage] = useState(1)
@@ -61,7 +61,7 @@ const TableUsers = () => {
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter(
         user =>
-          (user.username?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
+          (`${user.name} ${user.lastName}`.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
           (user.email?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
           (user.role?.toLowerCase() || '').includes(filterValue.toLowerCase())
       )
@@ -119,8 +119,8 @@ const TableUsers = () => {
       const mappedUserData = {
         id: fullUserData.id,
         image: fullUserData.image || '',
-        name: fullUserData.username?.split(' ')[0] || '', // El username viene como "nombre apellido"
-        lastName: fullUserData.username?.split(' ')[1] || '',
+        name: fullUserData.name || '',
+        lastName: fullUserData.lastName || '',
         document: user.document || '',
         phone: user.phone || '',
         dateOfBirth: user.dateOfBirth || '',
@@ -182,15 +182,15 @@ const TableUsers = () => {
       const cellValue = user[columnKey]
 
       switch (columnKey) {
-        case 'username':
+        case 'name':
           return (
             <User
               avatarProps={{
                 radius: 'lg',
-                src: user.avatar || 'https://via.placeholder.com/150',
-                alt: user.username
+                src: user.image || 'https://via.placeholder.com/150',
+                alt: `${user.name} ${user.lastName}`
               }}
-              name={user.username}
+              name={`${user.name} ${user.lastName}`}
             />
           )
         case 'role':
