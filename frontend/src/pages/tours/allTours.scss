@@ -1,16 +1,20 @@
 .tours_body-container {
   @apply text-center flex flex-col items-center;
 
+  .hero-section {
+    @apply w-full px-4 sm:px-6 lg:px-8 mb-8;
+  }
+
   .title {
-    @apply text-base text-gray-600 mt-12 mb-6;
+    @apply text-3xl font-bold text-gray-900 mb-4;
   }
 
   .subtitle {
-    @apply text-sm text-gray-500 mb-6;
+    @apply text-lg text-gray-600 max-w-3xl mx-auto;
   }
 
   .tours_body-content {
-    @apply w-full max-w-6xl mb-12;
+    @apply w-full max-w-6xl mb-12 px-4 sm:px-6 lg:px-8;
   }
 
   .tours_body-grid {

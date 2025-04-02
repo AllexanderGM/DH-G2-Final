@@ -1,9 +1,7 @@
 import { Spinner, Button } from '@heroui/react'
 import { useSearch } from '@context/SearchContext'
 import { useState, useEffect } from 'react'
-
 import CardMain from '@components/ui/CardTour.jsx'
-
 import './allTours.scss'
 
 const ToursPage = () => {
@@ -29,14 +27,17 @@ const ToursPage = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  let title = 'Todos los Tours'
+  let title = 'Explora Nuestros Tours'
+  let subtitle = 'Descubre destinos increíbles y experiencias únicas en cada rincón del mundo.'
+
   if (isSearching) {
     title = `Resultados para "${searchTerm}"`
-    if (emptyPlaces) {
-      title = `No se encontraron resultados para "${searchTerm}"`
-    }
+    subtitle = emptyPlaces
+      ? 'No encontramos tours que coincidan con tu búsqueda. Intenta con otros términos.'
+      : `Encontramos ${data.length} tours que coinciden con tu búsqueda.`
   } else if (emptyPlaces) {
     title = 'No hay tours disponibles...'
+    subtitle = 'Por favor, vuelve más tarde para ver nuestra oferta de tours.'
   }
 
   const handleLoadMore = () => {
@@ -52,7 +53,11 @@ const ToursPage = () => {
 
   return (
     <div className="tours_body-container">
-      <h1 className="title">{title}</h1>
+      {/* Hero Section */}
+      <div className="hero-section">
+        <h1 className="title">{title}</h1>
+        <p className="subtitle">{subtitle}</p>
+      </div>
 
       <div className="tours_body-content">
         {loading ? (

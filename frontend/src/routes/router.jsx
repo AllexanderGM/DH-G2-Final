@@ -16,6 +16,7 @@ import ConfirmReserv from '@pages/confirmReservation/ConfirmReserv.jsx'
 import CategoryPage from '@pages/category/CategoryPage.jsx'
 import AboutPage from '@pages/about/AboutPage.jsx'
 import ToursPage from '@pages/tours/ToursPage.jsx'
+import ContactPage from '@pages/contact/ContactPage.jsx'
 
 import RequireAuth from './RequireAuth.jsx'
 import App from './App.jsx'
@@ -42,6 +43,7 @@ const router = createBrowserRouter([
           { path: 'users', element: <Users /> },
           { path: 'about', element: <AboutPage /> },
           { path: 'tours', element: <ToursPage /> },
+          { path: 'contacto', element: <ContactPage /> },
           {
             path: 'tour/:id/confirm',
             element: (

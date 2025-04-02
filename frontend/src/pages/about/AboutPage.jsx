@@ -13,77 +13,77 @@ import Andres from '../../assets/perfiles/Andres.jpeg'
 const AboutPage = () => {
   const teamMembers = [
     {
-      name: 'Diego',
+      name: 'Diego Contreras',
       role: 'Frontend Developer',
-      description: 'Desarrollo de componentes UI/UX y experiencia de usuario',
+      description: 'Desarrollo de componentes y UI',
       github: '#',
       linkedin: '#',
       image: Diego
     },
     {
-      name: 'Alejandra',
+      name: 'Alejandra Díaz',
       role: 'Backend Developer',
       description: 'Desarrollo de APIs y lógica de negocio',
-      github: '#',
-      linkedin: '#',
+      github: 'https://github.com/aleja-osorio',
+      linkedin: 'https://www.linkedin.com/in/alejandra-diaz-osorio-55949b71/',
       image: Alejandra
     },
     {
-      name: 'Kevin',
-      role: 'Full Stack Developer',
-      description: 'Desarrollo full stack y arquitectura de software',
-      github: '#',
-      linkedin: '#',
+      name: 'Kevin Payé',
+      role: 'Backend Developer',
+      description: 'Desarrollo de APIs y lógica de negocio',
+      github: 'https://github.com/arkezam',
+      linkedin: 'https://www.linkedin.com/in/kevin-paye/',
       image: Kevin
     },
     {
-      name: 'Adriana',
-      role: 'UI/UX Designer',
-      description: 'Diseño de interfaces y experiencia de usuario',
-      github: '#',
-      linkedin: '#',
+      name: 'Adriana Cadavid',
+      role: 'QA Tester',
+      description: 'Testing y control de calidad',
+      github: 'https://github.com/adrianalcadavid5',
+      linkedin: 'https://www.linkedin.com/in/adriana-cadavid-9a9b8177/',
       image: Adriana
     },
     {
-      name: 'Jeisson',
-      role: 'Frontend Developer',
-      description: 'Desarrollo de componentes y optimización de rendimiento',
-      github: '#',
-      linkedin: '#',
+      name: 'Jeisson Gavilán',
+      role: 'DevOps/Infraestructura',
+      description: 'Gestión de infraestructura y despliegue',
+      github: 'https://github.com/AllexanderGM',
+      linkedin: 'https://www.linkedin.com/in/jeisson-alexander',
       image: Jeisson
     },
     {
-      name: 'Yerlin',
-      role: 'Backend Developer',
-      description: 'Desarrollo de APIs y gestión de base de datos',
-      github: '#',
-      linkedin: '#',
+      name: 'Yerlin Quintero',
+      role: 'Database Administrator',
+      description: 'Gestión y optimización de bases de datos',
+      github: 'https://github.com/YeyeAndrew',
+      linkedin: 'https://www.linkedin.com/in/yerlin-quintero/',
       image: Yerlin
     },
     {
-      name: 'Adrián',
-      role: 'Full Stack Developer',
-      description: 'Desarrollo full stack y testing',
-      github: '#',
-      linkedin: '#',
+      name: 'Adrián Encalada',
+      role: 'QA Tester/Diseñador UI',
+      description: 'Testing y diseño de interfaces de usuario',
+      github: 'https://github.com/AdrianEncalada',
+      linkedin: 'https://www.linkedin.com/in/adrián-encalada-ramírez-018a74193/',
       image: Adrian
     },
     {
-      name: 'Andrés',
-      role: 'Full Stack Developer',
-      description: 'Desarrollo full stack y arquitectura de software',
-      github: '#',
-      linkedin: '#',
+      name: 'Andrés Ferrada',
+      role: 'UI/UX y Frontend Developer',
+      description: 'Diseño de interfaces y desarrollo frontend',
+      github: 'https://github.com/and-fer',
+      linkedin: 'https://www.linkedin.com/in/andres-ferrada/',
       image: Andres
     }
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 mb-12">
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto text-center mb-16">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Sobre Glocal Tours</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Sobre Glocal Tours</h1>
+        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
           Somos un equipo apasionado por el turismo y la tecnología, comprometidos con crear experiencias únicas para nuestros usuarios.
           Nuestra misión es conectar viajeros con destinos increíbles a través de una plataforma innovadora y fácil de usar.
         </p>
@@ -91,7 +91,7 @@ const AboutPage = () => {
 
       {/* Team Section */}
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Nuestro Equipo</h2>
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-12">Nuestro Equipo</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {teamMembers.map((member, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
@@ -100,9 +100,9 @@ const AboutPage = () => {
                 <h3 className="text-xl font-semibold mt-4">{member.name}</h3>
                 <p className="text-sm text-gray-500">{member.role}</p>
               </CardHeader>
-              <CardBody className="text-center">
-                <p className="text-sm text-gray-600 mb-4">{member.description}</p>
-                <div className="flex justify-center gap-4">
+              <CardBody className="text-center flex flex-col h-[120px]">
+                <p className="text-sm text-gray-600 mb-4 flex-1">{member.description}</p>
+                <div className="flex justify-center gap-2">
                   <Button
                     isIconOnly
                     color="primary"
@@ -111,8 +111,9 @@ const AboutPage = () => {
                     as="a"
                     href={member.github}
                     target="_blank"
-                    rel="noopener noreferrer">
-                    <FaGithub className="text-xl" />
+                    rel="noopener noreferrer"
+                    className="p-2">
+                    <FaGithub className="text-lg" />
                   </Button>
                   <Button
                     isIconOnly
@@ -122,8 +123,9 @@ const AboutPage = () => {
                     as="a"
                     href={member.linkedin}
                     target="_blank"
-                    rel="noopener noreferrer">
-                    <FaLinkedin className="text-xl" />
+                    rel="noopener noreferrer"
+                    className="p-2">
+                    <FaLinkedin className="text-lg" />
                   </Button>
                 </div>
               </CardBody>
