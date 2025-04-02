@@ -3,6 +3,7 @@ import { HelmetProvider } from 'react-helmet-async'
 import { CookiesProvider } from 'react-cookie'
 import { AuthProvider } from '@context/AuthContext.jsx'
 import { FavoritesProvider } from '@context/FavoritesContext.jsx'
+import { SearchProvider } from '@context/SearchContext.jsx'
 import GeneralContext from '@context/GeneralContext.jsx'
 import '@styles/tailwind.css'
 import '@styles/global.scss'
@@ -13,9 +14,11 @@ function App() {
       <CookiesProvider>
         <AuthProvider>
           <FavoritesProvider>
-            <GeneralContext>
-              <Outlet />
-            </GeneralContext>
+            <SearchProvider>
+              <GeneralContext>
+                <Outlet />
+              </GeneralContext>
+            </SearchProvider>
           </FavoritesProvider>
         </AuthProvider>
       </CookiesProvider>

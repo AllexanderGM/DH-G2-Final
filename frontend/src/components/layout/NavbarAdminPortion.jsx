@@ -1,5 +1,4 @@
-import { NavbarItem, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, User } from '@heroui/react'
-import { Link } from 'react-router-dom'
+import { NavbarItem, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, User, Link as HeroLink } from '@heroui/react'
 import { useAuth } from '@context/AuthContext.jsx'
 
 const NavbarAdmin = ({ avatar, name, lastName, email }) => {
@@ -9,17 +8,17 @@ const NavbarAdmin = ({ avatar, name, lastName, email }) => {
     <>
       <div className="flex gap-3 items-center">
         <NavbarItem>
-          <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" to="/crear-tour">
+          <HeroLink color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/crear-tour">
             Crear tour
-          </Link>
+          </HeroLink>
         </NavbarItem>
       </div>
 
       <div className="flex gap-3 items-center">
         <NavbarItem>
-          <Link color="primary" className="hover:text-red-600 sm:text-sm md:text-base" to="/admin">
+          <HeroLink color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/admin">
             Admin panel
-          </Link>
+          </HeroLink>
         </NavbarItem>
 
         <NavbarItem>

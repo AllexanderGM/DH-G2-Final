@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import {
   Navbar as NavbarUi,
   NavbarBrand,
@@ -8,7 +7,8 @@ import {
   NavbarMenuToggle,
   NavbarContent,
   NavbarItem,
-  Image
+  Image,
+  Link as HeroLink
 } from '@heroui/react'
 import { useAuth } from '@context/AuthContext.jsx'
 import img from '@assets/Logo/logo_navbar/svg/isotipo_sm.svg'
@@ -17,7 +17,11 @@ import NavbarRegularPortion from './NavbarRegularPortion.jsx'
 import NavbarClientPortion from './NavbarClientPortion.jsx'
 import NavbarAdminPortion from './NavbarAdminPortion.jsx'
 
-const menuItems = ['Somos', 'Tours', 'Contacto']
+const menuItems = [
+  { name: 'Sobre Nosotros', path: '/about' },
+  { name: 'Tours', path: '/tours' },
+  { name: 'Contacto', path: '/contacto' }
+]
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -45,19 +49,19 @@ function Navbar() {
     <NavbarUi isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} classNames={{ wrapper: 'max-w-6xl mx-auto' }}>
       {/* Marca y Logo */}
       <NavbarBrand>
-        <Link to="/" className="flex text-black">
+        <HeroLink href="/" className="flex text-black">
           <Image alt="Glocal Tour isotipo" className="mr-2" src={img} width="20" radius="none" />
           <p className="font-bold text-inherit">Glocal Tour</p>
-        </Link>
+        </HeroLink>
       </NavbarBrand>
 
       {/* Menú principal en pantallas grandes */}
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {menuItems.map((item, index) => (
           <NavbarItem key={index}>
-            <Link className="sm:text-sm md:text-base hover:text-red-600" to="#">
-              {item}
-            </Link>
+            <HeroLink className="sm:text-sm md:text-base hover:text-red-600" href={item.path}>
+              {item.name}
+            </HeroLink>
           </NavbarItem>
         ))}
       </NavbarContent>
@@ -67,9 +71,9 @@ function Navbar() {
       <NavbarMenu>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={index}>
-            <Link className="w-full" to="#">
-              {item}
-            </Link>
+            <HeroLink className="w-full" href={item.path}>
+              {item.name}
+            </HeroLink>
           </NavbarMenuItem>
         ))}
       </NavbarMenu>

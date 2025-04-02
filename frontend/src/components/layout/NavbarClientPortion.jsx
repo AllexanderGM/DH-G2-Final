@@ -1,7 +1,5 @@
 import { NavbarItem, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, User } from '@heroui/react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '@context/AuthContext.jsx'
-import { useFavorites } from '@context/FavoritesContext.jsx'
 
 import FavoritesCount from '../../pages/favorites/components/FavoritesCount.jsx'
 
@@ -34,11 +32,7 @@ const NavbarClientPortion = ({ avatar, name, lastName, email }) => {
             <DropdownItem key="favorites" href="/favoritos">
               Mis tours favoritos
             </DropdownItem>
-            <DropdownItem
-              key="bookings"
-              href="/mis-reservas"
-              // startContent={<span className="material-symbols-outlined">confirmation_number</span>}
-            >
+            <DropdownItem key="bookings" href="/mis-reservas">
               Mis reservas
             </DropdownItem>
             <DropdownItem key="logout" color="danger" onPress={logout}>

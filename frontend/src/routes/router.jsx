@@ -14,6 +14,8 @@ import BookingHistoryPage from '@pages/bookingHistory/BookingHistoryPage.jsx'
 import Users from '@components/Users.jsx'
 import ConfirmReserv from '@pages/confirmReservation/ConfirmReserv.jsx'
 import CategoryPage from '@pages/category/CategoryPage.jsx'
+import AboutPage from '@pages/about/AboutPage.jsx'
+import ToursPage from '@pages/tours/ToursPage.jsx'
 
 import RequireAuth from './RequireAuth.jsx'
 import App from './App.jsx'
@@ -38,6 +40,8 @@ const router = createBrowserRouter([
           { path: 'login', element: <IniciarSesion /> },
           { path: 'register', element: <RegistrarUsuario /> },
           { path: 'users', element: <Users /> },
+          { path: 'about', element: <AboutPage /> },
+          { path: 'tours', element: <ToursPage /> },
           {
             path: 'tour/:id/confirm',
             element: (
