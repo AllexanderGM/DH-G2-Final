@@ -6,7 +6,7 @@ import DetalleGallery from '@components/DetalleGallery'
 import BodyDetalle from '@components/BodyDetalle'
 import { Helmet } from 'react-helmet-async'
 import { normalizeAvailability } from '@utils/dateUtils.js'
-import WhatsAppButton from '@components/WhatsappButton'
+import WhatsAppBtn from '@components/WhatsAppBtn'
 
 const DetalleTour = () => {
   const { id } = useParams()
@@ -108,7 +108,7 @@ const DetalleTour = () => {
               {/* Contenedor derecho con ancho fijo igual al izquierdo */}
               <div className="w-12 flex justify-end">
                 <div className="flex items-center space-x-1">
-                  <WhatsAppButton phoneNumber="573053328285" message="Buenas! Quisiera mas información sobre el tour!" />
+                  <WhatsAppBtn phoneNumber="573053328285" message="Buenas! Quisiera mas información sobre el tour!" />
 
                   <Button
                     color="primary"

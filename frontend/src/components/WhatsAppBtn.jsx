@@ -1,7 +1,7 @@
 import { FaWhatsapp } from 'react-icons/fa'
 import { Button } from '@heroui/react'
 
-const WhatsAppButton = ({ phoneNumber, message }) => {
+const WhatsAppBtn = ({ phoneNumber, message }) => {
   const encodedMessage = encodeURIComponent(message)
   const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`
 
@@ -14,4 +14,4 @@ const WhatsAppButton = ({ phoneNumber, message }) => {
   )
 }
 
-export default WhatsAppButton
+export default WhatsAppBtn
