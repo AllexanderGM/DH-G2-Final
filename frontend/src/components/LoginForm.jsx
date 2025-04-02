@@ -96,8 +96,8 @@ const LoginForm = ({ loginMessage }) => {
       setUser(result.user)
       setLoginSuccess(true)
     } catch (error) {
-      console.error('Login failed:', error)
-      setLoginError(error.message || 'Error al iniciar sesión. Verifica tus credenciales.')
+      console.error('Error en login:', error)
+      setLoginError(error.message || 'Ha ocurrido un error al iniciar sesión. Por favor, intenta nuevamente.')
     } finally {
       setIsLoading(false)
     }
