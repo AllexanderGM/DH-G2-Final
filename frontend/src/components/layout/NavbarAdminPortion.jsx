@@ -1,14 +1,23 @@
 import { NavbarItem, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, User, Link as HeroLink } from '@heroui/react'
 import { useAuth } from '@context/AuthContext.jsx'
+import { useCreateTour } from '@context/CreateTourContext.jsx'
 
 const NavbarAdmin = ({ avatar, name, lastName, email }) => {
   const { logout } = useAuth()
+  const { openCreateTourModal } = useCreateTour()
 
   return (
     <>
       <div className="flex gap-3 items-center">
         <NavbarItem>
-          <HeroLink color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/crear-tour">
+          <HeroLink
+            color="primary"
+            className="hover:text-red-600 sm:text-sm md:text-base"
+            href="#"
+            onClick={e => {
+              e.preventDefault()
+              openCreateTourModal()
+            }}>
             Crear tour
           </HeroLink>
         </NavbarItem>

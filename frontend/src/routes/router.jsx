@@ -6,7 +6,6 @@ import NotFoundPage from '@pages/notFound/NotFoundPage.jsx'
 import IniciarSesion from '@pages/login/IniciarSesion.jsx'
 import RegistrarUsuario from '@pages/register/RegistrarUsuario.jsx'
 import AdminPage from '@pages/admin/AdminPage.jsx'
-import CrearTour from '@pages/tourCreate/CrearTour.jsx'
 import ProfilePage from '@pages/user/ProfilePage.jsx'
 import EditUserProfile from '@pages/userEdit/EditUserProfile.jsx'
 import FavoritesPage from '@pages/favorites/FavoritesPage.jsx'
@@ -96,14 +95,6 @@ const router = createBrowserRouter([
             element: (
               <RequireAuth requiredRole="admin">
                 <AdminPage />
-              </RequireAuth>
-            )
-          },
-          {
-            path: 'crear-tour',
-            element: (
-              <RequireAuth requiredRole="admin">
-                <CrearTour />
               </RequireAuth>
             )
           },
