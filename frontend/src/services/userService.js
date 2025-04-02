@@ -35,6 +35,7 @@ export const getAllUsers = async () => {
 export const getUserByEmail = async email => {
   try {
     const token = getAuthToken()
+    console.log('Obteniendo usuario con email:', email)
     const response = await fetch(`${URL}/users/${email}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -46,7 +47,9 @@ export const getUserByEmail = async email => {
       throw new Error(`Error al obtener usuario: ${response.status}`)
     }
 
-    return await response.json()
+    const userData = await response.json()
+    console.log('Respuesta del servidor (getUserByEmail):', userData)
+    return userData
   } catch (error) {
     console.error('Error obteniendo usuario:', error)
     throw error

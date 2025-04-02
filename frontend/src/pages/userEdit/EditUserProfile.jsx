@@ -1,10 +1,28 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Form, Input, Button, Card, CardBody, CardHeader, Select, SelectItem, Divider } from '@heroui/react'
+import { Form, Input, Button, Card, CardBody, CardHeader, Divider } from '@heroui/react'
 
 import { useAuth } from '../../context/AuthContext.jsx'
+import { getUserByEmail, updateUser } from '../../services/userService.js'
 
-const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
+// Funciones auxiliares
+const generateRandomDocument = () => Math.floor(10000000 + Math.random() * 90000000).toString()
+const generateRandomPhone = () => Math.floor(100000000 + Math.random() * 900000000).toString()
+const DEFAULT_BIRTHDATE = '2000-03-21'
+const MAX_BIRTHDATE = new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]
+
+const formatDate = date => {
+  if (!date) return DEFAULT_BIRTHDATE
+  if (typeof date === 'string') {
+    // Si ya es una fecha en formato YYYY-MM-DD, la devolvemos tal cual
+    if (date.match(/^\d{4}-\d{2}-\d{2}$/)) return date
+    // Si es una fecha en otro formato, la convertimos
+    const d = new Date(date)
+    return d instanceof Date && !isNaN(d) ? d.toISOString().split('T')[0] : DEFAULT_BIRTHDATE
+  }
+  // Si es un objeto Date, lo convertimos a string
+  return date instanceof Date ? date.toISOString().split('T')[0] : DEFAULT_BIRTHDATE
+}
 
 const EditUserProfile = () => {
   const { user, setUser } = useAuth()
@@ -14,29 +32,73 @@ const EditUserProfile = () => {
   const [success, setSuccess] = useState(false)
 
   const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
+    name: '',
+    lastName: '',
     email: '',
-    estado: '',
-    pais: '',
-    age: ''
+    document: '',
+    phone: '',
+    dateOfBirth: DEFAULT_BIRTHDATE,
+    password: '',
+    confirmPassword: '',
+    image: ''
   })
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        nombre: user.nombre || '',
-        apellido: user.apellido || '',
-        email: user.email || '',
-        estado: user.estado || '',
-        pais: user.pais || '',
-        age: user.age ? String(user.age) : ''
-      })
+    const fetchUserData = async () => {
+      try {
+        if (user?.email) {
+          const userData = await getUserByEmail(user.email)
+          setFormData({
+            name: userData.name || '',
+            lastName: userData.lastName || '',
+            email: userData.email || '',
+            document: userData.document || generateRandomDocument(),
+            phone: userData.phone || generateRandomPhone(),
+            dateOfBirth: formatDate(userData.dateOfBirth),
+            password: '',
+            confirmPassword: '',
+            image: userData.image || ''
+          })
+        }
+      } catch (error) {
+        console.error('Error al cargar datos del usuario:', error)
+        setError('Error al cargar los datos del usuario')
+      }
     }
+
+    fetchUserData()
   }, [user])
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    // Limpiar error del campo cuando el usuario empieza a escribir
+    if (error) {
+      setError(null)
+    }
+  }
+
+  const validateForm = () => {
+    // Validar campos requeridos
+    if (!formData.name.trim()) return 'El nombre es requerido'
+    if (!formData.lastName.trim()) return 'El apellido es requerido'
+    if (!formData.document) return 'El documento es requerido'
+    if (!formData.phone) return 'El teléfono es requerido'
+    if (!formData.password) return 'La contraseña es requerida'
+    if (formData.password !== formData.confirmPassword) return 'Las contraseñas no coinciden'
+
+    // Validar teléfono (9 dígitos)
+    if (!/^\d{9}$/.test(formData.phone)) {
+      return 'El teléfono debe tener 9 dígitos'
+    }
+
+    // Validar fecha de nacimiento (mayor de 18 años)
+    const birthDate = new Date(formData.dateOfBirth)
+    const maxDate = new Date(MAX_BIRTHDATE)
+    if (birthDate > maxDate) {
+      return 'Debe ser mayor de 18 años'
+    }
+
+    return null
   }
 
   const handleSubmit = async e => {
@@ -44,55 +106,25 @@ const EditUserProfile = () => {
     setIsLoading(true)
     setError(null)
 
+    const validationError = validateForm()
+    if (validationError) {
+      setError(validationError)
+      setIsLoading(false)
+      return
+    }
+
     try {
       const updatedUserData = {
-        ...user,
-        nombre: formData.nombre,
-        apellido: formData.apellido,
-        estado: formData.estado,
-        pais: formData.pais,
-        age: formData.age ? parseInt(formData.age) : null
+        ...formData,
+        id: user.id
       }
 
-      // Log ID for debugging
-      console.log('User ID type:', typeof user.id, 'Value:', user.id)
-
-      // Ensure ID is handled correctly (no need to convert if already correct type)
-      const userId = user.id.toString()
-
-      // First, try PATCH
-      let response = await fetch(`${URL}/users/${userId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updatedUserData)
-      })
-
-      // If PATCH fails, try PUT instead
-      if (!response.ok) {
-        console.log('PATCH failed, trying PUT instead')
-        response = await fetch(`${URL}/users/${userId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(updatedUserData)
-        })
-      }
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('Error response:', errorText)
-        throw new Error(`Error al actualizar el perfil: ${response.status}`)
-      }
-
-      const data = await response.json()
-      setUser(data)
+      await updateUser(user.email, updatedUserData)
+      setUser(prev => ({ ...prev, ...updatedUserData }))
       setSuccess(true)
 
       setTimeout(() => {
-        navigate('/profile')
+        navigate('/profile-user')
       }, 1500)
     } catch (error) {
       console.error('Error al actualizar perfil:', error)
@@ -100,21 +132,6 @@ const EditUserProfile = () => {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Card className="max-w-md w-full">
-          <CardBody>
-            <div className="text-center">
-              <p className="text-xl text-red-600">No se ha encontrado información del usuario</p>
-              <p className="mt-2">Por favor, inicia sesión para editar tu perfil</p>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-    )
   }
 
   return (
@@ -140,23 +157,24 @@ const EditUserProfile = () => {
                 <Input
                   label="Nombre"
                   labelPlacement="outside"
-                  name="nombre"
+                  name="name"
                   placeholder="Tu nombre"
-                  value={formData.nombre}
-                  onValueChange={value => handleChange('nombre', value)}
+                  value={formData.name}
+                  onValueChange={value => handleChange('name', value)}
                   isDisabled={isLoading || success}
                 />
 
                 <Input
                   label="Apellido"
                   labelPlacement="outside"
-                  name="apellido"
+                  name="lastName"
                   placeholder="Tu apellido"
-                  value={formData.apellido}
-                  onValueChange={value => handleChange('apellido', value)}
+                  value={formData.lastName}
+                  onValueChange={value => handleChange('lastName', value)}
                   isDisabled={isLoading || success}
                 />
               </div>
+
               <Input
                 label="Correo electrónico"
                 labelPlacement="outside"
@@ -171,49 +189,80 @@ const EditUserProfile = () => {
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Select
-                  label="Estado"
-                  placeholder="Selecciona un estado"
+                <Input
+                  label="Documento"
                   labelPlacement="outside"
-                  value={formData.estado}
-                  onChange={e => handleChange('estado', e.target.value)}
-                  isDisabled={isLoading || success}>
-                  <SelectItem key="activo" value="activo">
-                    Activo
-                  </SelectItem>
-                  <SelectItem key="inactivo" value="inactivo">
-                    Inactivo
-                  </SelectItem>
-                </Select>
+                  name="document"
+                  placeholder="Tu documento"
+                  value={formData.document}
+                  onValueChange={value => handleChange('document', value)}
+                  isDisabled={isLoading || success}
+                />
 
                 <Input
-                  label="Edad"
+                  label="Teléfono"
                   labelPlacement="outside"
-                  name="age"
-                  placeholder="Tu edad"
-                  type="number"
-                  value={formData.age}
-                  onValueChange={value => handleChange('age', value)}
+                  name="phone"
+                  placeholder="Tu teléfono (9 dígitos)"
+                  value={formData.phone}
+                  onValueChange={value => handleChange('phone', value)}
                   isDisabled={isLoading || success}
                 />
               </div>
 
               <Input
-                label="País"
+                label="Fecha de Nacimiento"
                 labelPlacement="outside"
-                name="pais"
-                placeholder="Tu país"
-                value={formData.pais}
-                onValueChange={value => handleChange('pais', value)}
+                name="dateOfBirth"
+                type="date"
+                value={formData.dateOfBirth}
+                onValueChange={value => handleChange('dateOfBirth', value)}
+                isDisabled={isLoading || success}
+                max={MAX_BIRTHDATE}
+                description="Debes ser mayor de 18 años"
+                className="py-4"
+              />
+
+              <Input
+                label="URL de Imagen"
+                labelPlacement="outside"
+                name="image"
+                placeholder="URL de tu imagen de perfil"
+                value={formData.image}
+                onValueChange={value => handleChange('image', value)}
                 isDisabled={isLoading || success}
                 className="py-4"
               />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  type="password"
+                  label="Contraseña"
+                  labelPlacement="outside"
+                  name="password"
+                  placeholder="Tu contraseña"
+                  value={formData.password}
+                  onValueChange={value => handleChange('password', value)}
+                  isDisabled={isLoading || success}
+                />
+
+                <Input
+                  type="password"
+                  label="Confirmar Contraseña"
+                  labelPlacement="outside"
+                  name="confirmPassword"
+                  placeholder="Confirma tu contraseña"
+                  value={formData.confirmPassword}
+                  onValueChange={value => handleChange('confirmPassword', value)}
+                  isDisabled={isLoading || success}
+                />
+              </div>
             </div>
 
             <Divider className="my-4" />
 
             <div className="flex gap-4 justify-end">
-              <Button type="button" variant="bordered" onPress={() => navigate('/profile')} isDisabled={isLoading || success}>
+              <Button type="button" variant="bordered" onPress={() => navigate('/profile-user')} isDisabled={isLoading || success}>
                 Cancelar
               </Button>
               <Button type="submit" color="primary" className="bg-[#E86C6E]" isLoading={isLoading} isDisabled={success}>
