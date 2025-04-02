@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip } from '@heroui/react'
 import { useAuth } from '@context/AuthContext.jsx'
-import { getAllUsers } from '@services/userService'
+import { getAllUsers, getUserByEmail } from '@services/userService'
 
 import GenericTableControls from './GenericTableControls.jsx'
 import TableActionCell from './TableActionCell.jsx'
@@ -9,7 +9,7 @@ import TablePagination from './TablePagination.jsx'
 import CrearUserForm from './CrearUserForm.jsx'
 import EditarUserForm from './EditarUserForm.jsx'
 import DeleteUserModal from './DeleteUserModal.jsx'
-import { USER_ROLES, USER_ROLE_COLORS, USER_COLUMNS, ROWS_PER_PAGE_OPTIONS } from '../constants/tableConstants.js'
+import { USER_ROLES, USER_ROLE_COLORS, USER_COLUMNS } from '../constants/tableConstants.js'
 
 const TableUsers = () => {
   const [users, setUsers] = useState([])
@@ -21,7 +21,7 @@ const TableUsers = () => {
   const [visibleColumns, setVisibleColumns] = useState(new Set(USER_COLUMNS.map(col => col.uid)))
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [sortDescriptor, setSortDescriptor] = useState({
-    column: 'username',
+    column: 'name',
     direction: 'ascending'
   })
   const [page, setPage] = useState(1)
@@ -42,19 +42,33 @@ const TableUsers = () => {
   }, [visibleColumns])
 
   const filteredItems = useMemo(() => {
-    let filteredUsers = [...users]
+    let filteredUsers = users.filter(user => {
+      // El usuario actual nunca debe verse a sí mismo
+      if (user.email === currentUser?.email) return false
 
+      // Si es superadmin, ve a todos excepto a sí mismo
+      if (currentUser?.isSuperAdmin) return true
+
+      // Si es admin regular: Solo ve a clientes regulares
+      if (currentUser?.isAdmin) {
+        return user.role !== USER_ROLES.ADMIN && user.email !== 'admin@admin.com'
+      }
+
+      return false
+    })
+
+    // Luego aplicamos el filtro de búsqueda si existe
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter(
         user =>
-          (user.username?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
+          (`${user.name} ${user.lastName}`.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
           (user.email?.toLowerCase() || '').includes(filterValue.toLowerCase()) ||
           (user.role?.toLowerCase() || '').includes(filterValue.toLowerCase())
       )
     }
 
     return filteredUsers
-  }, [users, filterValue, hasSearchFilter])
+  }, [users, filterValue, hasSearchFilter, currentUser])
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage)
 
@@ -95,9 +109,38 @@ const TableUsers = () => {
     setIsCreateModalOpen(true)
   }, [])
 
-  const handleOpenEditModal = useCallback(user => {
-    setSelectedUser(user)
-    setIsEditModalOpen(true)
+  const handleOpenEditModal = useCallback(async user => {
+    try {
+      // Obtener datos completos del usuario
+      const fullUserData = await getUserByEmail(user.email)
+      console.log('Datos completos del usuario:', fullUserData)
+
+      // Mapear los datos recibidos al formato esperado por el formulario
+      const mappedUserData = {
+        id: fullUserData.id,
+        image: fullUserData.image || '',
+        name: fullUserData.name || '',
+        lastName: fullUserData.lastName || '',
+        document: user.document || '',
+        phone: user.phone || '',
+        dateOfBirth: user.dateOfBirth || '',
+        email: fullUserData.email,
+        password: '',
+        confirmPassword: '',
+        address: user.address || '',
+        city: user.city || '',
+        role: fullUserData.role
+      }
+
+      console.log('Datos mapeados del usuario:', mappedUserData)
+      setSelectedUser(mappedUserData)
+      setIsEditModalOpen(true)
+    } catch (error) {
+      console.error('Error al obtener datos completos del usuario:', error)
+      // Fallback a datos básicos si falla la llamada
+      setSelectedUser(user)
+      setIsEditModalOpen(true)
+    }
   }, [])
 
   const handleOpenDeleteModal = useCallback(user => {
@@ -127,11 +170,7 @@ const TableUsers = () => {
 
   const handleSuccess = useCallback(() => {
     console.log('Operación exitosa, actualizando lista de usuarios')
-    fetchUsers() // Refrescar la lista después de una operación exitosa
-    // setTimeout(() => {
-    //   fetchUsers()
-    //   console.log('Lista de usuarios actualizada')
-    // }, 1000)
+    fetchUsers()
     setIsCreateModalOpen(false)
     setIsEditModalOpen(false)
     setIsDeleteModalOpen(false)
@@ -143,15 +182,15 @@ const TableUsers = () => {
       const cellValue = user[columnKey]
 
       switch (columnKey) {
-        case 'username':
+        case 'name':
           return (
             <User
               avatarProps={{
                 radius: 'lg',
-                src: user.avatar || 'https://via.placeholder.com/150',
-                alt: user.username
+                src: user.image || 'https://via.placeholder.com/150',
+                alt: `${user.name} ${user.lastName}`
               }}
-              name={user.username}
+              name={`${user.name} ${user.lastName}`}
             />
           )
         case 'role':

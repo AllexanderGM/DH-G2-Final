@@ -20,9 +20,29 @@ export const login = async (email, password) => {
   const response = await fetch(`${URL}/auth/login`, configFetch)
 
   if (!response.ok) {
-    console.warn('API error:', response.status, 'Crear usuario de prueba para desarrollo')
+    let errorMessage = 'Error al iniciar sesión'
+    
+    switch (response.status) {
+      case 400:
+        errorMessage = 'No existe una cuenta con este correo electrónico'
+        break
+      case 401:
+        errorMessage = 'Correo electrónico o contraseña incorrectos'
+        break
+      case 403:
+        errorMessage = 'Tu cuenta ha sido bloqueada. Por favor, contacta al administrador'
+        break
+      case 404:
+        errorMessage = 'No existe una cuenta con este correo electrónico'
+        break
+      case 500:
+        errorMessage = 'Ha ocurrido un error en el servidor. Por favor, intenta más tarde'
+        break
+      default:
+        errorMessage = 'Ha ocurrido un error inesperado. Por favor, intenta nuevamente'
+    }
 
-    throw new Error(`Login failed: ${response.status}`)
+    throw new Error(errorMessage)
   }
 
   const result = await response.json()

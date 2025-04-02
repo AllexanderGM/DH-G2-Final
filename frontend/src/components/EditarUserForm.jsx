@@ -1,14 +1,18 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Select, SelectItem, Chip } from '@heroui/react'
-import { updateUser, assignAdminRole, revokeAdminRole, getUserByEmail } from '@services/userService'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Switch } from '@heroui/react'
+import { updateUser, assignAdminRole, revokeAdminRole } from '@services/userService'
 import { useAuth } from '@context/AuthContext'
 
-import { USER_ROLES, USER_ROLE_COLORS, USER_FORM_VALIDATIONS, DEFAULT_USER_FORM_DATA } from '../constants/tableConstants'
+import { USER_ROLES, USER_FORM_VALIDATIONS, DEFAULT_USER_FORM_DATA } from '../constants/tableConstants.js'
+
+const generateRandomDocument = () => Math.floor(10000000 + Math.random() * 90000000).toString()
+const generateRandomPhone = () => Math.floor(100000000 + Math.random() * 900000000).toString()
+const DEFAULT_BIRTHDATE = '1986-03-21'
+const MAX_BIRTHDATE = new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]
 
 const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
   const { user: currentUser } = useAuth()
   const [formData, setFormData] = useState(DEFAULT_USER_FORM_DATA)
-
   const [originalRole, setOriginalRole] = useState('')
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
@@ -20,14 +24,12 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
         image: userData.image || '',
         name: userData.name || '',
         lastName: userData.lastName || '',
-        document: userData.document || '',
-        phone: userData.phone || '',
-        dateOfBirth: userData.dateOfBirth || '',
+        document: userData.document || generateRandomDocument(),
+        phone: userData.phone || generateRandomPhone(),
+        dateOfBirth: userData.dateOfBirth || DEFAULT_BIRTHDATE,
         email: userData.email || '',
         password: '',
         confirmPassword: '',
-        address: userData.address || '',
-        city: userData.city || '',
         role: userData.role || USER_ROLES.CLIENT
       })
       setOriginalRole(userData.role || USER_ROLES.CLIENT)
@@ -40,45 +42,30 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
     // Validar campos requeridos
     if (!formData.name.trim()) newErrors.name = 'El nombre es requerido'
     if (!formData.lastName.trim()) newErrors.lastName = 'El apellido es requerido'
-    if (!formData.document.trim()) newErrors.document = 'El documento es requerido'
-    if (!formData.dateOfBirth) newErrors.dateOfBirth = 'La fecha de nacimiento es requerida'
-
-    // Validar email
     if (!formData.email.trim()) {
       newErrors.email = 'El email es requerido'
     } else if (!USER_FORM_VALIDATIONS.EMAIL_REGEX.test(formData.email)) {
       newErrors.email = 'Email inválido'
     }
 
-    // Validar teléfono (9 dígitos exactos)
-    if (formData.phone && !USER_FORM_VALIDATIONS.PHONE_REGEX.test(formData.phone)) {
-      newErrors.phone = 'El teléfono debe tener 9 dígitos'
+    // Validar fecha de nacimiento
+    const birthDate = new Date(formData.dateOfBirth)
+    const maxDate = new Date(MAX_BIRTHDATE)
+    if (birthDate > maxDate) {
+      newErrors.dateOfBirth = 'Debe ser mayor de 18 años'
     }
 
-    // Validar contraseña solo si se está intentando cambiar
+    // Validar contraseña solo si se intenta cambiar
     if (formData.password) {
-      if (formData.password.length < 6) {
-        newErrors.password = 'La contraseña debe tener al menos 6 caracteres'
+      if (formData.password.length < USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH) {
+        newErrors.password = `La contraseña debe tener al menos ${USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH} caracteres`
       }
-      if (formData.password !== formData.confirmPassword) {
+
+      // Validar confirmación de contraseña
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = 'Por favor confirma la contraseña'
+      } else if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'Las contraseñas no coinciden'
-      }
-    }
-
-    // Validar cambio de rol
-    if (formData.role === USER_ROLES.ADMIN && originalRole !== USER_ROLES.ADMIN) {
-      if (!currentUser?.isSuperAdmin) {
-        newErrors.role = 'Solo el superadmin puede asignar rol de administrador'
-      }
-    }
-
-    if (formData.role !== originalRole) {
-      if (formData.role === USER_ROLES.ADMIN) {
-        // Verificar si es superadmin
-        if (!currentUser?.isSuperAdmin) {
-          newErrors.role = 'Solo el superadmin puede asignar rol de administrador'
-          console.log('Usuario actual no es SuperAdmin:', currentUser)
-        }
       }
     }
 
@@ -126,67 +113,78 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
       setIsLoading(true)
 
       if (formData.role !== originalRole) {
-        console.log('Cambiando rol de usuario:', userData.id, 'desde', originalRole, 'a', formData.role)
-        console.log('Changing role for user ID:', userData.id)
-        console.log('Current user (super admin):', currentUser.email)
-
         if (formData.role === USER_ROLES.ADMIN) {
           await assignAdminRole(userData.id, currentUser.email)
-          const updatedUser = await getUserByEmail(userData.email)
-          console.log('Updated user data:', updatedUser)
         } else {
           await revokeAdminRole(userData.id, currentUser.email)
         }
-        // Esperar un momento para que el cambio de rol se procese completamente
-        console.log('Cambio de rol completado')
+      }
+
+      // Crear objeto de actualización solo con los campos necesarios
+      const updateData = {
+        id: userData.id,
+        name: formData.name.trim(),
+        lastName: formData.lastName.trim(),
+        document: formData.document,
+        phone: formData.phone,
+        dateOfBirth: formData.dateOfBirth,
+        email: formData.email,
+        role: formData.role,
+        image: formData.image?.trim() || userData.image || ''
+      }
+
+      // Solo incluir password si ambos campos están llenos y coinciden
+      if (
+        formData.password &&
+        formData.confirmPassword &&
+        formData.password.trim() === formData.confirmPassword.trim() &&
+        formData.password.trim().length >= USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH
+      ) {
+        updateData.password = formData.password.trim()
+        console.log('Actualizando contraseña del usuario')
+      } else if (!formData.password && !formData.confirmPassword) {
+        console.log('No se modifica la contraseña')
       } else {
-        console.log('No se está cambiando el rol, solo actualizando datos')
+        console.log('Campos de contraseña incompletos o no válidos - no se actualiza la contraseña')
       }
 
-      // Excluir campos innecesarios para la actualización
-      const { confirmPassword, role, ...updateData } = formData
-      console.log(updateData)
-
-      // Solo incluir password si se está cambiando
-      if (!updateData.password) {
-        delete updateData.password
-      }
+      console.log('Datos a actualizar:', {
+        ...updateData,
+        password: updateData.password ? '[CONTRASEÑA NUEVA]' : '[NO SE MODIFICA]'
+      })
 
       await updateUser(userData.email, updateData)
-
       onSuccess?.()
       onClose()
     } catch (error) {
-      setApiError(error.message)
+      console.error('Error al actualizar usuario:', error)
+      let errorMessage = 'Error al actualizar el usuario. '
+
+      // Personalizar mensaje según el tipo de error
+      if (error.message.includes('400')) {
+        errorMessage = 'Por favor, completa todos los campos obligatorios marcados con *'
+      } else if (error.message.includes('401')) {
+        errorMessage = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+      } else if (error.message.includes('403')) {
+        errorMessage = 'No tienes permisos para realizar esta acción.'
+      } else if (error.message.includes('404')) {
+        errorMessage = 'No se encontró el usuario a actualizar.'
+      } else if (error.message.includes('409')) {
+        errorMessage = 'Ya existe un usuario con ese correo electrónico.'
+      } else {
+        errorMessage = 'Hubo un problema al actualizar el usuario. Por favor, inténtalo de nuevo.'
+      }
+
+      setApiError(errorMessage)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleClose = () => {
-    setFormData({
-      image: '',
-      name: '',
-      lastName: '',
-      document: '',
-      phone: '',
-      dateOfBirth: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      address: '',
-      city: '',
-      role: ''
-    })
-    setErrors({})
-    setApiError(null)
-    onClose()
-  }
-
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={onClose}
       size="2xl"
       classNames={{
         backdrop: 'bg-[#292f46]/50 backdrop-opacity-40',
@@ -222,12 +220,10 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
 
               <Input
                 type="text"
-                label="Documento *"
+                label="Documento"
                 placeholder="Ingrese el documento"
                 value={formData.document}
                 onChange={e => handleInputChange('document', e.target.value)}
-                color={errors.document ? 'danger' : 'default'}
-                errorMessage={errors.document}
                 className="w-full"
               />
 
@@ -250,6 +246,7 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
                 color={errors.dateOfBirth ? 'danger' : 'default'}
                 errorMessage={errors.dateOfBirth}
                 className="w-full"
+                max={MAX_BIRTHDATE}
               />
 
               <Input
@@ -264,30 +261,7 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
                 isDisabled
               />
 
-              {/* Contraseñas (opcionales para edición) */}
-              <Input
-                type="password"
-                label="Nueva Contraseña"
-                placeholder="Mínimo 6 caracteres"
-                value={formData.password}
-                onChange={e => handleInputChange('password', e.target.value)}
-                color={errors.password ? 'danger' : 'default'}
-                errorMessage={errors.password}
-                className="w-full"
-              />
-
-              <Input
-                type="password"
-                label="Confirmar Nueva Contraseña"
-                placeholder="Confirme la contraseña"
-                value={formData.confirmPassword}
-                onChange={e => handleInputChange('confirmPassword', e.target.value)}
-                color={errors.confirmPassword ? 'danger' : 'default'}
-                errorMessage={errors.confirmPassword}
-                className="w-full"
-              />
-
-              {/* Datos opcionales */}
+              {/* URL de imagen */}
               <Input
                 type="url"
                 label="URL de Imagen"
@@ -297,52 +271,65 @@ const EditarUserForm = ({ isOpen, onClose, onSuccess, userData }) => {
                 className="w-full"
               />
 
-              <Input
-                type="text"
-                label="Dirección"
-                placeholder="Ingrese la dirección"
-                value={formData.address}
-                onChange={e => handleInputChange('address', e.target.value)}
-                className="w-full"
-              />
-
-              <Input
-                type="text"
-                label="Ciudad"
-                placeholder="Ingrese la ciudad"
-                value={formData.city}
-                onChange={e => handleInputChange('city', e.target.value)}
-                className="w-full"
-              />
-
               {/* Selector de Rol */}
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">Rol</label>
-                <div className="flex gap-2">
-                  <Chip
-                    color={formData.role === USER_ROLES.CLIENT ? 'success' : 'default'}
-                    variant={formData.role === USER_ROLES.CLIENT ? 'solid' : 'bordered'}
-                    className={`cursor-pointer ${!currentUser?.isSuperAdmin && 'opacity-50'}`}
-                    onClick={() => handleRoleChange(USER_ROLES.CLIENT)}>
-                    Cliente
-                  </Chip>
-                  <Chip
-                    color={formData.role === USER_ROLES.ADMIN ? 'danger' : 'default'}
-                    variant={formData.role === USER_ROLES.ADMIN ? 'solid' : 'bordered'}
-                    className={`cursor-pointer ${!currentUser?.isSuperAdmin && 'opacity-50'}`}
-                    onClick={() => (currentUser?.isSuperAdmin ? handleRoleChange(USER_ROLES.ADMIN) : null)}>
-                    Administrador
-                  </Chip>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    isSelected={formData.role === USER_ROLES.ADMIN}
+                    onValueChange={isAdmin => handleRoleChange(isAdmin ? USER_ROLES.ADMIN : USER_ROLES.CLIENT)}
+                    size="lg"
+                    color="danger"
+                    isDisabled={!currentUser?.isSuperAdmin}
+                    classNames={{
+                      wrapper: 'bg-success-200 group-data-[selected=true]:bg-danger-200',
+                      thumb: `
+                        group-data-[selected=true]:bg-danger-500
+                        group-data-[selected=true]:border-danger-500
+                        group-data-[selected=false]:bg-success-500
+                        group-data-[selected=false]:border-success-500
+                      `
+                    }}>
+                    <span className="ml-2">{formData.role === USER_ROLES.ADMIN ? 'Administrador' : 'Usuario'}</span>
+                  </Switch>
                 </div>
                 {!currentUser?.isSuperAdmin && <span className="text-xs text-gray-500 mt-1">Solo el superadmin puede modificar roles</span>}
                 {errors.role && <span className="text-danger text-xs">{errors.role}</span>}
               </div>
-            </div>
 
-            {apiError && <div className="mt-4 text-danger text-sm">{apiError}</div>}
+              {/* Contraseñas */}
+              <div className="col-span-2">
+                <div className="mb-2 text-sm text-gray-500">Ingresa contraseña actual o una nueva</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    type="password"
+                    label="Contraseña *"
+                    placeholder="Mínimo 6 caracteres"
+                    value={formData.password}
+                    onChange={e => handleInputChange('password', e.target.value)}
+                    color={errors.password ? 'danger' : 'default'}
+                    errorMessage={errors.password}
+                    className="w-full"
+                  />
+
+                  <Input
+                    type="password"
+                    label="Confirmar Contraseña *"
+                    placeholder="Repite la contraseña"
+                    value={formData.confirmPassword}
+                    onChange={e => handleInputChange('confirmPassword', e.target.value)}
+                    color={errors.confirmPassword ? 'danger' : 'default'}
+                    errorMessage={errors.confirmPassword}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              {apiError && <div className="col-span-2 bg-danger-50 text-danger-600 p-3 rounded-lg text-sm">{apiError}</div>}
+            </div>
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" variant="light" onPress={handleClose} disabled={isLoading}>
+            <Button color="danger" variant="light" onPress={onClose} disabled={isLoading}>
               Cancelar
             </Button>
             <Button color="primary" type="submit" disabled={isLoading} isLoading={isLoading}>

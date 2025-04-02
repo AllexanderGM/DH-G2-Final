@@ -6,6 +6,9 @@ import 'lightgallery/css/lightgallery.css'
 import 'lightgallery/css/lg-zoom.css'
 import 'lightgallery/css/lg-thumbnail.css'
 
+// Estilos personalizados para LightGallery
+import './DetalleGallery.scss'
+
 const DetalleGallery = ({ tour }) => {
   console.log('Tour en DetalleGallery:', tour)
 
@@ -23,22 +26,15 @@ const DetalleGallery = ({ tour }) => {
 
   // Determinar cuántas imágenes reales tenemos
   const validTourImages = tourImages.filter(img => img && typeof img === 'string' && img.trim() !== '')
-  const imageCount = validTourImages.length
+  const imageCount = validTourImages.length || 1
 
   // Función para generar el layout según el número de imágenes
   const getGalleryItems = () => {
     // Si no hay imágenes válidas, usar al menos una imagen por defecto
-    if (imageCount === 0) {
-      return [{ imageId: 1, src: defaultImages[0] }]
+    if (imageCount === 0 || validTourImages.length === 0) {
+      return [defaultImages[0]]
     }
-
-    // Si hay imágenes, llenarlas con las que tenemos
-    const items = validTourImages.map((src, index) => ({
-      imageId: index + 1,
-      src
-    }))
-
-    return items
+    return validTourImages
   }
 
   // Generar los elementos de la galería
@@ -82,28 +78,27 @@ const DetalleGallery = ({ tour }) => {
       position: 'relative',
       overflow: 'hidden',
       height: '100%',
-      display: 'block'
+      display: 'block',
+      cursor: 'pointer'
     }
 
-    // Agregar estilos específicos para cada layout
-    // Mantenemos bordes redondeados solo en la parte inferior
     switch (total) {
       case 1:
         return {
           ...baseStyle,
-          borderBottomLeftRadius: '0.75rem', // Solo bordes inferiores redondeados
+          borderBottomLeftRadius: '0.75rem',
           borderBottomRightRadius: '0.75rem'
         }
       case 2:
         if (index === 0) {
           return {
             ...baseStyle,
-            borderBottomLeftRadius: '0.75rem' // Solo borde inferior izquierdo
+            borderBottomLeftRadius: '0.75rem'
           }
         } else {
           return {
             ...baseStyle,
-            borderBottomRightRadius: '0.75rem' // Solo borde inferior derecho
+            borderBottomRightRadius: '0.75rem'
           }
         }
       case 3:
@@ -112,41 +107,35 @@ const DetalleGallery = ({ tour }) => {
             ...baseStyle,
             gridColumn: 'span 1',
             gridRow: 'span 2',
-            borderBottomLeftRadius: '0.75rem' // Solo borde inferior izquierdo
+            borderBottomLeftRadius: '0.75rem'
           }
         } else if (index === 1) {
           return {
             ...baseStyle
-            // Sin bordes redondeados arriba
           }
         } else {
           return {
             ...baseStyle,
-            borderBottomRightRadius: '0.75rem' // Solo borde inferior derecho
+            borderBottomRightRadius: '0.75rem'
           }
         }
       case 4: {
         const styles = { ...baseStyle }
-
-        // Solo bordes inferiores redondeados
         if (index === 2) styles.borderBottomLeftRadius = '0.75rem'
         if (index === 3) styles.borderBottomRightRadius = '0.75rem'
-
         return styles
       }
       case 5:
       default: {
         const defaultStyles = { ...baseStyle }
-
         if (index === 0) {
           return {
             ...defaultStyles,
             gridRow: 'span 2',
-            borderBottomLeftRadius: '0.75rem' // Solo borde inferior izquierdo
+            borderBottomLeftRadius: '0.75rem'
           }
         }
-        if (index === 4) defaultStyles.borderBottomRightRadius = '0.75rem' // Solo borde inferior derecho
-
+        if (index === 4) defaultStyles.borderBottomRightRadius = '0.75rem'
         return defaultStyles
       }
     }
@@ -166,7 +155,6 @@ const DetalleGallery = ({ tour }) => {
   // Clases específicas para cada layout de grid
   const getLayoutClass = (index, total) => {
     let classes = ''
-
     switch (total) {
       case 3:
         if (index === 0) classes += ' col-span-1 row-span-2'
@@ -177,27 +165,23 @@ const DetalleGallery = ({ tour }) => {
       default:
         break
     }
-
     return classes
   }
 
   return (
     <div className="mb-10">
-      <div className={`grid gap-1 ${getGridClasses()} ${getHeightClass()}`}>
-        {galleryItems.map((image, index) => (
-          <LightGallery
-            key={image.imageId}
-            speed={500}
-            plugins={[lgThumbnail, lgZoom]}
-            elementClassNames={getLayoutClass(index, imageCount)}>
-            <a href={image.src} style={getContainerStyle(index, imageCount)} className="gallery-item">
-              <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                <img src={image.src} alt={`Imagen ${index + 1} del tour`} style={getImageStyle()} />
-              </div>
-            </a>
-          </LightGallery>
+      <LightGallery speed={500} plugins={[lgThumbnail, lgZoom]} elementClassNames={`grid gap-1 ${getGridClasses()} ${getHeightClass()}`}>
+        {galleryItems.map((src, index) => (
+          <a
+            key={index}
+            className={`gallery-item ${getLayoutClass(index, imageCount)}`}
+            data-src={src}
+            href={src}
+            style={getContainerStyle(index, imageCount)}>
+            <img alt={`Imagen ${index + 1} del tour`} src={src} style={getImageStyle()} />
+          </a>
         ))}
-      </div>
+      </LightGallery>
     </div>
   )
 }

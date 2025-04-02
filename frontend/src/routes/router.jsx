@@ -6,7 +6,6 @@ import NotFoundPage from '@pages/notFound/NotFoundPage.jsx'
 import IniciarSesion from '@pages/login/IniciarSesion.jsx'
 import RegistrarUsuario from '@pages/register/RegistrarUsuario.jsx'
 import AdminPage from '@pages/admin/AdminPage.jsx'
-import CrearTour from '@pages/tourCreate/CrearTour.jsx'
 import ProfilePage from '@pages/user/ProfilePage.jsx'
 import EditUserProfile from '@pages/userEdit/EditUserProfile.jsx'
 import FavoritesPage from '@pages/favorites/FavoritesPage.jsx'
@@ -14,6 +13,9 @@ import BookingHistoryPage from '@pages/bookingHistory/BookingHistoryPage.jsx'
 import Users from '@components/Users.jsx'
 import ConfirmReserv from '@pages/confirmReservation/ConfirmReserv.jsx'
 import CategoryPage from '@pages/category/CategoryPage.jsx'
+import AboutPage from '@pages/about/AboutPage.jsx'
+import ToursPage from '@pages/tours/ToursPage.jsx'
+import ContactPage from '@pages/contact/ContactPage.jsx'
 
 import RequireAuth from './RequireAuth.jsx'
 import App from './App.jsx'
@@ -38,6 +40,9 @@ const router = createBrowserRouter([
           { path: 'login', element: <IniciarSesion /> },
           { path: 'register', element: <RegistrarUsuario /> },
           { path: 'users', element: <Users /> },
+          { path: 'about', element: <AboutPage /> },
+          { path: 'tours', element: <ToursPage /> },
+          { path: 'contacto', element: <ContactPage /> },
           {
             path: 'tour/:id/confirm',
             element: (
@@ -90,14 +95,6 @@ const router = createBrowserRouter([
             element: (
               <RequireAuth requiredRole="admin">
                 <AdminPage />
-              </RequireAuth>
-            )
-          },
-          {
-            path: 'crear-tour',
-            element: (
-              <RequireAuth requiredRole="admin">
-                <CrearTour />
               </RequireAuth>
             )
           },

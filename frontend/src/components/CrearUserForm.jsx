@@ -2,10 +2,17 @@ import { useState, useCallback } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input } from '@heroui/react'
 import { createUser } from '@services/userService'
 
-import { USER_FORM_VALIDATIONS, DEFAULT_USER_FORM_DATA } from '../constants/tableConstants.js'
+import { USER_ROLES, USER_FORM_VALIDATIONS, DEFAULT_USER_FORM_DATA } from '../constants/tableConstants.js'
+
+const DEFAULT_BIRTHDATE = '1986-03-21'
+const MAX_BIRTHDATE = new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]
 
 const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
-  const [formData, setFormData] = useState(DEFAULT_USER_FORM_DATA)
+  const [formData, setFormData] = useState({
+    ...DEFAULT_USER_FORM_DATA,
+    dateOfBirth: DEFAULT_BIRTHDATE,
+    role: USER_ROLES.CLIENT
+  })
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [apiError, setApiError] = useState(null)
@@ -17,29 +24,36 @@ const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
     if (!formData.name.trim()) newErrors.name = 'El nombre es requerido'
     if (!formData.lastName.trim()) newErrors.lastName = 'El apellido es requerido'
     if (!formData.document.trim()) newErrors.document = 'El documento es requerido'
-    if (!formData.dateOfBirth) newErrors.dateOfBirth = 'La fecha de nacimiento es requerida'
-
-    // Validar email
+    if (!formData.phone.trim()) newErrors.phone = 'El teléfono es requerido'
     if (!formData.email.trim()) {
       newErrors.email = 'El email es requerido'
     } else if (!USER_FORM_VALIDATIONS.EMAIL_REGEX.test(formData.email)) {
       newErrors.email = 'Email inválido'
     }
 
-    // Validar teléfono (9 dígitos exactos)
-    if (formData.phone && !USER_FORM_VALIDATIONS.PHONE_REGEX.test(formData.phone)) {
+    // Validar teléfono (9 dígitos)
+    if (!USER_FORM_VALIDATIONS.PHONE_REGEX.test(formData.phone)) {
       newErrors.phone = 'El teléfono debe tener 9 dígitos'
+    }
+
+    // Validar fecha de nacimiento
+    const birthDate = new Date(formData.dateOfBirth)
+    const maxDate = new Date(MAX_BIRTHDATE)
+    if (birthDate > maxDate) {
+      newErrors.dateOfBirth = 'Debe ser mayor de 18 años'
     }
 
     // Validar contraseña
     if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida'
+      newErrors.password = 'Por favor ingresa una contraseña'
     } else if (formData.password.length < USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH) {
       newErrors.password = `La contraseña debe tener al menos ${USER_FORM_VALIDATIONS.PASSWORD_MIN_LENGTH} caracteres`
     }
 
     // Validar confirmación de contraseña
-    if (formData.password !== formData.confirmPassword) {
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Por favor confirma la contraseña'
+    } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden'
     }
 
@@ -81,7 +95,11 @@ const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
   }
 
   const handleClose = () => {
-    setFormData(DEFAULT_USER_FORM_DATA)
+    setFormData({
+      ...DEFAULT_USER_FORM_DATA,
+      dateOfBirth: DEFAULT_BIRTHDATE,
+      role: USER_ROLES.CLIENT
+    })
     setErrors({})
     setApiError(null)
     onClose()
@@ -137,7 +155,7 @@ const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
 
               <Input
                 type="tel"
-                label="Teléfono"
+                label="Teléfono *"
                 placeholder="Ingrese el teléfono (9 dígitos)"
                 value={formData.phone}
                 onChange={e => handleInputChange('phone', e.target.value)}
@@ -154,6 +172,7 @@ const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
                 color={errors.dateOfBirth ? 'danger' : 'default'}
                 errorMessage={errors.dateOfBirth}
                 className="w-full"
+                max={MAX_BIRTHDATE}
               />
 
               <Input
@@ -165,6 +184,16 @@ const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
                 color={errors.email ? 'danger' : 'default'}
                 errorMessage={errors.email}
                 className="w-full"
+              />
+
+              {/* URL de imagen */}
+              <Input
+                type="url"
+                label="URL de Imagen"
+                placeholder="https://..."
+                value={formData.image}
+                onChange={e => handleInputChange('image', e.target.value)}
+                className="w-full col-span-2"
               />
 
               {/* Contraseñas */}
@@ -182,39 +211,11 @@ const CrearUserForm = ({ isOpen, onClose, onSuccess }) => {
               <Input
                 type="password"
                 label="Confirmar Contraseña *"
-                placeholder="Confirme la contraseña"
+                placeholder="Repite la contraseña"
                 value={formData.confirmPassword}
                 onChange={e => handleInputChange('confirmPassword', e.target.value)}
                 color={errors.confirmPassword ? 'danger' : 'default'}
                 errorMessage={errors.confirmPassword}
-                className="w-full"
-              />
-
-              {/* Datos opcionales */}
-              <Input
-                type="url"
-                label="URL de Imagen"
-                placeholder="https://..."
-                value={formData.image}
-                onChange={e => handleInputChange('image', e.target.value)}
-                className="w-full"
-              />
-
-              <Input
-                type="text"
-                label="Dirección"
-                placeholder="Ingrese la dirección"
-                value={formData.address}
-                onChange={e => handleInputChange('address', e.target.value)}
-                className="w-full"
-              />
-
-              <Input
-                type="text"
-                label="Ciudad"
-                placeholder="Ingrese la ciudad"
-                value={formData.city}
-                onChange={e => handleInputChange('city', e.target.value)}
                 className="w-full"
               />
             </div>
