@@ -59,7 +59,7 @@ function Navbar() {
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {menuItems.map((item, index) => (
           <NavbarItem key={index}>
-            <HeroLink className="sm:text-sm md:text-base hover:text-red-600" href={item.path}>
+            <HeroLink className="sm:text-sm md:text-base text-slate-800 hover:text-red-600" href={item.path}>
               {item.name}
             </HeroLink>
           </NavbarItem>
