@@ -215,7 +215,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       // Convertir precio a string para input
       const adultPrice = tourData.precio ? tourData.precio.toString() : ''
       const childPrice = tourData.childPrice ? tourData.childPrice.toString() : ''
-     // const hotelNumber = tourData.hotelNumber ? tourData.hotelNumber.toString() : ''
+      // const hotelNumber = tourData.hotelNumber ? tourData.hotelNumber.toString() : ''
 
       // Extraer ciudad y país del destino
       const country = tourData.destination?.country || ''
@@ -552,32 +552,53 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
 
       console.log('Tags validados para actualizar:', validTags)
 
+      // Asegurar que las fechas tengan el formato ISO correcto
+      const modifiedAvailability = formData.availability.map(avail => {
+        const modifiedAvail = { ...avail }
+
+        if (modifiedAvail.availableDate) {
+          if (typeof modifiedAvail.availableDate === 'string' && modifiedAvail.availableDate.includes(' ')) {
+            console.log('Corrigiendo formato de availableDate:', modifiedAvail.availableDate)
+            modifiedAvail.availableDate = modifiedAvail.availableDate.replace(' ', 'T')
+          }
+        }
+
+        if (modifiedAvail.departureTime) {
+          if (typeof modifiedAvail.departureTime === 'string' && modifiedAvail.departureTime.includes(' ')) {
+            console.log('Corrigiendo formato de departureTime:', modifiedAvail.departureTime)
+            modifiedAvail.departureTime = modifiedAvail.departureTime.replace(' ', 'T')
+          }
+        }
+
+        if (modifiedAvail.returnTime) {
+          if (typeof modifiedAvail.returnTime === 'string' && modifiedAvail.returnTime.includes(' ')) {
+            console.log('Corrigiendo formato de returnTime:', modifiedAvail.returnTime)
+            modifiedAvail.returnTime = modifiedAvail.returnTime.replace(' ', 'T')
+          }
+        }
+
+        return {
+          ...modifiedAvail,
+          availableSlots: parseInt(modifiedAvail.availableSlots)
+        }
+      })
+
       // IMPORTANTE: Crear el objeto exactamente como lo espera el backend según Swagger
       const requestData = {
         name: formData.name,
         description: formData.description,
         adultPrice: parseFloat(formData.adultPrice),
         childPrice: parseFloat(formData.childPrice || '0'),
-        // Aseguramos que images sea un array de strings
         images: filteredImages,
-        // Status debe ser un string
-        status: 'Disponible', // Valor fijo por ahora según Swagger
-        // Tags solo incluyen valores ENUM válidos
+        status: 'Disponible',
         tags: validTags,
-        // Includes deben ser un array de strings
         includes: formData.includes,
-        // La estructura de destination debe ser exactamente como la espera el backend
         destination: {
           country: formData.destination.country,
           city: formData.destination.city
         },
-        // Hotel debe ser un número
         hotel: parseInt(formData.hotel),
-        // Availability con el formato exacto
-        availability: formData.availability.map(avail => ({
-          ...avail,
-          availableSlots: parseInt(avail.availableSlots)
-        }))
+        availability: modifiedAvailability
       }
 
       console.log('Datos preparados para actualizar:', requestData)
