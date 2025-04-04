@@ -7,7 +7,7 @@ import CardMain from '../../../components/ui/CardTour.jsx'
 import './body.scss'
 
 const Body = () => {
-  const { searchResults, loading, searchTerm } = useSearch()
+  const { searchResults, loading, searchTerm, loadTours } = useSearch()
   const { success, data = [] } = searchResults || {}
   const ITEMS_PER_PAGE = 9 // constante para la cantidad de elementos por página
   const [currentPage, setCurrentPage] = useState(1)
@@ -32,6 +32,17 @@ const Body = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Escuchar evento de creación de tour
+  useEffect(() => {
+    const handleTourCreated = () => {
+      console.log('Tour creado detectado, recargando tours...')
+      loadTours() // Recargar los tours cuando se crea uno nuevo
+    }
+
+    window.addEventListener('tour-created', handleTourCreated)
+    return () => window.removeEventListener('tour-created', handleTourCreated)
+  }, [loadTours])
+
   // Determinar el título basado en el estado de búsqueda
   let title = 'Recomendaciones'
   if (isSearching) {
@@ -55,17 +66,17 @@ const Body = () => {
   }
 
   return (
-    <div className="tours_body-container">
+    <div className="home_body-container">
       <h1 className="title">{title}</h1>
 
-      <div className="tours_body-content">
+      <div className="home_body-content">
         {loading ? (
           <div className="grid content-center gap-8">
             <Spinner classNames={{ label: 'text-foreground mt-4' }} label="Cargando" variant="wave" />
           </div>
         ) : success ? (
           <>
-            <div className="tours_body-grid">
+            <div className="home_body-grid">
               {data.slice(0, visibleItems).map(place => (
                 <CardMain key={place.id} data={place} />
               ))}

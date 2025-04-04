@@ -216,67 +216,82 @@ export const SearchProvider = ({ children }) => {
   }, [searchTerm, advancedSearchParams.dateRange, searchTours])
 
   // Función para generar sugerencias basadas en el término de búsqueda
-  const generateSuggestions = useCallback((searchTerm) => {
-    if (!allTours?.data || !searchTerm.trim()) {
-      setSuggestions([])
-      return
-    }
+  const generateSuggestions = useCallback(
+    searchTerm => {
+      if (!allTours?.data || !searchTerm.trim()) {
+        setSuggestions([])
+        return
+      }
 
-    const lowercaseSearchTerm = searchTerm.toLowerCase().trim()
-    const suggestionsSet = new Set()
+      const lowercaseSearchTerm = searchTerm.toLowerCase().trim()
+      const suggestionsSet = new Set()
 
-    allTours.data.forEach(tour => {
-      // Buscar en nombre
-      if (tour.name?.toLowerCase().includes(lowercaseSearchTerm)) {
-        suggestionsSet.add(JSON.stringify({
-          text: tour.name,
-          type: 'title',
-          icon: 'travel_explore'
-        }))
-      }
-      // Buscar en país
-      if (tour.destination?.country?.toLowerCase().includes(lowercaseSearchTerm)) {
-        suggestionsSet.add(JSON.stringify({
-          text: tour.destination.country,
-          type: 'country',
-          icon: 'pin_drop '
-        }))
-      }
-      // Buscar en ciudad
-      if (tour.destination?.city?.name?.toLowerCase().includes(lowercaseSearchTerm)) {
-        suggestionsSet.add(JSON.stringify({
-          text: tour.destination.city.name,
-          type: 'city',
-          icon: 'globe_location_pin'
-        }))
-      }
-      // Buscar en región
-      if (tour.destination?.region?.toLowerCase().includes(lowercaseSearchTerm)) {
-        suggestionsSet.add(JSON.stringify({
-          text: tour.destination.region,
-          type: 'region',
-          icon: 'globe_location_pin'
-        }))
-      }
-      // Buscar en tags
-      if (Array.isArray(tour.tags)) {
-        tour.tags.forEach(tag => {
-          if (typeof tag === 'string' && tag.toLowerCase().includes(lowercaseSearchTerm)) {
-            suggestionsSet.add(JSON.stringify({
-              text: tag,
-              type: 'tag',
-              icon: 'bookmarks'
-            }))
-          }
-        })
-      }
-    })
+      allTours.data.forEach(tour => {
+        // Buscar en nombre
+        if (tour.name?.toLowerCase().includes(lowercaseSearchTerm)) {
+          suggestionsSet.add(
+            JSON.stringify({
+              text: tour.name,
+              type: 'title',
+              icon: 'travel_explore'
+            })
+          )
+        }
+        // Buscar en país
+        if (tour.destination?.country?.toLowerCase().includes(lowercaseSearchTerm)) {
+          suggestionsSet.add(
+            JSON.stringify({
+              text: tour.destination.country,
+              type: 'country',
+              icon: 'pin_drop '
+            })
+          )
+        }
+        // Buscar en ciudad
+        if (tour.destination?.city?.name?.toLowerCase().includes(lowercaseSearchTerm)) {
+          suggestionsSet.add(
+            JSON.stringify({
+              text: tour.destination.city.name,
+              type: 'city',
+              icon: 'globe_location_pin'
+            })
+          )
+        }
+        // Buscar en región
+        if (tour.destination?.region?.toLowerCase().includes(lowercaseSearchTerm)) {
+          suggestionsSet.add(
+            JSON.stringify({
+              text: tour.destination.region,
+              type: 'region',
+              icon: 'globe_location_pin'
+            })
+          )
+        }
+        // Buscar en tags
+        if (Array.isArray(tour.tags)) {
+          tour.tags.forEach(tag => {
+            if (typeof tag === 'string' && tag.toLowerCase().includes(lowercaseSearchTerm)) {
+              suggestionsSet.add(
+                JSON.stringify({
+                  text: tag,
+                  type: 'tag',
+                  icon: 'bookmarks'
+                })
+              )
+            }
+          })
+        }
+      })
 
-    // Convertir el Set a Array, parsear los JSON strings y limitar a 5 sugerencias
-    setSuggestions(Array.from(suggestionsSet)
-      .map(item => JSON.parse(item))
-      .slice(0, 5))
-  }, [allTours])
+      // Convertir el Set a Array, parsear los JSON strings y limitar a 5 sugerencias
+      setSuggestions(
+        Array.from(suggestionsSet)
+          .map(item => JSON.parse(item))
+          .slice(0, 5)
+      )
+    },
+    [allTours]
+  )
 
   // Actualizar sugerencias cuando cambia el término de búsqueda
   useEffect(() => {
@@ -295,6 +310,38 @@ export const SearchProvider = ({ children }) => {
     searchTours,
     loadTours
   }
+
+  // Función para escuchar el evento de creación de tour y añadirlo a los resultados actuales
+  useEffect(() => {
+    const handleTourCreated = event => {
+      console.log('SearchContext: Tour creado evento recibido:', event.detail)
+
+      // Si tenemos los resultados actuales
+      if (allTours && allTours.data && Array.isArray(allTours.data)) {
+        // Añadir el nuevo tour a la lista existente
+        const newTour = event.detail
+
+        if (newTour && newTour.id) {
+          const updatedTours = {
+            ...allTours,
+            data: [newTour, ...allTours.data]
+          }
+
+          console.log('SearchContext: Añadiendo tour a la lista actual antes de recargar')
+
+          // Actualizar el estado de tours y resultados de búsqueda
+          setAllTours(updatedTours)
+          setSearchResults(updatedTours)
+
+          // Intentar recargar para obtener datos actualizados del servidor
+          loadTours()
+        }
+      }
+    }
+
+    window.addEventListener('tour-created', handleTourCreated)
+    return () => window.removeEventListener('tour-created', handleTourCreated)
+  }, [allTours, loadTours])
 
   return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>
 }

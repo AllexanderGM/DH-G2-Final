@@ -1,9 +1,10 @@
 import { User, Chip, Tooltip } from '@heroui/react'
 import { Link } from 'react-router-dom'
-import { EyeIcon, EditIcon, DeleteIcon } from '../utils/icons.jsx'
-import { STATUS_COLOR_MAP } from '../constants/tableConstants'
-import { capitalize } from './TableControls'
 import { normalizeWords } from '@utils/normalizeWords.js'
+
+import { EyeIcon, EditIcon, DeleteIcon } from '../utils/icons.jsx'
+import { STATUS_COLOR_MAP } from '../constants/tableConstants.jsx'
+import { capitalize } from './TableControls'
 
 const TableCellRenderer = ({ columnKey, lugar, onEdit, onDelete }) => {
   const cellValue = lugar[columnKey]
@@ -18,23 +19,14 @@ const TableCellRenderer = ({ columnKey, lugar, onEdit, onDelete }) => {
           }}
           name={cellValue || 'Sin nombre'}
           description={
-            lugar.description
-              ? lugar.description.length > 30
-                ? `${lugar.description.substring(0, 30)}...`
-                : lugar.description
-              : ''
+            lugar.description ? (lugar.description.length > 30 ? `${lugar.description.substring(0, 30)}...` : lugar.description) : ''
           }
         />
       )
 
     case 'categoria':
       return (
-        <Chip
-          className="capitalize"
-          color={STATUS_COLOR_MAP[lugar.categoria] || 'default'}
-          size="sm"
-          variant="flat"
-        >
+        <Chip className="capitalize" color={STATUS_COLOR_MAP[lugar.categoria] || 'default'} size="sm" variant="flat">
           {normalizeWords(cellValue) || 'No definida'}
         </Chip>
       )
@@ -47,9 +39,7 @@ const TableCellRenderer = ({ columnKey, lugar, onEdit, onDelete }) => {
 
     case 'destino':
       if (lugar.destination) {
-        const fullDestination = [lugar.destination.city?.name, lugar.destination.country]
-          .filter(Boolean)
-          .join(', ')
+        const fullDestination = [lugar.destination.city?.name, lugar.destination.country].filter(Boolean).join(', ')
         return fullDestination || cellValue || 'Sin destino'
       }
       return cellValue || 'Sin destino'
@@ -58,26 +48,17 @@ const TableCellRenderer = ({ columnKey, lugar, onEdit, onDelete }) => {
       return (
         <div className="relative flex items-center justify-center gap-2">
           <Tooltip content="Detalles">
-            <Link
-              to={`/tour/${lugar.idPaquete}`}
-              className="text-lg text-default-400 cursor-pointer active:opacity-50"
-            >
+            <Link to={`/tour/${lugar.idPaquete}`} className="text-lg text-default-400 cursor-pointer active:opacity-50">
               <EyeIcon />
             </Link>
           </Tooltip>
           <Tooltip content="Editar">
-            <span
-              onClick={() => onEdit(lugar)}
-              className="text-lg text-default-400 cursor-pointer active:opacity-50"
-            >
+            <span onClick={() => onEdit(lugar)} className="text-lg text-default-400 cursor-pointer active:opacity-50">
               <EditIcon />
             </span>
           </Tooltip>
           <Tooltip color="danger" content="Eliminar">
-            <span
-              className="text-lg text-danger cursor-pointer active:opacity-50"
-              onClick={() => onDelete(lugar)}
-            >
+            <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => onDelete(lugar)}>
               <DeleteIcon />
             </span>
           </Tooltip>
@@ -89,4 +70,4 @@ const TableCellRenderer = ({ columnKey, lugar, onEdit, onDelete }) => {
   }
 }
 
-export default TableCellRenderer 
+export default TableCellRenderer

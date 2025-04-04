@@ -487,6 +487,9 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
       setIncludesDetails({})
       setAvailabilityCount(1)
 
+      // Disparar evento para notificar que se ha creado un tour
+      window.dispatchEvent(new CustomEvent('tour-created', { detail: result }))
+
       // Cerrar modal y notificar éxito
       onSuccess && onSuccess(result)
       onClose()

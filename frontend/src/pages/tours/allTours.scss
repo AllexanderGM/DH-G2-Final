@@ -2,15 +2,23 @@
   @apply text-center flex flex-col items-center;
 
   .hero-section {
-    @apply w-full px-4 sm:px-6 lg:px-8 mb-8;
+    @apply w-full px-4 sm:px-6 lg:px-8 mb-8 mt-12;
+    
+    .title {
+      @apply text-3xl font-bold text-gray-900 mb-2;
+    }
+
+    .subtitle {
+      @apply text-lg text-gray-600 max-w-3xl mx-auto;
+    }
   }
 
-  .title {
-    @apply text-3xl font-bold text-gray-900 mb-4;
+  .result-message {
+    @apply text-sm text-gray-500 mb-4 text-left;
   }
 
-  .subtitle {
-    @apply text-lg text-gray-600 max-w-3xl mx-auto;
+  .filter-controls {
+    @apply bg-transparent;
   }
 
   .tours_body-content {

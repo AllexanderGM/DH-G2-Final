@@ -1,8 +1,9 @@
 import { Button, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react'
-import { SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
-import { INITIAL_VISIBLE_COLUMNS, ROWS_PER_PAGE_OPTIONS } from '../constants/tableConstants'
 
-export const capitalize = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''
+import { SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
+import { INITIAL_VISIBLE_COLUMNS, ROWS_PER_PAGE_OPTIONS } from '../constants/tableConstants.js'
+
+export const capitalize = s => (s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '')
 
 const TableControls = ({
   filterValue,
@@ -21,7 +22,7 @@ const TableControls = ({
   onRowsPerPageChange
 }) => {
   // Manejador para el cambio de filas por página
-  const handleRowsPerPageChange = (e) => {
+  const handleRowsPerPageChange = e => {
     const newValue = Number(e.target.value)
     console.log('Changing rows per page to:', newValue) // Para debugging
     onRowsPerPageChange(newValue)
@@ -101,11 +102,10 @@ const TableControls = ({
         </span>
         <label className="flex items-center text-default-400 text-small">
           Filas por página:
-          <select 
-            className="bg-transparent outline-none text-default-400 text-small ml-2" 
+          <select
+            className="bg-transparent outline-none text-default-400 text-small ml-2"
             onChange={handleRowsPerPageChange}
-            value={rowsPerPage}
-          >
+            value={rowsPerPage}>
             {ROWS_PER_PAGE_OPTIONS.map(option => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -118,4 +118,4 @@ const TableControls = ({
   )
 }
 
-export default TableControls 
+export default TableControls

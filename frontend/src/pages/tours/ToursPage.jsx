@@ -1,20 +1,74 @@
 import { Spinner, Button } from '@heroui/react'
 import { useSearch } from '@context/SearchContext'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import CardMain from '@components/ui/CardTour.jsx'
+import TourPageControls from '@components/TourPageControls.jsx'
+import { normalizeWords } from '@utils/normalizeWords.js'
 import './allTours.scss'
 
 const ToursPage = () => {
-  const { searchResults, loading, searchTerm } = useSearch()
+  const { searchResults, loading, searchTerm, loadTours, updateSearchTerm } = useSearch()
   const { success, data = [] } = searchResults || {}
   const ITEMS_PER_PAGE = 9
   const [currentPage, setCurrentPage] = useState(1)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const [filterValue, setFilterValue] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
 
   const emptyPlaces = success && data.length === 0
-  const isSearching = searchTerm.trim() !== ''
+  const isSearching = searchTerm.trim() !== '' || filterValue.trim() !== ''
+
+  // Extraer categorías únicas de los tours para el filtro
+  const statusOptions = useMemo(() => {
+    const categoriesSet = new Set()
+
+    data.forEach(tour => {
+      if (Array.isArray(tour.tags)) {
+        tour.tags.forEach(tag => {
+          categoriesSet.add(tag)
+        })
+      }
+    })
+
+    return Array.from(categoriesSet).map(category => ({
+      name: normalizeWords(category),
+      uid: category
+    }))
+  }, [data])
+
+  // Filtrar los tours según el término de búsqueda local y filtros de categoría
+  const filteredTours = useMemo(() => {
+    let filtered = [...data]
+
+    // Filtrar por término de búsqueda local
+    if (filterValue.trim()) {
+      const searchTermLower = filterValue.toLowerCase().trim()
+      filtered = filtered.filter(
+        tour =>
+          tour.name.toLowerCase().includes(searchTermLower) ||
+          tour.description.toLowerCase().includes(searchTermLower) ||
+          (tour.destination?.country && tour.destination.country.toLowerCase().includes(searchTermLower)) ||
+          (tour.destination?.city?.name && tour.destination.city.name.toLowerCase().includes(searchTermLower)) ||
+          (Array.isArray(tour.tags) && tour.tags.some(tag => tag.toLowerCase().includes(searchTermLower)))
+      )
+    }
+
+    // Filtrar por categoría
+    if (statusFilter !== 'all' && Array.from(statusFilter).length !== statusOptions.length) {
+      filtered = filtered.filter(tour => {
+        if (Array.isArray(tour.tags)) {
+          return tour.tags.some(tag => Array.from(statusFilter).includes(tag))
+        }
+        return false
+      })
+    }
+
+    return filtered
+  }, [data, filterValue, statusFilter, statusOptions.length])
+
+  // Calcular elementos visibles
   const visibleItems = currentPage * ITEMS_PER_PAGE
-  const hasMoreItems = data.length > visibleItems
+  const hasMoreItems = filteredTours.length > visibleItems
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,18 +81,21 @@ const ToursPage = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  let title = 'Explora Nuestros Tours'
-  let subtitle = 'Descubre destinos increíbles y experiencias únicas en cada rincón del mundo.'
+  // Escuchar evento de creación de tour
+  useEffect(() => {
+    const handleTourCreated = () => {
+      console.log('Tour creado detectado en ToursPage, recargando tours...')
+      loadTours() // Recargar los tours cuando se crea uno nuevo
+    }
 
-  if (isSearching) {
-    title = `Resultados para "${searchTerm}"`
-    subtitle = emptyPlaces
-      ? 'No encontramos tours que coincidan con tu búsqueda. Intenta con otros términos.'
-      : `Encontramos ${data.length} tours que coinciden con tu búsqueda.`
-  } else if (emptyPlaces) {
-    title = 'No hay tours disponibles...'
-    subtitle = 'Por favor, vuelve más tarde para ver nuestra oferta de tours.'
-  }
+    window.addEventListener('tour-created', handleTourCreated)
+    return () => window.removeEventListener('tour-created', handleTourCreated)
+  }, [loadTours])
+
+  // Reiniciar paginación cuando cambien los filtros
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filterValue, statusFilter])
 
   const handleLoadMore = () => {
     setCurrentPage(prevPage => prevPage + 1)
@@ -51,13 +108,63 @@ const ToursPage = () => {
     })
   }
 
+  const handleClear = useCallback(() => {
+    setFilterValue('')
+    updateSearchTerm('')
+  }, [updateSearchTerm])
+
+  const handleSearchChange = useCallback(
+    value => {
+      setFilterValue(value)
+      // Actualizar el contexto después de un breve retraso para evitar múltiples búsquedas
+      const timer = setTimeout(() => {
+        updateSearchTerm(value)
+      }, 300)
+
+      return () => clearTimeout(timer)
+    },
+    [updateSearchTerm]
+  )
+
+  // Mensaje de resultados discreto
+  const resultMessage = useMemo(() => {
+    if (loading) return null
+    if (!success) return 'Error al cargar los datos. Por favor, inténtalo de nuevo más tarde.'
+
+    if (isSearching) {
+      return filteredTours.length === 0
+        ? `No se encontraron tours que coincidan con tu búsqueda "${filterValue || searchTerm}".`
+        : `Se encontraron ${filteredTours.length} tours para "${filterValue || searchTerm}"`
+    }
+
+    return emptyPlaces ? 'No hay tours disponibles en este momento.' : null
+  }, [loading, success, isSearching, filterValue, searchTerm, filteredTours.length, emptyPlaces])
+
   return (
     <div className="tours_body-container">
-      {/* Hero Section */}
+      {/* Hero Section con título principal */}
       <div className="hero-section">
-        <h1 className="title">{title}</h1>
-        <p className="subtitle">{subtitle}</p>
+        <h1 className="title">Explora Nuestros Tours</h1>
+        <p className="subtitle">Descubre destinos increíbles y experiencias únicas en cada rincón del mundo.</p>
+
+        {/* Controles de búsqueda y filtrado justo debajo del título/subtítulo */}
+        <TourPageControls
+          filterValue={filterValue}
+          onClear={handleClear}
+          onSearchChange={handleSearchChange}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          statusOptions={statusOptions}
+          loading={loading}
+          error={null}
+          totalItems={data.length}
+        />
       </div>
+
+      {/* Mensaje de resultados (discreto) */}
+      {resultMessage && (
+        <div className="result-message text-sm text-gray-500 mb-4 max-w-6xl w-full px-4 sm:px-6 lg:px-8 text-left">{resultMessage}</div>
+      )}
 
       <div className="tours_body-content">
         {loading ? (
@@ -66,11 +173,22 @@ const ToursPage = () => {
           </div>
         ) : success ? (
           <>
-            <div className="tours_body-grid">
-              {data.slice(0, visibleItems).map(place => (
-                <CardMain key={place.id} data={place} />
-              ))}
-            </div>
+            {filteredTours.length > 0 ? (
+              <div className="tours_body-grid">
+                {filteredTours.slice(0, visibleItems).map(place => (
+                  <CardMain key={place.id} data={place} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-16 text-center">
+                <span className="material-symbols-outlined text-5xl text-gray-300">search_off</span>
+                <p className="text-lg text-gray-500 mt-4">No se encontraron tours que coincidan con tu búsqueda.</p>
+                <Button color="primary" variant="light" className="mt-4" onPress={handleClear}>
+                  Ver todos los tours
+                </Button>
+              </div>
+            )}
+
             {hasMoreItems && (
               <div className="flex justify-center mt-8">
                 <Button color="primary" variant="flat" onPress={handleLoadMore} className="px-8">

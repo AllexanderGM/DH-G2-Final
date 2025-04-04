@@ -1,39 +1,15 @@
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Input,
-  Pagination,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
-  User,
-  Chip,
-  Tooltip,
-  Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter
-} from '@heroui/react'
-
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip } from '@heroui/react'
 import { normalizeWords } from '@utils/normalizeWords.js'
 import { deleteTour } from '@services/tourService.js'
 
 import { EyeIcon, DeleteIcon, EditIcon, SearchIcon, ChevronDownIcon, PlusIcon } from '../utils/icons.jsx'
 import CrearTourForm from './CrearTourForm.jsx'
 import EditarTourForm from './EditarTourForm.jsx'
-import TableControls from './TableControls'
-import TableCellRenderer from './TableCellRenderer'
-import DeleteTourModal from './DeleteTourModal'
-import TablePagination from './TablePagination'
+import TableControls from './TableControls.jsx'
+import DeleteTourModal from './DeleteTourModal.jsx'
+import TablePagination from './TablePagination.jsx'
 
 export const INITIAL_VISIBLE_COLUMNS = [
   { name: 'NOMBRE', uid: 'nombre' },
@@ -322,11 +298,10 @@ const TableTours = () => {
           // Si hay solo una categoría, mostrarla
           if (lugar.tags.length === 1) {
             return (
-              <Chip 
-                className={`capitalize ${categoryStyleMap[normalizeWords(lugar.tags[0])] || 'bg-gray-100 text-gray-700'}`} 
-                size="sm" 
-                variant="flat"
-              >
+              <Chip
+                className={`capitalize ${categoryStyleMap[normalizeWords(lugar.tags[0])] || 'bg-gray-100 text-gray-700'}`}
+                size="sm"
+                variant="flat">
                 {normalizeWords(lugar.tags[0])}
               </Chip>
             )
@@ -335,37 +310,30 @@ const TableTours = () => {
           // Si hay múltiples categorías, mostrar la primera y un indicador
           return (
             <div className="flex items-center gap-1">
-              <Chip 
+              <Chip
                 className={`capitalize ${categoryStyleMap[normalizeWords(lugar.tags[0])] || 'bg-gray-100 text-gray-700'}`}
-                size="sm" 
-                variant="flat"
-              >
+                size="sm"
+                variant="flat">
                 {normalizeWords(lugar.tags[0])}
               </Chip>
-              <Tooltip 
+              <Tooltip
                 content={
                   <div className="px-1 py-2">
                     <p className="font-bold text-small mb-2">Otras categorías:</p>
                     <div className="flex flex-col gap-2">
                       {lugar.tags.slice(1).map(tag => (
-                        <Chip 
+                        <Chip
                           key={tag}
                           className={`capitalize ${categoryStyleMap[normalizeWords(tag)] || 'bg-gray-100 text-gray-700'}`}
-                          size="sm" 
-                          variant="flat"
-                        >
+                          size="sm"
+                          variant="flat">
                           {normalizeWords(tag)}
                         </Chip>
                       ))}
                     </div>
                   </div>
-                }
-              >
-                <Chip 
-                  className="capitalize cursor-help bg-gray-100 text-gray-700" 
-                  size="sm" 
-                  variant="flat"
-                >
+                }>
+                <Chip className="capitalize cursor-help bg-gray-100 text-gray-700" size="sm" variant="flat">
                   +{lugar.tags.length - 1}
                 </Chip>
               </Tooltip>
