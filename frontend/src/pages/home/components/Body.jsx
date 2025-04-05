@@ -7,7 +7,7 @@ import CardMain from '../../../components/ui/CardTour.jsx'
 import './body.scss'
 
 const Body = () => {
-  const { searchResults, loading, searchTerm, loadTours } = useSearch()
+  const { searchResults, loading, searchTerm, loadAllRandomTours } = useSearch()
   const { success, data = [] } = searchResults || {}
   const ITEMS_PER_PAGE = 9 // constante para la cantidad de elementos por página
   const [currentPage, setCurrentPage] = useState(1)
@@ -17,6 +17,11 @@ const Body = () => {
   const isSearching = searchTerm.trim() !== ''
   const visibleItems = currentPage * ITEMS_PER_PAGE
   const hasMoreItems = data.length > visibleItems
+
+  // Cargar tours aleatorios al montar el componente
+  useEffect(() => {
+    loadAllRandomTours()
+  }, [loadAllRandomTours])
 
   useEffect(() => {
     // Función para controlar la visibilidad del botón de scroll
@@ -35,13 +40,13 @@ const Body = () => {
   // Escuchar evento de creación de tour
   useEffect(() => {
     const handleTourCreated = () => {
-      console.log('Tour creado detectado, recargando tours...')
-      loadTours() // Recargar los tours cuando se crea uno nuevo
+      console.log('Tour creado detectado, recargando tours aleatorios...')
+      loadAllRandomTours() // Recargar los tours cuando se crea uno nuevo
     }
 
     window.addEventListener('tour-created', handleTourCreated)
     return () => window.removeEventListener('tour-created', handleTourCreated)
-  }, [loadTours])
+  }, [loadAllRandomTours])
 
   // Determinar el título basado en el estado de búsqueda
   let title = 'Recomendaciones'

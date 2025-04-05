@@ -24,14 +24,13 @@ export const SearchProvider = ({ children }) => {
     dateRange: null
   })
 
-  const loadTours = useCallback(async () => {
+  // Cargar todos los tours en orden normal (para ToursPage)
+  const loadAllTours = useCallback(async () => {
     try {
       setLoading(true)
-      console.log('Loading initial tours data...')
-      // NOTA: Temporalmente usando getAllTours en lugar de toursAllRandom para evitar límite de 10 items
-      // const response = await toursAllRandom()
+      console.log('Loading all tours data...')
       const response = await getAllTours()
-      console.log('Initial tours response:', response)
+      console.log('All tours response:', response)
 
       setAllTours(response)
       setSearchResults(response)
@@ -43,9 +42,25 @@ export const SearchProvider = ({ children }) => {
     }
   }, [])
 
-  useEffect(() => {
-    loadTours()
+  // Cargar todos los tours en orden aleatorio (para Home)
+  const loadAllRandomTours = useCallback(async () => {
+    try {
+      setLoading(true)
+      console.log('Loading random tours data...')
+      const response = await toursAllRandom()
+      console.log('Random tours response:', response)
 
+      setAllTours(response)
+      setSearchResults(response)
+    } catch (error) {
+      console.error('Error loading random tours:', error)
+      setSearchResults({ success: false, error: error.message })
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
     // Escuchar el evento de reset para DateRangePicker
     const handleResetEvent = () => {
       setAdvancedSearchParams({
@@ -54,11 +69,8 @@ export const SearchProvider = ({ children }) => {
     }
 
     window.addEventListener('reset-date-range', handleResetEvent)
-
-    return () => {
-      window.removeEventListener('reset-date-range', handleResetEvent)
-    }
-  }, [loadTours])
+    return () => window.removeEventListener('reset-date-range', handleResetEvent)
+  }, [])
 
   const updateSearchTerm = useCallback(term => {
     setSearchTerm(term)
@@ -84,7 +96,7 @@ export const SearchProvider = ({ children }) => {
 
     try {
       if (!allTours) {
-        await loadTours()
+        await loadAllTours()
         return
       }
 
@@ -207,16 +219,21 @@ export const SearchProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }, [searchTerm, advancedSearchParams, allTours, loadTours])
+  }, [searchTerm, advancedSearchParams, allTours, loadAllTours])
 
-  // Ejecutar la búsqueda cuando cambian los parámetros
+  // Efecto para manejar búsquedas
   useEffect(() => {
-    const delay = setTimeout(() => {
-      searchTours()
-    }, 300) // Debounce search por 300ms
+    // Solo realizar búsqueda si hay un término de búsqueda o parámetros avanzados
+    if (searchTerm || advancedSearchParams.dateRange) {
+      const delay = setTimeout(() => {
+        console.log('Iniciando búsqueda con término:', searchTerm)
+        console.log('Parámetros avanzados:', advancedSearchParams)
+        searchTours()
+      }, 300) // Debounce search por 300ms
 
-    return () => clearTimeout(delay)
-  }, [searchTerm, advancedSearchParams.dateRange, searchTours])
+      return () => clearTimeout(delay)
+    }
+  }, [searchTerm, advancedSearchParams, searchTours])
 
   // Función para generar sugerencias basadas en el término de búsqueda
   const generateSuggestions = useCallback(
@@ -311,7 +328,8 @@ export const SearchProvider = ({ children }) => {
     updateSearchTerm,
     updateAdvancedSearchParams,
     searchTours,
-    loadTours
+    loadAllTours,
+    loadAllRandomTours
   }
 
   // Función para escuchar el evento de creación de tour y añadirlo a los resultados actuales
@@ -325,26 +343,29 @@ export const SearchProvider = ({ children }) => {
         const newTour = event.detail
 
         if (newTour && newTour.id) {
-          const updatedTours = {
-            ...allTours,
-            data: [newTour, ...allTours.data]
+          // Verificar si el tour ya existe en la lista para evitar duplicados
+          const tourExists = allTours.data.some(tour => tour.id === newTour.id)
+
+          if (!tourExists) {
+            const updatedTours = {
+              ...allTours,
+              // Añadir al principio para visibilidad inmediata
+              data: [newTour, ...allTours.data]
+            }
+
+            console.log('SearchContext: Añadiendo tour a la lista localmente.')
+
+            // Actualizar el estado de tours y resultados de búsqueda localmente
+            setAllTours(updatedTours)
+            setSearchResults(updatedTours)
           }
-
-          console.log('SearchContext: Añadiendo tour a la lista actual antes de recargar')
-
-          // Actualizar el estado de tours y resultados de búsqueda
-          setAllTours(updatedTours)
-          setSearchResults(updatedTours)
-
-          // Intentar recargar para obtener datos actualizados del servidor
-          loadTours()
         }
       }
     }
 
     window.addEventListener('tour-created', handleTourCreated)
     return () => window.removeEventListener('tour-created', handleTourCreated)
-  }, [allTours, loadTours])
+  }, [allTours]) // Ya no depende de loadAllTours
 
   return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>
 }

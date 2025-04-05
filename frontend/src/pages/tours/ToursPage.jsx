@@ -7,7 +7,7 @@ import { normalizeWords } from '@utils/normalizeWords.js'
 import './allTours.scss'
 
 const ToursPage = () => {
-  const { searchResults, loading, searchTerm, loadTours, updateSearchTerm } = useSearch()
+  const { searchResults, loading, searchTerm, loadAllTours, updateSearchTerm } = useSearch()
   const { success, data = [] } = searchResults || {}
   const ITEMS_PER_PAGE = 9
   const [currentPage, setCurrentPage] = useState(1)
@@ -17,6 +17,11 @@ const ToursPage = () => {
 
   const emptyPlaces = success && data.length === 0
   const isSearching = searchTerm.trim() !== '' || filterValue.trim() !== ''
+
+  // Cargar tours ordenados al montar el componente
+  useEffect(() => {
+    loadAllTours()
+  }, [loadAllTours])
 
   // Extraer categorías únicas de los tours para el filtro
   const statusOptions = useMemo(() => {
@@ -84,13 +89,13 @@ const ToursPage = () => {
   // Escuchar evento de creación de tour
   useEffect(() => {
     const handleTourCreated = () => {
-      console.log('Tour creado detectado en ToursPage, recargando tours...')
-      loadTours() // Recargar los tours cuando se crea uno nuevo
+      console.log('Tour creado detectado en ToursPage, recargando tours ordenados...')
+      loadAllTours() // Recargar los tours cuando se crea uno nuevo
     }
 
     window.addEventListener('tour-created', handleTourCreated)
     return () => window.removeEventListener('tour-created', handleTourCreated)
-  }, [loadTours])
+  }, [loadAllTours])
 
   // Reiniciar paginación cuando cambien los filtros
   useEffect(() => {

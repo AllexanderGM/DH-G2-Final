@@ -47,9 +47,6 @@ export const toursAllRandom = async filter => {
  */
 export const getToursByCategory = async categoryTag => {
   try {
-    // Primero obtenemos todos los tours
-    // NOTA: Temporalmente usando getAllTours en lugar de toursAllRandom para evitar límite de 10 items
-    // const allTours = await toursAllRandom()
     const allTours = await getAllTours()
 
     if (!allTours.success || !Array.isArray(allTours.data)) {
@@ -93,9 +90,7 @@ export const getToursByCategory = async categoryTag => {
  */
 export const searchTours = async (searchTerm, advancedParams = {}) => {
   console.log('Buscando tours con el término:', searchTerm)
-  // NOTA: Temporalmente usando getAllTours en lugar de toursAllRandom para evitar límite de 10 items
-  // return await toursAllRandom()
-  return await getAllTours()
+  return await toursAllRandom()
 }
 
 /**
@@ -120,7 +115,6 @@ export const createTour = async tourData => {
     console.log('Datos recibidos del formulario:', tourData)
     console.log('Estructura de destination:', tourData.destination)
 
-    // PREPARAMOS LOS DATOS EXACTAMENTE COMO ESPERA EL BACKEND
     const requestData = {
       name: tourData.name,
       description: tourData.description,
@@ -144,10 +138,8 @@ export const createTour = async tourData => {
         city: tourData.destination?.city || ''
       },
 
-      // Hotel debe ser un ID (Long), no un objeto o string
       hotel: typeof tourData.hotel === 'number' ? tourData.hotel : typeof tourData.hotelStars === 'number' ? tourData.hotelStars : 4,
 
-      // Añadimos la sección de disponibilidad
       availability: Array.isArray(tourData.availability)
         ? tourData.availability
         : [
@@ -166,7 +158,6 @@ export const createTour = async tourData => {
       'Content-Type': 'application/json'
     }
 
-    // Solo añadir el header de autorización si hay token y es string
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
     }
