@@ -50,13 +50,14 @@ public class TourService {
         return data.stream().map(TourResponseDTO::new).toList();
     }
 
-    public List<TourResponseDTO> getAllRandom(int limit) {
+    public List<TourResponseDTO> getAllRandom() {
         List<Tour> data = tourRepository.findAll();
         if (data.isEmpty()) {
             return Collections.emptyList();
         }
         Collections.shuffle(data);
-        return data.stream().limit(limit).map(TourResponseDTO::new).toList();
+        //return data.stream().limit(limit).map(TourResponseDTO::new).toList();
+        return data.stream().map(TourResponseDTO::new).toList();
     }
 
     public Optional<TourResponseDTO> getById(Long id) {
