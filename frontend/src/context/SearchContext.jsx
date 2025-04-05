@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { toursAllRandom } from '@services/tourService.js'
+// NOTA: Temporalmente usando getAllTours en lugar de toursAllRandom para evitar límite de 10 items
+import { getAllTours, toursAllRandom } from '@services/tourService.js'
 
 const SearchContext = createContext()
 
@@ -27,7 +28,9 @@ export const SearchProvider = ({ children }) => {
     try {
       setLoading(true)
       console.log('Loading initial tours data...')
-      const response = await toursAllRandom()
+      // NOTA: Temporalmente usando getAllTours en lugar de toursAllRandom para evitar límite de 10 items
+      // const response = await toursAllRandom()
+      const response = await getAllTours()
       console.log('Initial tours response:', response)
 
       setAllTours(response)

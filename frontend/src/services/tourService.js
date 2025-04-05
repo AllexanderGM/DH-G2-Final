@@ -26,6 +26,15 @@ const getToken = () => {
  * @param {Object} filter - Optional filter parameters
  * @returns {Promise} - Promise with tours data
  */
+export const getAllTours = async filter => {
+  console.log('Fetching all tours con filter:', filter)
+  return await fetchData(`${URL}/tours`)
+}
+
+/**
+ * @param {Object} filter - Optional filter parameters
+ * @returns {Promise} - Promise with tours data
+ */
 export const toursAllRandom = async filter => {
   console.log('Fetching random tours con filter:', filter)
   return await fetchData(`${URL}/tours/random`)
@@ -39,7 +48,9 @@ export const toursAllRandom = async filter => {
 export const getToursByCategory = async categoryTag => {
   try {
     // Primero obtenemos todos los tours
-    const allTours = await toursAllRandom()
+    // NOTA: Temporalmente usando getAllTours en lugar de toursAllRandom para evitar límite de 10 items
+    // const allTours = await toursAllRandom()
+    const allTours = await getAllTours()
 
     if (!allTours.success || !Array.isArray(allTours.data)) {
       throw new Error('Error al obtener tours')
@@ -82,7 +93,9 @@ export const getToursByCategory = async categoryTag => {
  */
 export const searchTours = async (searchTerm, advancedParams = {}) => {
   console.log('Buscando tours con el término:', searchTerm)
-  return await toursAllRandom()
+  // NOTA: Temporalmente usando getAllTours en lugar de toursAllRandom para evitar límite de 10 items
+  // return await toursAllRandom()
+  return await getAllTours()
 }
 
 /**
