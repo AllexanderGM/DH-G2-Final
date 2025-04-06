@@ -85,10 +85,9 @@ export const getToursByCategory = async categoryTag => {
 /**
  * Búsqueda de tours con criterios específicos
  * @param {string} searchTerm - Text to search for
- * @param {Object} advancedParams - Additional search parameters like dates, price range, etc.
  * @returns {Promise} - Promise with filtered tours data
  */
-export const searchTours = async (searchTerm, advancedParams = {}) => {
+export const searchTours = async searchTerm => {
   console.log('Buscando tours con el término:', searchTerm)
   return await toursAllRandom()
 }
@@ -115,6 +114,25 @@ export const createTour = async tourData => {
     console.log('Datos recibidos del formulario:', tourData)
     console.log('Estructura de destination:', tourData.destination)
 
+    // IMPORTANTE: En el backend, ILocationRepository.findByCountryAndCity tiene los parámetros invertidos
+    // El método está definido como findByCountryAndCity(String city, String country)
+    const countryIsoCode = tourData.destination?.country || ''
+    const cityName = tourData.destination?.city || ''
+    
+    // Obtener el nombre completo del país a partir del código ISO
+    let countryName = ''
+    
+    try {
+      const countriesResponse = await fetch('/data/countries.json')
+      if (countriesResponse.ok) {
+        const countriesData = await countriesResponse.json()
+        countryName = countriesData[countryIsoCode]?.name || countryIsoCode
+      }
+    } catch (error) {
+      console.error('Error obteniendo nombre del país:', error)
+      countryName = countryIsoCode // Fallback: usar el código ISO si no podemos obtener el nombre
+    }
+
     const requestData = {
       name: tourData.name,
       description: tourData.description,
@@ -134,8 +152,9 @@ export const createTour = async tourData => {
       includes: Array.isArray(tourData.includes) ? tourData.includes.map(item => (typeof item === 'string' ? item : item.type)) : [],
 
       destination: {
-        country: tourData.destination?.country || '',
-        city: tourData.destination?.city || ''
+        // El backend espera los campos en el orden normal
+        country: countryName, // Enviamos el nombre completo del país 
+        city: cityName // Enviamos el nombre de la ciudad
       },
 
       hotel: typeof tourData.hotel === 'number' ? tourData.hotel : typeof tourData.hotelStars === 'number' ? tourData.hotelStars : 4,

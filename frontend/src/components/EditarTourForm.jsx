@@ -3,6 +3,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input
 import { updateTour } from '@services/tourService.js'
 
 import ImageInput from './ImageInput.jsx'
+import CountryCitySelector from './CountryCitySelector.jsx'
 
 // Constantes compartidas para categorías, servicios y regiones
 const CATEGORIAS = [
@@ -148,13 +149,6 @@ const REGIONES = [
   { value: 'Oceania', label: 'Oceanía' }
 ]
 
-// Función para obtener fecha y hora actual en formato ISO para los inputs datetime-local
-const getCurrentDateTimeISO = () => {
-  const now = new Date()
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
-  return now.toISOString().slice(0, 16)
-}
-
 // Función para obtener fecha futura (en días) en formato ISO
 const getFutureDateTimeISO = days => {
   const future = new Date()
@@ -218,9 +212,25 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       // const hotelNumber = tourData.hotelNumber ? tourData.hotelNumber.toString() : ''
 
       // Extraer ciudad y país del destino
-      const country = tourData.destination?.country || ''
-      const city =
-        typeof tourData.destination?.city === 'object' ? tourData.destination?.city?.name || '' : tourData.destination?.city || ''
+      let country = ''
+      let city = ''
+
+      console.log('Datos de destino originales:', tourData.destination)
+
+      // Para el país, puede venir como un código ISO o como el nombre completo
+      if (tourData.destination) {
+        // Para compatibilidad, intentamos tratar country tanto como código como nombre
+        country = tourData.destination.country || ''
+
+        // Para la ciudad, puede venir como un objeto completo o como una cadena
+        if (typeof tourData.destination.city === 'object') {
+          city = tourData.destination.city?.name || ''
+        } else {
+          city = tourData.destination.city || ''
+        }
+      }
+
+      console.log('País y Ciudad extraídos:', { country, city })
 
       // Determinar región basada en el país si no está explícita
       let region = 'Americas' // valor por defecto
@@ -323,13 +333,36 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       const parts = field.split('.')
 
       if (parts.length === 2) {
-        setFormData({
-          ...formData,
-          [parts[0]]: {
-            ...formData[parts[0]],
-            [parts[1]]: value
+        if (parts[0] === 'destination') {
+          const updatedDestination = { ...formData.destination }
+
+          // Si cambia la región, resetear país y ciudad
+          if (parts[1] === 'region') {
+            updatedDestination.region = value
+            updatedDestination.country = ''
+            updatedDestination.city = ''
           }
-        })
+          // Si cambia el país, resetear ciudad
+          else if (parts[1] === 'country') {
+            updatedDestination.country = value
+            updatedDestination.city = ''
+          } else {
+            updatedDestination[parts[1]] = value
+          }
+
+          setFormData({
+            ...formData,
+            destination: updatedDestination
+          })
+        } else {
+          setFormData({
+            ...formData,
+            [parts[0]]: {
+              ...formData[parts[0]],
+              [parts[1]]: value
+            }
+          })
+        }
       } else {
         setFormData({
           ...formData,
@@ -584,6 +617,29 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       })
 
       // IMPORTANTE: Crear el objeto exactamente como lo espera el backend según Swagger
+      // Obtener el nombre completo del país a partir del código ISO
+      let countryName = formData.destination.country
+      try {
+        console.log('Código ISO o nombre del país antes de conversión:', formData.destination.country)
+
+        // Si el país parece ser un código ISO de 2 letras
+        if (formData.destination.country && formData.destination.country.length <= 2) {
+          const countriesResponse = await fetch('/data/countries.json')
+          if (countriesResponse.ok) {
+            const countriesData = await countriesResponse.json()
+            if (countriesData[formData.destination.country]) {
+              countryName = countriesData[formData.destination.country].name
+              console.log('Nombre del país obtenido desde código ISO:', countryName)
+            }
+          }
+        } else {
+          console.log('El país ya parece ser un nombre completo:', formData.destination.country)
+        }
+      } catch (error) {
+        console.error('Error obteniendo nombre del país:', error)
+        // Fallback: usar el valor actual si no podemos obtener el nombre
+      }
+
       const requestData = {
         name: formData.name,
         description: formData.description,
@@ -594,7 +650,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
         tags: validTags,
         includes: formData.includes,
         destination: {
-          country: formData.destination.country,
+          country: countryName,
           city: formData.destination.city
         },
         hotel: parseInt(formData.hotel),
@@ -712,23 +768,15 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="País"
-                      placeholder="Ej: Colombia"
-                      value={formData.destination.country}
-                      onChange={e => handleInputChange('destination.country', e.target.value)}
-                      required
-                    />
-
-                    <Input
-                      label="Ciudad"
-                      placeholder="Ej: Cartagena"
-                      value={formData.destination.city}
-                      onChange={e => handleInputChange('destination.city', e.target.value)}
-                      required
-                    />
-                  </div>
+                  {/* Pasar el código de país si está en formato ISO-2, o buscar el código correspondiente si es nombre completo */}
+                  <CountryCitySelector
+                    key={`${formData.destination.region}-${formData.destination.country}`}
+                    initialCountry={formData.destination.country}
+                    initialCity={formData.destination.city}
+                    onCountryChange={country => handleInputChange('destination.country', country)}
+                    onCityChange={city => handleInputChange('destination.city', city)}
+                    selectedRegion={formData.destination.region}
+                  />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
