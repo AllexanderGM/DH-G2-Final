@@ -7,11 +7,13 @@ import CardMain from '../../../components/ui/CardTour.jsx'
 import './body.scss'
 
 const Body = () => {
-  const { searchResults, loading, searchTerm, loadAllRandomTours } = useSearch()
+  const { searchResults, loading, searchTerm, loadAllRandomTours, updateSearchTerm } = useSearch()
   const { success, data = [] } = searchResults || {}
   const ITEMS_PER_PAGE = 9 // constante para la cantidad de elementos por página
   const [currentPage, setCurrentPage] = useState(1)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const [inputValue, setInputValue] = useState('')
+  const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false)
 
   const emptyPlaces = success && data.length === 0
   const isSearching = searchTerm.trim() !== ''
@@ -70,6 +72,28 @@ const Body = () => {
       top: 0,
       behavior: 'smooth'
     })
+  }
+
+  const handleReset = () => {
+    setInputValue('')
+    setIsAutocompleteOpen(false)
+    updateSearchTerm('')
+
+    // Forzar una nueva búsqueda con término vacío
+    searchTours()
+
+    // Reset date range in context (handled by SearchContext)
+    const event = new CustomEvent('reset-date-range')
+    window.dispatchEvent(event)
+  }
+
+  const handleClear = () => {
+    setInputValue('')
+    setIsAutocompleteOpen(false)
+    updateSearchTerm('')
+
+    // Forzar una nueva búsqueda con término vacío
+    searchTours()
   }
 
   return (
