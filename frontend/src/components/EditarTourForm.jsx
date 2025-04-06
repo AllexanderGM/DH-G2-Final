@@ -149,6 +149,20 @@ const REGIONES = [
   { value: 'Oceania', label: 'Oceanía' }
 ]
 
+// Hoteles predefinidos
+const PREDEFINED_HOTELS = [
+  { id: 1, name: 'Grand Oasis Cancun', stars: 5 },
+  { id: 2, name: 'Hotel Caribe', stars: 4 },
+  { id: 3, name: 'Ritz Paris', stars: 5 },
+  { id: 4, name: 'Hotel Hassler Roma', stars: 5 },
+  { id: 5, name: 'Four Seasons Bali', stars: 5 },
+  { id: 6, name: 'Plaza Hotel NYC', stars: 5 },
+  { id: 7, name: 'Belmond Sanctuary', stars: 5 },
+  { id: 8, name: 'Copacabana Palace', stars: 5 },
+  { id: 9, name: 'Burj Al Arab', stars: 7 },
+  { id: 10, name: 'W Barcelona', stars: 5 }
+]
+
 // Función para obtener fecha futura (en días) en formato ISO
 const getFutureDateTimeISO = days => {
   const future = new Date()
@@ -209,7 +223,6 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       // Convertir precio a string para input
       const adultPrice = tourData.precio ? tourData.precio.toString() : ''
       const childPrice = tourData.childPrice ? tourData.childPrice.toString() : ''
-      // const hotelNumber = tourData.hotelNumber ? tourData.hotelNumber.toString() : ''
 
       // Extraer ciudad y país del destino
       let country = ''
@@ -237,6 +250,25 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       if (tourData.destination?.region) {
         region = tourData.destination.region
       }
+
+      // Determinar el ID del hotel correcto
+      let hotelId = 4 // valor por defecto
+      if (tourData.hotel) {
+        if (typeof tourData.hotel === 'object') {
+          // Buscar el hotel en PREDEFINED_HOTELS por nombre
+          const foundHotel = PREDEFINED_HOTELS.find(h => h.name === tourData.hotel.name)
+          if (foundHotel) {
+            hotelId = foundHotel.id
+          }
+        } else if (typeof tourData.hotel === 'number') {
+          // Si es un número, verificar que exista en PREDEFINED_HOTELS
+          if (PREDEFINED_HOTELS.some(h => h.id === tourData.hotel)) {
+            hotelId = tourData.hotel
+          }
+        }
+      }
+
+      console.log('Hotel ID seleccionado:', hotelId)
 
       // FILTRAR TAGS - ASEGURARSE DE QUE SEAN VALORES ENUM VÁLIDOS
       let tags = []
@@ -305,7 +337,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       }
       setIncludesDetails(details)
 
-      // Initialize formData with existing tourData, including tags
+      // Initialize formData with existing tourData
       setFormData({
         name: tourData.nombre || '',
         description: tourData.description || '',
@@ -313,16 +345,14 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
         childPrice,
         images,
         status: tourData.status || 'Disponible',
-        tags: tags, // Ensure tags are set correctly
+        tags: tags,
         includes: Array.isArray(tourData.includes) ? tourData.includes.map(inc => (typeof inc === 'object' ? inc.type : inc)) : [],
         destination: {
           region,
           country,
           city
         },
-        hotelName: tourData.hotel?.name || '',
-        hotel: typeof tourData.hotel === 'object' ? tourData.hotel.stars : tourData.hotel || 4,
-        //hotelNumber: tourData.hotelNumber || '' ,
+        hotel: hotelId,
         availability
       })
     }
@@ -778,30 +808,21 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
                     selectedRegion={formData.destination.region}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="Nombre del hotel"
-                      placeholder="Ej: Gran Hotel Resort & Spa"
-                      value={formData.hotelName}
-                      onChange={e => handleInputChange('hotelName', e.target.value)}
-                    />
-
-                    <div className="mb-4">
-                      <label htmlFor="hotel" className={labelStyle}>
-                        Estrellas del hotel
-                      </label>
-                      <select
-                        id="hotel"
-                        className={selectStyle}
-                        value={formData.hotel}
-                        onChange={e => handleInputChange('hotel', parseInt(e.target.value))}>
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <option key={star} value={star}>
-                            {star} {star === 1 ? 'Estrella' : 'Estrellas'}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  {/* Hotel - Selector de hoteles predefinidos */}
+                  <div className="mb-4">
+                    <label className="text-sm font-medium text-gray-700">Hotel</label>
+                    <select
+                      className={selectStyle}
+                      value={formData.hotel}
+                      onChange={e => handleInputChange('hotel', parseInt(e.target.value))}
+                      required>
+                      <option value="">Seleccione un hotel</option>
+                      {PREDEFINED_HOTELS.map(hotel => (
+                        <option key={hotel.id} value={hotel.id}>
+                          {hotel.name} ({hotel.stars} ⭐)
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </Tab>
