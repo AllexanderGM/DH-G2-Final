@@ -91,11 +91,17 @@ const ConfirmationDetails = ({ tourInfo, onSelectionChange }) => {
 
           <div>
             <div className="flex items-start space-x-3">
-              <img
-                src={user.avatar || 'https://via.placeholder.com/100?text=Usuario'}
-                alt="Perfil de usuario"
-                className="w-14 h-14 rounded-full object-cover border-2 border-primary-100"
-              />
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt="Perfil de usuario"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-primary-100"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-primary-50 flex items-center justify-center border-2 border-primary-100">
+                  <User className="w-8 h-8 text-primary" />
+                </div>
+              )}
               <div>
                 <p className="text-sm font-medium text-gray-500">Usuario registrado</p>
                 <p className="text-xs text-gray-400">Los datos de tu perfil se usarán para esta reserva</p>
