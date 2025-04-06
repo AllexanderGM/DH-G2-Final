@@ -18,6 +18,11 @@ function ConfirmReserv() {
   const { user } = useAuth()
   const { tour, availability } = location.state || {}
 
+  // Scroll al inicio cuando el componente se monta
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   const [loading, setLoading] = useState(!tour && !!id)
   const [error, setError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
