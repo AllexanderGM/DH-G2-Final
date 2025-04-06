@@ -51,9 +51,11 @@ const Body = () => {
   // Determinar el título basado en el estado de búsqueda
   let title = 'Recomendaciones'
   if (isSearching) {
-    title = `Resultados para "${searchTerm}"`
     if (emptyPlaces) {
       title = `No se encontraron resultados para "${searchTerm}"`
+    } else {
+      const resultCount = data.length
+      title = `${resultCount} ${resultCount === 1 ? 'resultado' : 'resultados'} para "${searchTerm}"`
     }
   } else if (emptyPlaces) {
     title = 'No hay tours disponibles...'
