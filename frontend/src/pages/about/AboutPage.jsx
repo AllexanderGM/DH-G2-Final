@@ -16,8 +16,8 @@ const AboutPage = () => {
       name: 'Diego Contreras',
       role: 'Frontend Developer',
       description: 'Desarrollo de componentes y UI',
-      github: '#',
-      linkedin: '#',
+      github: 'https://github.com/ItsDiegoTBG',
+      linkedin: 'https://www.linkedin.com/in/diego-contreras-8a9627230/',
       image: Diego
     },
     {
