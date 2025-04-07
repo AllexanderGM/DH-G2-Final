@@ -7,6 +7,9 @@ import BodyDetalle from '@components/BodyDetalle'
 import { Helmet } from 'react-helmet-async'
 import { normalizeAvailability } from '@utils/dateUtils.js'
 import WhatsAppBtn from '@components/WhatsAppBtn'
+import { useFavorites } from '@context/FavoritesContext'
+
+import './detalleTour.scss'
 
 const DetalleTour = () => {
   const { id } = useParams()
@@ -14,6 +17,7 @@ const DetalleTour = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const URL = import.meta.env.VITE_URL_BACK
+  const { toggleFavorite, isFavorite, isAuthenticated } = useFavorites()
 
   useEffect(() => {
     const fetchTour = async () => {
@@ -55,6 +59,13 @@ const DetalleTour = () => {
 
     fetchTour()
   }, [URL, id])
+
+  // Manejador para el botón de favoritos
+  const handleFavoriteClick = () => {
+    if (tour) {
+      toggleFavorite(tour)
+    }
+  }
 
   if (loading) {
     return <p className="text-center mt-10">Cargando...</p>
@@ -114,9 +125,18 @@ const DetalleTour = () => {
                     color="primary"
                     variant="light"
                     isIconOnly
-                    aria-label="Guardar"
-                    className="min-w-0 w-10 h-10 p-0 flex items-center justify-center">
-                    <span className="material-symbols-outlined">favorite_border</span>
+                    aria-label={
+                      isAuthenticated
+                        ? isFavorite(tour.id)
+                          ? 'Quitar de favoritos'
+                          : 'Agregar a favoritos'
+                        : 'Iniciar sesión para guardar'
+                    }
+                    className="min-w-0 w-10 h-10 p-0 flex items-center justify-center"
+                    onPress={handleFavoriteClick}>
+                    <span className={`material-symbols-outlined ${isFavorite(tour.id) ? 'favorite-active' : ''}`}>
+                      {isFavorite(tour.id) ? 'favorite' : 'favorite_border'}
+                    </span>
                   </Button>
 
                   <ShareButtons tour={tour} />
