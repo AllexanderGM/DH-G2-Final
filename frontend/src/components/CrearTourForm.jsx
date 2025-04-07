@@ -3,6 +3,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input
 import { createTour } from '@services/tourService.js'
 
 import ImageInput from './ImageInput.jsx' // Importamos el nuevo componente
+import CountryCitySelector from './CountryCitySelector.jsx' // Importamos el nuevo componente
 
 const CATEGORIAS = [
   { value: 'BEACH', label: 'Playa' },
@@ -208,13 +209,37 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
 
       if (parts.length === 2) {
         // Para campos como 'destination.country' o 'availability.availableSlots'
-        setFormData({
-          ...formData,
-          [parts[0]]: {
-            ...formData[parts[0]],
-            [parts[1]]: value
+        if (parts[0] === 'destination') {
+          const updatedDestination = { ...formData.destination }
+
+          // Si cambia la región, resetear país y ciudad
+          if (parts[1] === 'region') {
+            updatedDestination.region = value
+            updatedDestination.country = ''
+            updatedDestination.city = ''
           }
-        })
+          // Si cambia el país, resetear ciudad
+          else if (parts[1] === 'country') {
+            updatedDestination.country = value
+            updatedDestination.city = ''
+          } else {
+            updatedDestination[parts[1]] = value
+          }
+
+          setFormData({
+            ...formData,
+            destination: updatedDestination
+          })
+        } else {
+          // Para cualquier otro nivel de anidación
+          setFormData({
+            ...formData,
+            [parts[0]]: {
+              ...formData[parts[0]],
+              [parts[1]]: value
+            }
+          })
+        }
       } else {
         // Para cualquier otro nivel de anidación
         console.warn('Campo con múltiples niveles no esperado:', field)
@@ -437,6 +462,9 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
         filteredImages.push('https://via.placeholder.com/800x600?text=Imagen+del+tour')
       }
 
+      // El país ahora es un código ISO, lo dejamos como está
+      // El formData.destination.country ya contiene el código ISO
+
       // Preparar datos para enviar a la API
       const tourData = {
         ...formData,
@@ -592,23 +620,14 @@ const CrearTourForm = ({ isOpen, onClose, onSuccess }) => {
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="País"
-                      placeholder="Ej: Colombia"
-                      value={formData.destination.country}
-                      onChange={e => handleInputChange('destination.country', e.target.value)}
-                      required
-                    />
-
-                    <Input
-                      label="Ciudad"
-                      placeholder="Ej: Cartagena"
-                      value={formData.destination.city}
-                      onChange={e => handleInputChange('destination.city', e.target.value)}
-                      required
-                    />
-                  </div>
+                  {/* Reemplazar los inputs de país y ciudad individuales con nuestro componente */}
+                  <CountryCitySelector
+                    initialCountry={formData.destination.country}
+                    initialCity={formData.destination.city}
+                    onCountryChange={country => handleInputChange('destination.country', country)}
+                    onCityChange={city => handleInputChange('destination.city', city)}
+                    selectedRegion={formData.destination.region}
+                  />
 
                   {/* Hotel */}
                   <div className="mb-4">

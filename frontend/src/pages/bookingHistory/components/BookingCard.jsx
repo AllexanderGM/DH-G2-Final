@@ -21,7 +21,7 @@ import { cancelBooking } from '@services/bookingService.js'
 import { getAvailabilityForBooking } from '@services/availabilityService.js'
 import { getTourById } from '@services/tourService.js'
 
-const BookingCard = ({ booking, isPast }) => {
+const BookingCard = ({ booking, isPast, onBookingCancelled }) => {
   const [cancelLoading, setCancelLoading] = useState(false)
   const [cancelError, setCancelError] = useState(null)
   const [availability, setAvailability] = useState(null)
@@ -131,9 +131,13 @@ const BookingCard = ({ booking, isPast }) => {
         throw new Error(response.message || 'Error al cancelar la reserva')
       }
 
-      // Cerrar modal y recargar la página para actualizar el estado
+      // Cerrar modal
       onClose()
-      window.location.reload()
+
+      // Notificar al componente padre que la reserva ha sido cancelada
+      if (onBookingCancelled) {
+        onBookingCancelled(booking.id)
+      }
     } catch (err) {
       console.error('Error cancelando reserva:', err)
       setCancelError(err.message || 'Error al cancelar la reserva')

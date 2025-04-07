@@ -8,7 +8,7 @@ const NavbarAdmin = ({ avatar, name, lastName, email }) => {
 
   return (
     <>
-      <div className="flex gap-3 items-center">
+      <div className="hidden sm:flex gap-3 items-center">
         <NavbarItem>
           <HeroLink
             color="primary"
@@ -21,15 +21,15 @@ const NavbarAdmin = ({ avatar, name, lastName, email }) => {
             Crear tour
           </HeroLink>
         </NavbarItem>
-      </div>
 
-      <div className="flex gap-3 items-center">
         <NavbarItem>
           <HeroLink color="primary" className="hover:text-red-600 sm:text-sm md:text-base" href="/admin">
             Admin panel
           </HeroLink>
         </NavbarItem>
+      </div>
 
+      <div className="flex gap-3 items-center">
         <NavbarItem>
           <Dropdown>
             <DropdownTrigger>

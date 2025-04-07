@@ -14,32 +14,38 @@ const BookingHistoryPage = () => {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('upcoming')
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        setLoading(true)
-        setError(null)
+  const fetchBookings = async () => {
+    try {
+      setLoading(true)
+      setError(null)
 
-        const response = await getUserBookings()
+      const response = await getUserBookings()
 
-        if (response.error) {
-          throw new Error(response.message || 'Error al cargar las reservas')
-        }
-
-        console.log('Reservas obtenidas:', response)
-        setBookings(response.data || [])
-      } catch (err) {
-        console.error('Error cargando reservas:', err)
-        setError(err.message || 'Error al cargar tus reservas')
-      } finally {
-        setLoading(false)
+      if (response.error) {
+        throw new Error(response.message || 'Error al cargar las reservas')
       }
-    }
 
+      console.log('Reservas obtenidas:', response)
+      setBookings(response.data || [])
+    } catch (err) {
+      console.error('Error cargando reservas:', err)
+      setError(err.message || 'Error al cargar tus reservas')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     if (user) {
       fetchBookings()
     }
   }, [user])
+
+  // Función para manejar la cancelación de reservas
+  const handleBookingCancelled = bookingId => {
+    // Actualizar el estado local eliminando la reserva cancelada
+    setBookings(prevBookings => prevBookings.filter(booking => booking.id !== bookingId))
+  }
 
   // Separar las reservas en próximas y pasadas
   const currentDate = normalizeDate(new Date()) // Normalizar la fecha actual
@@ -136,7 +142,7 @@ const BookingHistoryPage = () => {
             <p>{error}</p>
           </CardBody>
           <CardFooter>
-            <Button color="primary" variant="light" onPress={() => window.location.reload()}>
+            <Button color="primary" variant="light" onPress={fetchBookings}>
               Intentar nuevamente
             </Button>
           </CardFooter>
@@ -165,7 +171,7 @@ const BookingHistoryPage = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayBookings.map(booking => (
-            <BookingCard key={booking.id} booking={booking} isPast={activeTab === 'past'} />
+            <BookingCard key={booking.id} booking={booking} isPast={activeTab === 'past'} onBookingCancelled={handleBookingCancelled} />
           ))}
         </div>
       )}

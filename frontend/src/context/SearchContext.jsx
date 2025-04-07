@@ -223,16 +223,14 @@ export const SearchProvider = ({ children }) => {
 
   // Efecto para manejar búsquedas
   useEffect(() => {
-    // Solo realizar búsqueda si hay un término de búsqueda o parámetros avanzados
-    if (searchTerm || advancedSearchParams.dateRange) {
-      const delay = setTimeout(() => {
-        console.log('Iniciando búsqueda con término:', searchTerm)
-        console.log('Parámetros avanzados:', advancedSearchParams)
-        searchTours()
-      }, 300) // Debounce search por 300ms
+    // Ejecutar búsqueda siempre que cambie el término o los parámetros avanzados
+    const delay = setTimeout(() => {
+      console.log('Iniciando búsqueda con término:', searchTerm)
+      console.log('Parámetros avanzados:', advancedSearchParams)
+      searchTours()
+    }, 300) // Debounce search por 300ms
 
-      return () => clearTimeout(delay)
-    }
+    return () => clearTimeout(delay)
   }, [searchTerm, advancedSearchParams, searchTours])
 
   // Función para generar sugerencias basadas en el término de búsqueda
