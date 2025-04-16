@@ -11,6 +11,7 @@ import {
   Link as HeroLink
 } from '@heroui/react'
 import { useAuth } from '@context/AuthContext.jsx'
+import { useCreateTour } from '@context/CreateTourContext.jsx'
 import img from '@assets/Logo/logo_navbar/svg/isotipo_sm.svg'
 
 import NavbarRegularPortion from './NavbarRegularPortion.jsx'
@@ -26,6 +27,7 @@ const menuItems = [
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { user, isAdmin } = useAuth()
+  const { openCreateTourModal } = useCreateTour()
 
   const name = user?.name || ''
   const lastName = user?.lastName || ''
@@ -76,6 +78,26 @@ function Navbar() {
             </HeroLink>
           </NavbarMenuItem>
         ))}
+        {user && isAdmin && (
+          <>
+            <NavbarMenuItem>
+              <HeroLink
+                className="w-full"
+                href="#"
+                onClick={e => {
+                  e.preventDefault()
+                  openCreateTourModal()
+                }}>
+                Crear tour
+              </HeroLink>
+            </NavbarMenuItem>
+            <NavbarMenuItem>
+              <HeroLink className="w-full" href="/admin">
+                Admin panel
+              </HeroLink>
+            </NavbarMenuItem>
+          </>
+        )}
       </NavbarMenu>
 
       {/* Sección de usuario */}

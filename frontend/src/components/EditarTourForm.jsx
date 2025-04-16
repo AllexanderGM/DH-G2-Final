@@ -3,6 +3,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input
 import { updateTour } from '@services/tourService.js'
 
 import ImageInput from './ImageInput.jsx'
+import CountryCitySelector from './CountryCitySelector.jsx'
 
 // Constantes compartidas para categorías, servicios y regiones
 const CATEGORIAS = [
@@ -148,12 +149,19 @@ const REGIONES = [
   { value: 'Oceania', label: 'Oceanía' }
 ]
 
-// Función para obtener fecha y hora actual en formato ISO para los inputs datetime-local
-const getCurrentDateTimeISO = () => {
-  const now = new Date()
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
-  return now.toISOString().slice(0, 16)
-}
+// Hoteles predefinidos
+const PREDEFINED_HOTELS = [
+  { id: 1, name: 'Grand Oasis Cancun', stars: 5 },
+  { id: 2, name: 'Hotel Caribe', stars: 4 },
+  { id: 3, name: 'Ritz Paris', stars: 5 },
+  { id: 4, name: 'Hotel Hassler Roma', stars: 5 },
+  { id: 5, name: 'Four Seasons Bali', stars: 5 },
+  { id: 6, name: 'Plaza Hotel NYC', stars: 5 },
+  { id: 7, name: 'Belmond Sanctuary', stars: 5 },
+  { id: 8, name: 'Copacabana Palace', stars: 5 },
+  { id: 9, name: 'Burj Al Arab', stars: 7 },
+  { id: 10, name: 'W Barcelona', stars: 5 }
+]
 
 // Función para obtener fecha futura (en días) en formato ISO
 const getFutureDateTimeISO = days => {
@@ -215,18 +223,52 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       // Convertir precio a string para input
       const adultPrice = tourData.precio ? tourData.precio.toString() : ''
       const childPrice = tourData.childPrice ? tourData.childPrice.toString() : ''
-     // const hotelNumber = tourData.hotelNumber ? tourData.hotelNumber.toString() : ''
 
       // Extraer ciudad y país del destino
-      const country = tourData.destination?.country || ''
-      const city =
-        typeof tourData.destination?.city === 'object' ? tourData.destination?.city?.name || '' : tourData.destination?.city || ''
+      let country = ''
+      let city = ''
+
+      console.log('Datos de destino originales:', tourData.destination)
+
+      // Para el país, puede venir como un código ISO o como el nombre completo
+      if (tourData.destination) {
+        // Para compatibilidad, intentamos tratar country tanto como código como nombre
+        country = tourData.destination.country || ''
+
+        // Para la ciudad, puede venir como un objeto completo o como una cadena
+        if (typeof tourData.destination.city === 'object') {
+          city = tourData.destination.city?.name || ''
+        } else {
+          city = tourData.destination.city || ''
+        }
+      }
+
+      console.log('País y Ciudad extraídos:', { country, city })
 
       // Determinar región basada en el país si no está explícita
       let region = 'Americas' // valor por defecto
       if (tourData.destination?.region) {
         region = tourData.destination.region
       }
+
+      // Determinar el ID del hotel correcto
+      let hotelId = 4 // valor por defecto
+      if (tourData.hotel) {
+        if (typeof tourData.hotel === 'object') {
+          // Buscar el hotel en PREDEFINED_HOTELS por nombre
+          const foundHotel = PREDEFINED_HOTELS.find(h => h.name === tourData.hotel.name)
+          if (foundHotel) {
+            hotelId = foundHotel.id
+          }
+        } else if (typeof tourData.hotel === 'number') {
+          // Si es un número, verificar que exista en PREDEFINED_HOTELS
+          if (PREDEFINED_HOTELS.some(h => h.id === tourData.hotel)) {
+            hotelId = tourData.hotel
+          }
+        }
+      }
+
+      console.log('Hotel ID seleccionado:', hotelId)
 
       // FILTRAR TAGS - ASEGURARSE DE QUE SEAN VALORES ENUM VÁLIDOS
       let tags = []
@@ -295,7 +337,7 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       }
       setIncludesDetails(details)
 
-      // Initialize formData with existing tourData, including tags
+      // Initialize formData with existing tourData
       setFormData({
         name: tourData.nombre || '',
         description: tourData.description || '',
@@ -303,16 +345,14 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
         childPrice,
         images,
         status: tourData.status || 'Disponible',
-        tags: tags, // Ensure tags are set correctly
+        tags: tags,
         includes: Array.isArray(tourData.includes) ? tourData.includes.map(inc => (typeof inc === 'object' ? inc.type : inc)) : [],
         destination: {
           region,
           country,
           city
         },
-        hotelName: tourData.hotel?.name || '',
-        hotel: typeof tourData.hotel === 'object' ? tourData.hotel.stars : tourData.hotel || 4,
-        //hotelNumber: tourData.hotelNumber || '' ,
+        hotel: hotelId,
         availability
       })
     }
@@ -323,13 +363,36 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
       const parts = field.split('.')
 
       if (parts.length === 2) {
-        setFormData({
-          ...formData,
-          [parts[0]]: {
-            ...formData[parts[0]],
-            [parts[1]]: value
+        if (parts[0] === 'destination') {
+          const updatedDestination = { ...formData.destination }
+
+          // Si cambia la región, resetear país y ciudad
+          if (parts[1] === 'region') {
+            updatedDestination.region = value
+            updatedDestination.country = ''
+            updatedDestination.city = ''
           }
-        })
+          // Si cambia el país, resetear ciudad
+          else if (parts[1] === 'country') {
+            updatedDestination.country = value
+            updatedDestination.city = ''
+          } else {
+            updatedDestination[parts[1]] = value
+          }
+
+          setFormData({
+            ...formData,
+            destination: updatedDestination
+          })
+        } else {
+          setFormData({
+            ...formData,
+            [parts[0]]: {
+              ...formData[parts[0]],
+              [parts[1]]: value
+            }
+          })
+        }
       } else {
         setFormData({
           ...formData,
@@ -552,32 +615,76 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
 
       console.log('Tags validados para actualizar:', validTags)
 
+      // Asegurar que las fechas tengan el formato ISO correcto
+      const modifiedAvailability = formData.availability.map(avail => {
+        const modifiedAvail = { ...avail }
+
+        if (modifiedAvail.availableDate) {
+          if (typeof modifiedAvail.availableDate === 'string' && modifiedAvail.availableDate.includes(' ')) {
+            console.log('Corrigiendo formato de availableDate:', modifiedAvail.availableDate)
+            modifiedAvail.availableDate = modifiedAvail.availableDate.replace(' ', 'T')
+          }
+        }
+
+        if (modifiedAvail.departureTime) {
+          if (typeof modifiedAvail.departureTime === 'string' && modifiedAvail.departureTime.includes(' ')) {
+            console.log('Corrigiendo formato de departureTime:', modifiedAvail.departureTime)
+            modifiedAvail.departureTime = modifiedAvail.departureTime.replace(' ', 'T')
+          }
+        }
+
+        if (modifiedAvail.returnTime) {
+          if (typeof modifiedAvail.returnTime === 'string' && modifiedAvail.returnTime.includes(' ')) {
+            console.log('Corrigiendo formato de returnTime:', modifiedAvail.returnTime)
+            modifiedAvail.returnTime = modifiedAvail.returnTime.replace(' ', 'T')
+          }
+        }
+
+        return {
+          ...modifiedAvail,
+          availableSlots: parseInt(modifiedAvail.availableSlots)
+        }
+      })
+
       // IMPORTANTE: Crear el objeto exactamente como lo espera el backend según Swagger
+      // Obtener el nombre completo del país a partir del código ISO
+      let countryName = formData.destination.country
+      try {
+        console.log('Código ISO o nombre del país antes de conversión:', formData.destination.country)
+
+        // Si el país parece ser un código ISO de 2 letras
+        if (formData.destination.country && formData.destination.country.length <= 2) {
+          const countriesResponse = await fetch('/data/countries.json')
+          if (countriesResponse.ok) {
+            const countriesData = await countriesResponse.json()
+            if (countriesData[formData.destination.country]) {
+              countryName = countriesData[formData.destination.country].name
+              console.log('Nombre del país obtenido desde código ISO:', countryName)
+            }
+          }
+        } else {
+          console.log('El país ya parece ser un nombre completo:', formData.destination.country)
+        }
+      } catch (error) {
+        console.error('Error obteniendo nombre del país:', error)
+        // Fallback: usar el valor actual si no podemos obtener el nombre
+      }
+
       const requestData = {
         name: formData.name,
         description: formData.description,
         adultPrice: parseFloat(formData.adultPrice),
         childPrice: parseFloat(formData.childPrice || '0'),
-        // Aseguramos que images sea un array de strings
         images: filteredImages,
-        // Status debe ser un string
-        status: 'Disponible', // Valor fijo por ahora según Swagger
-        // Tags solo incluyen valores ENUM válidos
+        status: 'Disponible',
         tags: validTags,
-        // Includes deben ser un array de strings
         includes: formData.includes,
-        // La estructura de destination debe ser exactamente como la espera el backend
         destination: {
-          country: formData.destination.country,
+          country: countryName,
           city: formData.destination.city
         },
-        // Hotel debe ser un número
         hotel: parseInt(formData.hotel),
-        // Availability con el formato exacto
-        availability: formData.availability.map(avail => ({
-          ...avail,
-          availableSlots: parseInt(avail.availableSlots)
-        }))
+        availability: modifiedAvailability
       }
 
       console.log('Datos preparados para actualizar:', requestData)
@@ -691,48 +798,31 @@ const EditarTourForm = ({ isOpen, onClose, onSuccess, tourData }) => {
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="País"
-                      placeholder="Ej: Colombia"
-                      value={formData.destination.country}
-                      onChange={e => handleInputChange('destination.country', e.target.value)}
-                      required
-                    />
+                  {/* Pasar el código de país si está en formato ISO-2, o buscar el código correspondiente si es nombre completo */}
+                  <CountryCitySelector
+                    key={`${formData.destination.region}-${formData.destination.country}`}
+                    initialCountry={formData.destination.country}
+                    initialCity={formData.destination.city}
+                    onCountryChange={country => handleInputChange('destination.country', country)}
+                    onCityChange={city => handleInputChange('destination.city', city)}
+                    selectedRegion={formData.destination.region}
+                  />
 
-                    <Input
-                      label="Ciudad"
-                      placeholder="Ej: Cartagena"
-                      value={formData.destination.city}
-                      onChange={e => handleInputChange('destination.city', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="Nombre del hotel"
-                      placeholder="Ej: Gran Hotel Resort & Spa"
-                      value={formData.hotelName}
-                      onChange={e => handleInputChange('hotelName', e.target.value)}
-                    />
-
-                    <div className="mb-4">
-                      <label htmlFor="hotel" className={labelStyle}>
-                        Estrellas del hotel
-                      </label>
-                      <select
-                        id="hotel"
-                        className={selectStyle}
-                        value={formData.hotel}
-                        onChange={e => handleInputChange('hotel', parseInt(e.target.value))}>
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <option key={star} value={star}>
-                            {star} {star === 1 ? 'Estrella' : 'Estrellas'}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  {/* Hotel - Selector de hoteles predefinidos */}
+                  <div className="mb-4">
+                    <label className="text-sm font-medium text-gray-700">Hotel</label>
+                    <select
+                      className={selectStyle}
+                      value={formData.hotel}
+                      onChange={e => handleInputChange('hotel', parseInt(e.target.value))}
+                      required>
+                      <option value="">Seleccione un hotel</option>
+                      {PREDEFINED_HOTELS.map(hotel => (
+                        <option key={hotel.id} value={hotel.id}>
+                          {hotel.name} ({hotel.stars} ⭐)
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </Tab>

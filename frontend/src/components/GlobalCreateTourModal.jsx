@@ -1,4 +1,5 @@
 import { useCreateTour } from '@context/CreateTourContext.jsx'
+
 import CrearTourForm from './CrearTourForm.jsx'
 
 const GlobalCreateTourModal = () => {
@@ -9,8 +10,7 @@ const GlobalCreateTourModal = () => {
       isOpen={isCreateTourModalOpen}
       onClose={closeCreateTourModal}
       onSuccess={() => {
-        // Aquí podrías agregar lógica adicional cuando el tour se crea exitosamente
-        // Por ejemplo, mostrar una notificación
+        // Solo cerramos el modal - la actualización la maneja el evento
         closeCreateTourModal()
       }}
     />

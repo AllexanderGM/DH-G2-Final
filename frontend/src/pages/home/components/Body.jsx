@@ -7,7 +7,7 @@ import CardMain from '../../../components/ui/CardTour.jsx'
 import './body.scss'
 
 const Body = () => {
-  const { searchResults, loading, searchTerm } = useSearch()
+  const { searchResults, loading, searchTerm, loadAllRandomTours } = useSearch()
   const { success, data = [] } = searchResults || {}
   const ITEMS_PER_PAGE = 9 // constante para la cantidad de elementos por página
   const [currentPage, setCurrentPage] = useState(1)
@@ -17,6 +17,11 @@ const Body = () => {
   const isSearching = searchTerm.trim() !== ''
   const visibleItems = currentPage * ITEMS_PER_PAGE
   const hasMoreItems = data.length > visibleItems
+
+  // Cargar tours aleatorios al montar el componente
+  useEffect(() => {
+    loadAllRandomTours()
+  }, [loadAllRandomTours])
 
   useEffect(() => {
     // Función para controlar la visibilidad del botón de scroll
@@ -32,12 +37,28 @@ const Body = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Escuchar evento de creación de tour
+  useEffect(() => {
+    const handleTourCreated = () => {
+      console.log('Tour creado detectado, recargando tours aleatorios...')
+      loadAllRandomTours() // Recargar los tours cuando se crea uno nuevo
+    }
+
+    window.addEventListener('tour-created', handleTourCreated)
+    return () => window.removeEventListener('tour-created', handleTourCreated)
+  }, [loadAllRandomTours])
+
   // Determinar el título basado en el estado de búsqueda
   let title = 'Recomendaciones'
   if (isSearching) {
-    title = `Resultados para "${searchTerm}"`
     if (emptyPlaces) {
       title = `No se encontraron resultados para "${searchTerm}"`
+    } else {
+      const resultCount = data.length
+      title =
+        resultCount === 1
+          ? `Se encontró ${resultCount} tour para "${searchTerm}"`
+          : `Se encontraron ${resultCount} tours para "${searchTerm}"`
     }
   } else if (emptyPlaces) {
     title = 'No hay tours disponibles...'
@@ -55,17 +76,17 @@ const Body = () => {
   }
 
   return (
-    <div className="tours_body-container">
+    <div className="home_body-container">
       <h1 className="title">{title}</h1>
 
-      <div className="tours_body-content">
+      <div className="home_body-content">
         {loading ? (
           <div className="grid content-center gap-8">
             <Spinner classNames={{ label: 'text-foreground mt-4' }} label="Cargando" variant="wave" />
           </div>
         ) : success ? (
           <>
-            <div className="tours_body-grid">
+            <div className="home_body-grid">
               {data.slice(0, visibleItems).map(place => (
                 <CardMain key={place.id} data={place} />
               ))}

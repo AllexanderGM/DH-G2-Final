@@ -42,4 +42,19 @@
       @apply text-6xl text-primary opacity-70;
     }
   }
+
+  &-count {
+    .material-symbols-outlined {
+      color: #E86C6E;
+      transition: all 0.3s ease;
+
+      &:not(.has-favorites) {
+        font-variation-settings: 'FILL' 0;
+      }
+
+      &.has-favorites {
+        font-variation-settings: 'FILL' 1;
+      }
+    }
+  }
 }

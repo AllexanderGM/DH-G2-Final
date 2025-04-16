@@ -33,8 +33,8 @@ public class TourController {
     }
 
     @GetMapping("/random")
-    public ResponseEntity<?> getAllRandom(@RequestParam(defaultValue = "10") Integer limit) {
-        return ResponseEntity.ok(tourService.getAllRandom(limit));
+    public ResponseEntity<?> getAllRandom() {
+        return ResponseEntity.ok(tourService.getAllRandom());
     }
 
     @GetMapping("/{id}")

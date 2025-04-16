@@ -26,6 +26,15 @@ const getToken = () => {
  * @param {Object} filter - Optional filter parameters
  * @returns {Promise} - Promise with tours data
  */
+export const getAllTours = async filter => {
+  console.log('Fetching all tours con filter:', filter)
+  return await fetchData(`${URL}/tours`)
+}
+
+/**
+ * @param {Object} filter - Optional filter parameters
+ * @returns {Promise} - Promise with tours data
+ */
 export const toursAllRandom = async filter => {
   console.log('Fetching random tours con filter:', filter)
   return await fetchData(`${URL}/tours/random`)
@@ -38,8 +47,7 @@ export const toursAllRandom = async filter => {
  */
 export const getToursByCategory = async categoryTag => {
   try {
-    // Primero obtenemos todos los tours
-    const allTours = await toursAllRandom()
+    const allTours = await getAllTours()
 
     if (!allTours.success || !Array.isArray(allTours.data)) {
       throw new Error('Error al obtener tours')
@@ -77,10 +85,9 @@ export const getToursByCategory = async categoryTag => {
 /**
  * Búsqueda de tours con criterios específicos
  * @param {string} searchTerm - Text to search for
- * @param {Object} advancedParams - Additional search parameters like dates, price range, etc.
  * @returns {Promise} - Promise with filtered tours data
  */
-export const searchTours = async (searchTerm, advancedParams = {}) => {
+export const searchTours = async searchTerm => {
   console.log('Buscando tours con el término:', searchTerm)
   return await toursAllRandom()
 }
@@ -107,7 +114,25 @@ export const createTour = async tourData => {
     console.log('Datos recibidos del formulario:', tourData)
     console.log('Estructura de destination:', tourData.destination)
 
-    // PREPARAMOS LOS DATOS EXACTAMENTE COMO ESPERA EL BACKEND
+    // IMPORTANTE: En el backend, ILocationRepository.findByCountryAndCity tiene los parámetros invertidos
+    // El método está definido como findByCountryAndCity(String city, String country)
+    const countryIsoCode = tourData.destination?.country || ''
+    const cityName = tourData.destination?.city || ''
+    
+    // Obtener el nombre completo del país a partir del código ISO
+    let countryName = ''
+    
+    try {
+      const countriesResponse = await fetch('/data/countries.json')
+      if (countriesResponse.ok) {
+        const countriesData = await countriesResponse.json()
+        countryName = countriesData[countryIsoCode]?.name || countryIsoCode
+      }
+    } catch (error) {
+      console.error('Error obteniendo nombre del país:', error)
+      countryName = countryIsoCode // Fallback: usar el código ISO si no podemos obtener el nombre
+    }
+
     const requestData = {
       name: tourData.name,
       description: tourData.description,
@@ -127,14 +152,13 @@ export const createTour = async tourData => {
       includes: Array.isArray(tourData.includes) ? tourData.includes.map(item => (typeof item === 'string' ? item : item.type)) : [],
 
       destination: {
-        country: tourData.destination?.country || '',
-        city: tourData.destination?.city || ''
+        // El backend espera los campos en el orden normal
+        country: countryName, // Enviamos el nombre completo del país 
+        city: cityName // Enviamos el nombre de la ciudad
       },
 
-      // Hotel debe ser un ID (Long), no un objeto o string
       hotel: typeof tourData.hotel === 'number' ? tourData.hotel : typeof tourData.hotelStars === 'number' ? tourData.hotelStars : 4,
 
-      // Añadimos la sección de disponibilidad
       availability: Array.isArray(tourData.availability)
         ? tourData.availability
         : [
@@ -153,7 +177,6 @@ export const createTour = async tourData => {
       'Content-Type': 'application/json'
     }
 
-    // Solo añadir el header de autorización si hay token y es string
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
     }

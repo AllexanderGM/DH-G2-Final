@@ -18,6 +18,11 @@ function ConfirmReserv() {
   const { user } = useAuth()
   const { tour, availability } = location.state || {}
 
+  // Scroll al inicio cuando el componente se monta
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   const [loading, setLoading] = useState(!tour && !!id)
   const [error, setError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -605,24 +610,24 @@ function ConfirmReserv() {
                 )}
 
                 {/* Cupos disponibles */}
-                <div className="mt-2 text-sm text-gray-600 flex items-center gap-1">
-                  <Users size={14} className="text-primary" />
-                  <span className="font-medium">Cupos disponibles:</span>
+                <div className="mt-2 text-sm text-gray-600 flex flex-col justify-center gap-1">
+                  <span className="font-medium">
+                    <Users size={14} className="text-primary inline-block" /> Cupos disponibles: {availableSlots}
+                  </span>
                   {isCheckingAvailability ? (
                     <span className="text-gray-500 text-xs ml-1">Verificando...</span>
                   ) : (
                     <span>
-                      {availableSlots}
                       <span className="text-xs text-gray-500 ml-1">
-                        {totalSelected > 0 && `(Quedarían: ${remainingAfterSelection} cupos después de tu selección)`}
+                        {totalSelected > 0 && `(${remainingAfterSelection} cupos después de tu reserva)`}
                       </span>
                     </span>
                   )}
-                  {!isCheckingAvailability && (
+                  {/* {!isCheckingAvailability && (
                     <button onClick={checkLatestAvailability} className="ml-2 text-xs text-primary hover:underline">
                       Actualizar
                     </button>
-                  )}
+                  )} */}
                 </div>
 
                 {/* Mensaje de advertencia cuando quedan pocos cupos (≤ 3) */}
@@ -661,7 +666,7 @@ function ConfirmReserv() {
                   </div>
                   <div className="flex items-center gap-2 mt-2">
                     <Clock size={14} className="text-primary" />
-                    <span className="text-xs text-gray-600">Las fechas y horas son fijas según el itinerario del tour</span>
+                    <span className="text-xs text-gray-600">Fechas y horas pueden cambiar en casos especiales</span>
                   </div>
                 </div>
                 <Divider />

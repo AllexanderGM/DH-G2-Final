@@ -15,7 +15,6 @@ const TableUsers = () => {
   const [users, setUsers] = useState([])
   const { user: currentUser } = useAuth()
 
-  // Estados de la tabla
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
   const [visibleColumns, setVisibleColumns] = useState(new Set(USER_COLUMNS.map(col => col.uid)))
@@ -28,7 +27,6 @@ const TableUsers = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Estados de los modales
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -187,10 +185,10 @@ const TableUsers = () => {
             <User
               avatarProps={{
                 radius: 'lg',
-                src: user.image || 'https://via.placeholder.com/150',
-                alt: `${user.name} ${user.lastName}`
+                src: user.image || 'https://i.pravatar.cc/150',
+                alt: `${user.username} || Usuario`
               }}
-              name={`${user.name} ${user.lastName}`}
+              name={`${user.username}` || 'Usuario'}
             />
           )
         case 'role':
