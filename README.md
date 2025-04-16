@@ -1,30 +1,53 @@
-## Backend
+# Glocal Tours
 
-# Swagger
- - http://localhost:8080/swagger-ui.html
+This backend provides the necessary services to manage tour bookings, user authentication, filters, and CRUD functionalities.
 
-# Endpoints
+## API Documentation (Swagger)
 
- - (POST) http://localhost:8080/paquetes
+- [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
-```json
-     {
-    "nombre":"Machu Picchu",
-    "descripcion": "Viaje cultural, una aventura que incluye visitas a ruinas incas, caminatas por montañas y observación de animales y aves que habitan",
-    "duracion":3,
-    "destino":"Parú",
-    "precio":6000.0,
-    "fechaProgramacion":"2025-10-10",
-    "categoria":"Cultural",
-    "proveedores":[
-        "Hotel 5 estrellas",
-        "Agencia de Viajes y Turismo"
-    ],
-    "imagenes": [
-        "https://i.pinimg.com/736x/72/af/ca/72afcae3b7f498fb166e831d78032e44.jpg",
-        "https://i.pinimg.com/736x/a0/e6/5e/a0e65e336fd8a72e84bc795c94fe81d8.jpg"
-    ]
- }
- ```
- - (GET) http://localhost:8080/paquetes/1
- - (GET) http://localhost:8080/paquetes/aleatorios
+## 🛠 Technologies Used
+
+- Java 21
+- Spring Boot 3.4.2
+- Spring Security (JWT)
+- Hibernate and JPA
+- MySQL 3.8
+- Maven
+
+## 🌍 Available Endpoints
+
+### 🔑 Authentication
+
+- `POST /auth/register` – Register a new user
+- `POST /auth/login` – Authenticate a user
+- `POST /auth/refresh` – Refresh authentication token
+
+### 🏞️ Tours
+
+- `GET /tours/{id}` – Retrieve a tour by ID
+- `PUT /tours/{id}` – Update a tour by ID
+- `DELETE /tours/{id}` – Delete a tour by ID
+- `PUT /tours/{id}/tags` – Update tags for a tour
+- `GET /tours` – Retrieve all tours
+- `POST /tours` – Create a new tour
+- `GET /tours/random` – Retrieve a random tour
+- `GET /tours/paginated` – Retrieve tours with pagination
+- `GET /tours/filter/name` – Filter tours by name
+- `GET /tours/filter/category` – Filter tours by category
+- `GET /tours/filter/advanced` – Advanced tour filtering
+
+### 📅 Bookings
+
+- `GET /bookings` – Retrieve all bookings
+- `POST /bookings` – Create a new booking
+- `GET /bookings/{id}` – Retrieve a booking by ID
+- `DELETE /bookings/{id}` – Delete a booking by ID
+- `GET /bookings/tour/{tourId}` – Retrieve bookings for a specific tour
+- `GET /bookings/historic` – Retrieve booking history
+
+### 📆 Availabilities
+
+- `GET /api/availabilities/tour/{tourId}` – Retrieve availabilities for a specific tour
+- `POST /api/availabilities/tour/{tourId}` – Create availabilities for a specific tour
+- `GET /api/availabilities` – Retrieve all availabilities

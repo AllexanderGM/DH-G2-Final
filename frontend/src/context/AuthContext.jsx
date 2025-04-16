@@ -6,18 +6,26 @@ import { getCurrentUser, isAuthenticated, logout } from '../services/authService
 
 const AuthContext = createContext()
 const cookies = new Cookies()
+const URL = import.meta.env.VITE_URL_BACK || 'http://localhost:8080'
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
+  const isUserAdmin = userObj => {
+    if (!userObj) return false
+
+    return userObj.isAdmin === true || userObj.role === 'admin' || userObj.role === 'ADMIN'
+  }
+
   useEffect(() => {
-    // Comprueba el registro del usuario cuando la App carga
     const checkAuth = () => {
       if (isAuthenticated()) {
         const currentUser = getCurrentUser()
         setUser(currentUser)
+      } else {
+        setUser(null) // Asegurar que user sea null cuando no hay autenticación
       }
       setLoading(false)
     }
@@ -28,34 +36,45 @@ export const AuthProvider = ({ children }) => {
   const handleLogout = () => {
     const token = cookies.get('auth_token')
 
-    fetch('http://localhost:8080/auth/logout', {
+    fetch(`${URL}/auth/logout`, {
       method: 'POST',
-      Authorization: `Bearer ${token}`,
       headers: {
-        'Content-Type': 'application'
-      }
-    }).then(response => {
-      if (response.ok) {
-        logout()
-        setUser(null)
-        navigate('/login')
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     })
+      .then(response => {
+        if (response.ok) {
+          logout()
+          setUser(null)
+          navigate('/')
+        } else {
+          console.error('Logout failed on server, but proceeding with local logout')
+          logout()
+          setUser(null)
+          navigate('/')
+        }
+      })
+      .catch(error => {
+        console.error('Error durante el logout:', error)
+        logout()
+        setUser(null)
+        navigate('/')
+      })
   }
 
-  // Comprueba rol
   const checkRole = requiredRole => {
     if (!user) return false
 
-    if (requiredRole === 'admin') {
-      return user.isAdmin === true || user.role === 'admin'
+    if (requiredRole === 'admin' || requiredRole === 'ADMIN') {
+      return isUserAdmin(user)
     }
 
     return true
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, setUser, logout: handleLogout, isAdmin: user?.isAdmin || false, hasRole: checkRole }}>
+    <AuthContext.Provider value={{ user, loading, setUser, logout: handleLogout, isAdmin: isUserAdmin(user), hasRole: checkRole }}>
       {children}
     </AuthContext.Provider>
   )

@@ -1,5 +1,6 @@
 package com.tours.domain.dto.tour;
 
+import com.tours.domain.dto.tour.availability.AvailabilityRequestDTO;
 import com.tours.infrastructure.entities.tour.StatusTourOptions;
 import com.tours.infrastructure.entities.tour.TagTourOptions;
 import jakarta.validation.Valid;
@@ -31,8 +32,9 @@ public record TourRequestDTO(
         @NotNull(message = "El estado es obligatorio")
         StatusTourOptions status,
 
-        @NotNull(message = "La etiqueta es obligatoria")
-        TagTourOptions tag,
+        @Valid
+        @NotEmpty(message = "Debe haber al menos una etiqueta")
+        List<TagTourOptions> tags,
 
         @NotEmpty(message = "Debe haber al menos un include")
         List<@Valid String> includes,
@@ -40,6 +42,10 @@ public record TourRequestDTO(
         @NotNull(message = "El destino es obligatorio")
         @Valid DestinationRequestDTO destination,
 
-        Long hotel
-) {
+        @PositiveOrZero(message = "El ID del hotel debe ser un número positivo o cero")
+        Long hotel,
+
+        @NotNull(message = "Ingresa la disponibilidad")
+        @Valid List<AvailabilityRequestDTO> availability
+        ) {
 }

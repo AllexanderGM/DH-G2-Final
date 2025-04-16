@@ -1,9 +1,11 @@
 package com.tours.application.controllers;
 
+import com.tours.domain.dto.response.MessageResponseDTO;
 import com.tours.domain.dto.user.UserModifyDTO;
 import com.tours.domain.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,5 +32,24 @@ public class UserController {
     @DeleteMapping("/{email}")
     public ResponseEntity<?> delete(@PathVariable String email) {
         return ResponseEntity.ok(userService.delete(email));
+    }
+
+
+    @PostMapping("/{id}/admin")
+    public ResponseEntity<MessageResponseDTO> assignAdminRole(
+            @RequestHeader("Super-Admin-Email") String superAdminEmail,
+            @PathVariable String id) {
+
+        MessageResponseDTO response = userService.grantAdminRole(superAdminEmail, id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/admin")
+    public ResponseEntity<MessageResponseDTO> removeAdminRole(
+            @RequestHeader("Super-Admin-Email") String superAdminEmail,
+            @PathVariable String id) {
+
+        MessageResponseDTO response = userService.revokeAdminRole(superAdminEmail, id);
+        return ResponseEntity.ok(response);
     }
 }
